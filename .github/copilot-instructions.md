@@ -1,9 +1,8 @@
-# Copilot instructions for maestro-manifests
+# Copilot instructions for Maestro manifests
 
 ## Start here
 
-Maestro's catalog of agents, skills, instructions, MCP servers and presets,
-organised by owner
+Author reviewed capabilities for Maestro in one owner-first catalog.
 
 Paths below are relative to this repository. Before editing, read
 [AGENTS.md](../AGENTS.md) for the rules that bind every change and
