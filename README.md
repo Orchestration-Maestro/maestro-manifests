@@ -34,12 +34,12 @@ kind = "package"
 name = "review"
 version = "1.2.3"
 owners = ["@synthetic/knowledge"]
+maintainers = ["@synthetic/maintainer", "@synthetic/other"]
 description = "Review answers against their evidence."
 status = "active"
 
 [metadata]
 schema = "maestro-source/2"
-owner = "@synthetic/knowledge"
 maturity = "reviewed"
 rows = ["chat.M036 objects"]
 workflows = ["evidence-review"]
@@ -56,7 +56,6 @@ name: cite-evidence
 description: Cite the evidence supporting an answer.
 metadata:
   maestro.schema: maestro-source/2
-  maestro.owner: "@synthetic/knowledge"
   maestro.maturity: reviewed
   maestro.rows: chat.M019 descriptor
   maestro.workflows: evidence-review
@@ -86,18 +85,22 @@ Answer from the knowledge tools and cite their evidence.
 
 ```toml
 schema = "maestro-source/2"
-owner = "@synthetic/knowledge"
 maturity = "reviewed"
 rows = ["chat.M036 objects"]
 workflows = ["evidence-review"]
 requires = []
 ```
 
-These files adapt the checker's synthetic fixtures. Replace the synthetic owner
-with your approved GitHub identity and obtain protected review before using
-`reviewed` maturity. A maturity label is a checked declaration, not review
-approval or runtime permission. `workflows` labels describe usage; only
-`requires` declares dependencies.
+These files adapt the checker's synthetic fixtures. Replace the synthetic area
+principals with approved GitHub identities and obtain protected review before
+using `reviewed` maturity. A maturity label is a checked declaration, not review
+approval or runtime permission.
+
+- `schema`: metadata format version; the checker reads `maestro-source/2`.
+- `maturity`: declared review level; selected resources must be `reviewed`.
+- `rows`: architecture requirement IDs naming the behaviors or objects this resource covers.
+- `workflows`: usage labels naming the workflows this resource serves.
+- `requires`: qualified resource IDs declaring dependencies; usage labels select nothing.
 
 ## 🎯 Objectives
 
@@ -180,27 +183,34 @@ Resource IDs use `kind:namespace/local-name`; area and preset roots use
 Model-card roles are `embedder`, `reranker` and `answerer`; the path role must
 match the kernel-validated identity.
 
-A `package.toml` has a nonempty `owners` list and an optional `maintainers`
-list. Its `[metadata].owner` must belong to `owners`. Package versions are exact
+Ownership comes only from the area's `package.toml`: a nonempty `owners` list
+and optional `maintainers`. Every area record needs owners; a resource cannot
+name its own `owner`, `owners` or `maintainers`. Package versions are exact
 SemVer; a supplied metadata version must agree with the top-level version.
 
 ## 🔒 Rules
 
 The checker refuses the inputs below. Proofs link to Maestro Core at
-[`98c1b86`](https://github.com/Orchestration-Maestro/maestro-core/tree/98c1b86/crates/maestro-catalog).
+[`ad5cf89`](https://github.com/Orchestration-Maestro/maestro-core/tree/ad5cf89/crates/maestro-catalog).
 The `file:line` references are relative to `crates/maestro-catalog/src/source/tests/`.
 
 | Rule | What the checker refuses | Proof |
 | --- | --- | --- |
-| Layout | Nested or unknown areas, unregistered nonempty trees, links and stray resource files | [`nested_or_unknown_area_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/layout.rs#L123), `layout.rs:123`; [`unsupported_kinds_stray_entries_and_links_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/layout.rs#L46), `layout.rs:46` |
-| Native file pairing | An agent name that differs from its stem, or agent/instruction Markdown without its sidecar | [`agent_name_must_equal_its_stem_and_pair_one_sidecar`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/layout.rs#L13), `layout.rs:13` |
-| Source versions | Old or mixed layouts and envelopes other than `maestro-source/2` | [`old_or_mixed_layout_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/qualified.rs#L99), `qualified.rs:99`; [`schema_stage_owner_rows_and_workflows_are_checked`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/schema.rs#L96), `schema.rs:96` |
-| Package versions | A non-exact SemVer or disagreement between package and metadata versions | [`package_fields_and_path_refuse_invalid_neighbours`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/area_packages.rs#L128), `area_packages.rs:128`; [`package_version_overlap_refuses_disagreement`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/area_regressions.rs#L14), `area_regressions.rs:14` |
-| Qualified names | Unqualified or malformed IDs, duplicate full IDs and duplicate area namespaces | [`old_and_malformed_ids_refuse_without_rebinding`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/qualified.rs#L129), `qualified.rs:129`; [`duplicate_kind_namespace_name_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/qualified.rs#L63), `qualified.rs:63`; [`duplicate_area_namespace_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/qualified.rs#L77), `qualified.rs:77` |
-| Dependency layers | Common or standards requiring core; core or languages requiring a team package | [`common_to_core_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L203), `references.rs:203`; [`core_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L256), `references.rs:256`; [`language_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L261), `references.rs:261` |
-| Dependency integrity | Missing resources, cycles and surviving references to a removed package | [`dangling_references_and_tools_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L23), `references.rs:23`; [`dependency_cycles_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L78), `references.rs:78`; [`removed_package_dangling_reference_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L386), `references.rs:386` |
-| Reviewed selection | A selected closure containing placeholder, authored or retired resources | [`closure_members_must_be_reviewed_beside_a_reviewed_neighbour`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/references.rs#L107), `references.rs:107`; [`area_roots_require_reviewed_transitive_members`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/area_regressions.rs#L179), `area_regressions.rs:179` |
-| Ownership record | An empty package `owners` list or a package metadata owner outside that list | [`package_fields_and_path_refuse_invalid_neighbours`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/area_packages.rs#L128), `area_packages.rs:128`; [`package_legacy_owner_must_belong_to_authoritative_owners`](https://github.com/Orchestration-Maestro/maestro-core/blob/98c1b86/crates/maestro-catalog/src/source/tests/area_packages.rs#L274), `area_packages.rs:274` |
+| Layout | Nested or unknown areas, unregistered nonempty trees, links and stray resource files | [`nested_or_unknown_area_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L123), `layout.rs:123`; [`unsupported_kinds_stray_entries_and_links_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L46), `layout.rs:46` |
+| Native file pairing | An agent name that differs from its stem, or agent/instruction Markdown without its sidecar | [`agent_name_must_equal_its_stem_and_pair_one_sidecar`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L13), `layout.rs:13` |
+| Source versions | Old or mixed layouts and envelopes other than `maestro-source/2` | [`old_or_mixed_layout_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L107), `qualified.rs:107`; [`schema_stage_owner_rows_and_workflows_are_checked`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/schema.rs#L96), `schema.rs:96` |
+| Package versions | A non-exact SemVer or disagreement between package and metadata versions | [`package_fields_and_path_refuse_invalid_neighbours`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_packages.rs#L128), `area_packages.rs:128`; [`package_version_overlap_refuses_disagreement`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_regressions.rs#L14), `area_regressions.rs:14` |
+| Qualified names | Unqualified or malformed IDs, duplicate full IDs and duplicate area namespaces | [`old_and_malformed_ids_refuse_without_rebinding`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L137), `qualified.rs:137`; [`duplicate_kind_namespace_name_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L71), `qualified.rs:71`; [`duplicate_area_namespace_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L85), `qualified.rs:85` |
+| Dependency layers | Common or standards requiring core; core or languages requiring a team package | [`common_to_core_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L167), `layer_placements.rs:167`; [`core_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L230), `layer_placements.rs:230`; [`language_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L235), `layer_placements.rs:235` |
+| Dependency integrity | Missing resources, cycles and surviving references to a removed package | [`dangling_references_and_tools_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L23), `references.rs:23`; [`dependency_cycles_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L78), `references.rs:78`; [`removed_package_dangling_reference_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L275), `references.rs:275` |
+| Reviewed selection | A selected closure containing placeholder, authored or retired resources | [`closure_members_must_be_reviewed_beside_a_reviewed_neighbour`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L107), `references.rs:107`; [`area_roots_require_reviewed_transitive_members`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_regressions.rs#L182), `area_regressions.rs:182` |
+| Ownership record | An area record without owners, or invalid or duplicate owner/maintainer principals | [`area_owners_maintainers_validate`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L13), `ownership.rs:13`; [`registered_area_requires_ownership_record`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_ownership.rs#L14), `area_ownership.rs:14` |
+| Resource ownership | Resource-level `owner`, `owners` or `maintainers`, with a diagnostic pointing to the area's `package.toml` | [`resource_ownership_is_derived`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L76), `ownership.rs:76`; [`legacy_owner_missing_maturity_points_to_area`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L454), `ownership.rs:454` |
+| Review protection | A later matching rule that removes owners-only protection from a protected path | [`broad_codeowners_rule_cannot_override_descriptor`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L167), `ownership.rs:167`; [`last_match_reprotection_accepts`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L399), `ownership.rs:399` |
+
+Owners-only protection follows the last matching review rule. A later
+owners-only rule can restore protection; repairing one file does not protect
+an entire tree.
 
 Checking a declaration does not execute its content, grant permission or approve
 its publisher. Protected review and runtime authorization are separate controls.
