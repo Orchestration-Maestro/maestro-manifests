@@ -1,211 +1,229 @@
-# Maestro manifests
+<p align="center">
+  <img src=".github/assets/maestro-manifests.jpg" alt="Maestro Manifests: Declare once. Govern everywhere. A copper seal press above a glowing mold in a pattern vault." width="100%" />
+</p>
 
-Author reviewed capabilities for Maestro in one owner-first catalog.
+<h1 align="center">🧭 Maestro Manifests</h1>
 
-**Status:** layout approved on 2026-09-30; this repository contains documentation
-and the MIT licence only. The tree below is the target `maestro-source/2` layout,
-not installed content. The seed waits for the checker migration. QA is an
-example, delivery arrives with its workflow, collections await S6, and model
-cards require owner-approved identities. No vendor or private content lives here.
+<p align="center">
+  <strong>Declare once. Govern everywhere.</strong><br />
+  Maestro's organization configuration and capability marketplace: one owner-first catalog of workspace resources.
+</p>
 
-## Layout
+<p align="center">
+  <img src="https://img.shields.io/badge/Schema-maestro--source%2F2-C98C62?style=for-the-badge" alt="Schema: maestro-source/2" />
+  <img src="https://img.shields.io/badge/Catalog-owner--first-080A0D?style=for-the-badge" alt="Owner-first catalog" />
+  <img src="https://img.shields.io/badge/Format-TOML%20%2B%20Markdown-C98C62?style=for-the-badge" alt="TOML and Markdown" />
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/Licence-MIT-F3E9DC" alt="MIT licence" /></a>
+</p>
+
+## ⚡ Quick start
+
+Declare an evidence-review capability in four files under
+`capabilities/practice/review/`. The package selects its resources by qualified
+ID; a directory name alone selects nothing.
+
+### 1. Declare the package
+
+`capabilities/practice/review/package.toml`:
+
+```toml
+kind = "package"
+name = "review"
+version = "1.2.3"
+owners = ["@synthetic/knowledge"]
+maintainers = ["@synthetic/maintainer", "@synthetic/other"]
+description = "Review answers against their evidence."
+status = "active"
+
+[metadata]
+schema = "maestro-source/2"
+maturity = "reviewed"
+rows = ["chat.M036 objects"]
+workflows = ["evidence-review"]
+requires = ["skill:review/cite-evidence", "instructions:review/evidence"]
+```
+
+### 2. Add the skill
+
+`capabilities/practice/review/skills/cite-evidence/SKILL.md`:
+
+```markdown
+---
+name: cite-evidence
+description: Cite the evidence supporting an answer.
+metadata:
+  maestro.schema: maestro-source/2
+  maestro.maturity: reviewed
+  maestro.rows: chat.M019 descriptor
+  maestro.workflows: evidence-review
+---
+
+Cite every answer with the evidence passage it rests on.
+```
+
+A skill keeps its Maestro metadata inside `SKILL.md`. List-valued metadata uses
+strings separated by `;`, not YAML arrays.
+
+### 3. Add the instructions
+
+`capabilities/practice/review/instructions/evidence.instructions.md`:
+
+```markdown
+---
+applyTo: "**"
+---
+
+Answer from the knowledge tools and cite their evidence.
+```
+
+### 4. Pair the instruction sidecar
+
+`capabilities/practice/review/instructions/evidence.maestro.toml`:
+
+```toml
+schema = "maestro-source/2"
+maturity = "reviewed"
+rows = ["chat.M036 objects"]
+workflows = ["evidence-review"]
+requires = []
+```
+
+These files adapt the checker's synthetic fixtures. Replace the synthetic area
+principals with approved GitHub identities and obtain protected review before
+using `reviewed` maturity. A maturity label is a checked declaration, not review
+approval or runtime permission.
+
+- `schema`: metadata format version; the checker reads `maestro-source/2`.
+- `maturity`: declared review level; selected resources must be `reviewed`.
+- `rows`: architecture requirement IDs naming the behaviors or objects this resource covers.
+- `workflows`: usage labels naming the workflows this resource serves.
+- `requires`: qualified resource IDs declaring dependencies; usage labels select nothing.
+
+## 🎯 Objectives
+
+- **Declare once:** keep native resource content and its checked metadata together.
+- **Owner-first:** group common, framework, language, standard and team resources by area.
+- **Reviewed before use:** admit only reviewed members to a selected dependency closure.
+- **Replaceable:** select explicit qualified IDs; removing a package exposes its dependants.
+- **Data, not code:** descriptors define formats; reviewed checker hooks supply validation.
+
+## 🗂 Layout
+
+Catalog paths follow the owning area. This example uses the same `review`
+package as the quick start:
 
 ```text
 maestro-manifests/
+├── package.toml                            # package:common
+├── skills/<name>/SKILL.md
 ├── core/
-│   ├── capability.toml
-│   ├── agents/{maestro.agent.md,maestro.maestro.toml}
-│   ├── skills/knowledge-evidence/SKILL.md
-│   ├── instructions/{knowledge.instructions.md,knowledge.maestro.toml}
-│   ├── mcp/maestro.toml
-│   └── model-cards/<approved-card>.toml
-├── capabilities/engineering/qa/             # example, not seed content
-│   ├── capability.toml
-│   ├── agents/{reviewer.agent.md,reviewer.maestro.toml}
-│   ├── skills/test-planning/SKILL.md
-│   ├── instructions/{quality.instructions.md,quality.maestro.toml}
-│   ├── mcp/test-runner.toml
-│   └── knowledge/collections/qa-public/collection.toml
-├── capabilities/engineering/rust/
-│   ├── capability.toml
-│   └── instructions/{rust.instructions.md,rust.maestro.toml}
-├── capabilities/engineering/delivery/       # optional feature-delivery workflow
-│   ├── capability.toml
-│   ├── workflows/feature-delivery/workflow.md
-│   └── agents/                             # required delivery roles only
-├── capabilities/orchestration/application-workflow/
-│   ├── capability.toml
-│   └── knowledge/collections/              # private mount awaits S6
-├── presets/{knowledge-client.toml,rust-service.toml,qa.toml}
-├── bootstrap/{core.toml,rust.toml}          # template inventories, not presets
-├── bootstrap/core/.github/copilot-instructions.md
-├── bootstrap/rust/.maestro/recipes.json
-├── settings/README.md                      # S1 settings reference only
-├── docs/standards/{engineering.md,security.md}
-└── {CODEOWNERS,README.md,LICENSE}           # CODEOWNERS is generated
+│   ├── package.toml                        # package:core
+│   ├── agents/{<name>.agent.md,<name>.maestro.toml}
+│   ├── skills/<name>/SKILL.md
+│   ├── instructions/{<name>.instructions.md,<name>.maestro.toml}
+│   └── llm/models/<role>/<name>.toml
+├── languages/<language>/
+│   ├── package.toml                        # language:<language>
+│   ├── skills/<name>/SKILL.md
+│   └── instructions/{<name>.instructions.md,<name>.maestro.toml}
+├── standards/<domain>/
+│   ├── package.toml                        # standard:<domain>
+│   ├── skills/<name>/SKILL.md
+│   └── instructions/{<name>.instructions.md,<name>.maestro.toml}
+├── capabilities/<group>/review/
+│   ├── package.toml                        # package:review
+│   ├── agents/{<name>.agent.md,<name>.maestro.toml}
+│   ├── skills/cite-evidence/SKILL.md
+│   ├── instructions/{evidence.instructions.md,evidence.maestro.toml}
+│   └── llm/models/<role>/<name>.toml
+└── presets/<name>.toml
 ```
 
-Braces mean separate files. Omit unused directories; do not create empty roles.
-Every owner root supports `agents/`, `skills/`, `instructions/`, `mcp/` and
-`knowledge/`. A folder does not register a resource kind: unsupported nonempty
-subtrees refuse until their descriptor exists. Later workflows, contracts,
-policies, profiles, hooks and evaluations follow their owner too.
+Braces mean separate files. Omit unused directories. Group folders provide
+navigation, not inherited ownership. Area namespaces are globally unique;
+moving a package between groups preserves its IDs.
 
 ### What each root holds
 
 | Root | Responsibility |
 | --- | --- |
-| `core/` | Only resources every install needs: Maestro, common knowledge resources, shared policies, the hook and Maestro's agent-session profiles. The canonical persona/system prompt is `core/agents/maestro.agent.md`, with its sidecar; it is not hard-coded in the runtime |
-| `capabilities/<domain>/<capability>/` | One self-contained optional capability, with its owner record and resources together. Rust instructions stay with Rust; delivery roles stay with delivery; the generic application workflow, answer contract and evaluation stay with application-workflow |
-| `presets/` | Global named selections of exact capability IDs, plus optional template-inventory names. A knowledge-client selection must not carry optional delivery roles |
-| `bootstrap/` | Explicit inert template inventories and their files. `core.toml`/`rust.toml` are inventories, not a second set of presets; distinct inventories cannot overwrite one output |
-| `docs/`, `settings/` and governance files | Public standards and generated ownership. `settings/README.md` explains the shared S1 registry; it is not another settings schema or authority |
+| Root `package.toml` and `skills/` | The `common` area: shared procedures and its ownership record |
+| `core/` | Framework agents, skills, instructions and model cards under `package:core` |
+| `languages/<language>/` | A language's ownership record, skills and instructions; selected as `language:<language>` |
+| `standards/<domain>/` | A standard domain's ownership record, skills and instructions; selected as `standard:<domain>` |
+| `capabilities/<group>/<name>/` | One self-contained team package, with its ownership record and resources together |
+| `presets/` | Named selections with qualified `requires`, optional inventory selectors and checked settings |
 
-The private overlay is a separate source outside this repository, not another
-public root or a folder copied into a release.
+Public catalog content stays separate from private inputs. No private or vendor
+content belongs in this repository.
 
-## Identity and selection
+## 🧩 Resource kinds
 
-Resource IDs are typed and owner-qualified:
+Paths below are relative to the owning area, except presets. `common` and `core`
+are reserved area names; each language, standard and team package has its own
+namespace.
 
-- `agent:core/maestro`
-- `skill:qa/test-planning`
-- `instructions:rust/rust`
-- `mcp:qa/test-runner`
+| Kind | File | Maestro metadata | ID |
+| --- | --- | --- | --- |
+| Package | `package.toml` at the root, in `core/` or in a team package | `[metadata]` in the file | `package:common`, `package:core`, `package:review` |
+| Language | `languages/<name>/package.toml`, `kind = "language"` | `[metadata]` in the file | `language:rust` |
+| Standard | `standards/<name>/package.toml`, `kind = "standard"` | `[metadata]` in the file | `standard:security` |
+| Agent | `agents/<name>.agent.md` in core or a team package | `<name>.maestro.toml` beside it | `agent:core/maestro` |
+| Skill | `skills/<name>/SKILL.md` in any area | `metadata.maestro.*` strings inside `SKILL.md`; no sidecar | `skill:review/cite-evidence` |
+| Instructions | `instructions/<name>.instructions.md` in core, team, language or standard areas | `<name>.maestro.toml` beside it | `instructions:review/evidence` |
+| Model card | `llm/models/<role>/<name>.toml` in core or a team package | `[metadata]` in the file | `model-card:core/search-encoder` |
+| Preset | `presets/<name>.toml` | `[metadata]` in the file | `preset:knowledge-client` |
 
-Owner closure roots use `capability:core` or `capability:qa`; global presets use
-`preset:knowledge-client`. Reserve `core`. Each capability leaf is globally
-unique across domains: two domains cannot both own `qa`. A domain move preserves
-IDs, but changes source paths and therefore needs a fresh authoring preview.
-Each segment uses lowercase hyphenated names, at most 64 characters.
+Source agent and skill `name` stays local and matches its file stem or directory.
+Resource IDs use `kind:namespace/local-name`; area and preset roots use
+`kind:name`. Each segment is lowercase and hyphenated, at most 64 characters.
+Model-card roles are `embedder`, `reranker` and `answerer`; the path role must
+match the kernel-validated identity.
 
-Source agent/skill `name` stays local and matches its file stem/directory.
-Same local names under different owners are valid; duplicate full IDs, source
-paths, namespaces or descriptor placements are not, even for identical bytes.
-There are no basename aliases.
+Ownership comes only from the area's `package.toml`: a nonempty `owners` list
+and optional `maintainers`. Every area record needs owners; a resource cannot
+name its own `owner`, `owners` or `maintainers`. Package versions are exact
+SemVer; a supplied metadata version must agree with the top-level version.
 
-Every selection includes reviewed `capability:core` once, with reviewed
-`agent:core/maestro`. Presets require capability roots, never directory globs.
-Selection does not execute workflows, launch MCP servers, crawl collections or
-grant runtime permission. Maturity and ownership are checked declarations;
-protected review and runtime authorization remain separate controls.
+## 🔒 Rules
 
-## Segregation rules
+The checker refuses the inputs below. Proofs link to Maestro Core at
+[`ad5cf89`](https://github.com/Orchestration-Maestro/maestro-core/tree/ad5cf89/crates/maestro-catalog).
+The `file:line` references are relative to `crates/maestro-catalog/src/source/tests/`.
 
-These are checker/CI requirements, not optional filing conventions.
+| Rule | What the checker refuses | Proof |
+| --- | --- | --- |
+| Layout | Nested or unknown areas, unregistered nonempty trees, links and stray resource files | [`nested_or_unknown_area_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L123), `layout.rs:123`; [`unsupported_kinds_stray_entries_and_links_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L46), `layout.rs:46` |
+| Native file pairing | An agent name that differs from its stem, or agent/instruction Markdown without its sidecar | [`agent_name_must_equal_its_stem_and_pair_one_sidecar`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layout.rs#L13), `layout.rs:13` |
+| Source versions | Old or mixed layouts and envelopes other than `maestro-source/2` | [`old_or_mixed_layout_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L107), `qualified.rs:107`; [`schema_stage_owner_rows_and_workflows_are_checked`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/schema.rs#L96), `schema.rs:96` |
+| Package versions | A non-exact SemVer or disagreement between package and metadata versions | [`package_fields_and_path_refuse_invalid_neighbours`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_packages.rs#L128), `area_packages.rs:128`; [`package_version_overlap_refuses_disagreement`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_regressions.rs#L14), `area_regressions.rs:14` |
+| Qualified names | Unqualified or malformed IDs, duplicate full IDs and duplicate area namespaces | [`old_and_malformed_ids_refuse_without_rebinding`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L137), `qualified.rs:137`; [`duplicate_kind_namespace_name_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L71), `qualified.rs:71`; [`duplicate_area_namespace_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/qualified.rs#L85), `qualified.rs:85` |
+| Dependency layers | Common or standards requiring core; core or languages requiring a team package | [`common_to_core_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L167), `layer_placements.rs:167`; [`core_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L230), `layer_placements.rs:230`; [`language_to_team_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/layer_placements.rs#L235), `layer_placements.rs:235` |
+| Dependency integrity | Missing resources, cycles and surviving references to a removed package | [`dangling_references_and_tools_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L23), `references.rs:23`; [`dependency_cycles_are_refused`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L78), `references.rs:78`; [`removed_package_dangling_reference_refuses`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L275), `references.rs:275` |
+| Reviewed selection | A selected closure containing placeholder, authored or retired resources | [`closure_members_must_be_reviewed_beside_a_reviewed_neighbour`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/references.rs#L107), `references.rs:107`; [`area_roots_require_reviewed_transitive_members`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_regressions.rs#L182), `area_regressions.rs:182` |
+| Ownership record | An area record without owners, or invalid or duplicate owner/maintainer principals | [`area_owners_maintainers_validate`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L13), `ownership.rs:13`; [`registered_area_requires_ownership_record`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/area_ownership.rs#L14), `area_ownership.rs:14` |
+| Resource ownership | Resource-level `owner`, `owners` or `maintainers`, with a diagnostic pointing to the area's `package.toml` | [`resource_ownership_is_derived`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L76), `ownership.rs:76`; [`legacy_owner_missing_maturity_points_to_area`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L454), `ownership.rs:454` |
+| Review protection | A later matching rule that removes owners-only protection from a protected path | [`broad_codeowners_rule_cannot_override_descriptor`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L167), `ownership.rs:167`; [`last_match_reprotection_accepts`](https://github.com/Orchestration-Maestro/maestro-core/blob/ad5cf89/crates/maestro-catalog/src/source/tests/ownership.rs#L399), `ownership.rs:399` |
 
-| Rule | Required check |
-| --- | --- |
-| Separate roots | Keep core, each capability, shared roots and private inputs separate. Refuse misplaced resources, nested owners, unsupported nonempty subtrees, links and path escapes |
-| Exactly one owner | Each owner root has one `capability.toml` with one approved GitHub user/team, matching namespace, schema, maturity, rows, workflow labels and exact entry requirements. Resource owner fields must match that record |
-| Declared dependencies only | Every local or cross-owner resource edge uses a typed qualified ID in `requires`. No cross-root file paths or includes. Capabilities may require core or each other explicitly; core never requires a capability |
-| Core holds only shared needs | A resource under `core/` must be required by every shipped preset through that preset's forward `requires` closure. Refuse a core resource that some preset does not need, naming the resource and each such preset; core still never requires a capability |
-| Removable as one folder | Deleting a capability must expose all surviving dangling references as errors. After its dependants are explicitly changed, unrelated selections still pass; never silently substitute another owner's local name |
-| Additive private overlay | Refuse public/core replacement or shadowing, duplicate paths/IDs, owner/trust overrides and public presets whose transitive closure requires a private ID. Missing private input must not disable public presets |
-| Generated ownership | Generate anchored CODEOWNERS per owner root, deriving shared-root/governance rules from core's same owner record. CI regenerates and refuses any drift, including stale removed-capability rules |
+Owners-only protection follows the last matching review rule. A later
+owners-only rule can restore protection; repairing one file does not protect
+an entire tree.
 
-Workflow labels describe usage, never dependencies, selection or permission.
-Core resources and its owner manifest may omit `workflows` or use an empty list;
-any label they do carry must name a core workflow, never a capability workflow.
-The minimal seed has no core workflow. Capabilities declare their forward
-`requires` instead of adding reverse labels to core, so removing a capability
-leaves core valid and unchanged. Capability resources keep namespaced usage
-labels; graph checks derive required resources from declared closures.
+Checking a declaration does not execute its content, grant permission or approve
+its publisher. Protected review and runtime authorization are separate controls.
 
-Preset `templates` is the sole shared-root inventory selector. It accepts only
-inventory names such as `core` and `rust`, never paths/includes. Each inventory
-reads explicit files only inside its declared `bootstrap/` directory. This is
-not a resource dependency or an exception for owner-root references, and it
-adds no template resource kind.
+## 📚 Documentation
 
-## Add a capability: QA
-
-Use this sequence **after the `/2` checker migration**. Add only resources with
-a real workflow need; this README does not authorize a QA seed or new kinds.
-
-1. Create `capabilities/engineering/qa/capability.toml`. Declare namespace `qa`,
-   one approved owner, `maestro-source/2`, honest maturity, architecture rows,
-   namespaced workflow labels and exact qualified entry `requires`.
-2. Add the needed local resources: `agents/reviewer.agent.md` and its
-   `reviewer.maestro.toml`, `skills/test-planning/SKILL.md`, and
-   `instructions/quality.instructions.md` with `quality.maestro.toml`.
-   Keep the six agent sections: Purpose, Responsibilities, Inputs, Working
-   sequence, Outputs, Boundaries. Skill metadata stays inside `SKILL.md`.
-3. Declare resource dependencies such as `skill:qa/test-planning` and
-   `instructions:qa/quality` in `requires`. Add `presets/qa.toml` requiring
-   `capability:qa`; use `templates = ["core"]` only if that preset needs the
-   core inventory. Do not point to another root's files.
-4. Generate CODEOWNERS from the approved owner records. Run the migrated
-   checker and drift check below, then obtain protected owner review. A label
-   alone is not review evidence; missing approved owner identity blocks content.
-5. Test deletion of the QA folder in a disposable fixture. A remaining
-   `capability:qa` reference must refuse; core and other independent selections
-   must still pass when the QA dependants are explicitly removed.
-
-With `MANIFESTS` set to the reviewed checkout, the planned commands are:
-
-```sh
-maestro catalog codeowners --catalog-dir "$MANIFESTS" > "$MANIFESTS/CODEOWNERS"
-maestro catalog check --catalog-dir "$MANIFESTS"
-maestro catalog codeowners --catalog-dir "$MANIFESTS" --check
-```
-
-Generation prints rules; `--check` refuses drift without writing. These commands
-do not configure GitHub protection or approve their own owner identities.
-
-## Register an MCP server
-
-One server is **one file plus one qualified dependency reference**, not a Rust
-change or a new plugin.
-
-1. Add `capabilities/engineering/qa/mcp/test-runner.toml` with the supported MCP
-   fields, common metadata, the QA owner mirror and explicit allowed tools.
-   Use named credential bindings, never credentials or machine-specific paths.
-2. Add `mcp:qa/test-runner` to the consuming agent or capability's `requires`.
-   An agent using it names `qa/test-runner` in `mcp-servers` and
-   `qa/test-runner/run_tests` in its tools; the checker verifies the approved
-   server/tool and its declared requirement. It splits the tool at the last slash.
-3. Check the catalog. Projection maps names, paths and references together to
-   host-safe aliases and refuses length/normalization collisions and user
-   shadows. Native agent alias `maestro` is reserved for core. Registration
-   itself never launches the server or authorizes a tool call.
-
-## Private collections plug in from outside
-
-S6 supplies an explicit opt-in additive source adapter, not a second public
-catalog or a last-wins overlay. A private source can provide:
-
-```text
-ctm-collection/catalog/
-├── presets/ctm-private.toml
-└── capabilities/orchestration/application-workflow/
-    └── knowledge/collections/ctm/collection.toml
-```
-
-The private preset requires `capability:application-workflow` and
-`collection:application-workflow/ctm`. The public capability owns the subtree;
-the private source cannot replace its `capability.toml` or authorize its own
-publisher. Pin both source identities, revisions and digests; check public alone
-first, then combined inputs under aggregate limits and source-aware diagnostics
-and locks. A missing or unauthorized overlay disables only private selection.
-Public CI and releases never fetch, package or index private inputs.
-
-The private descriptor carries URL approval rules, versions/types, crawl bounds
-and credential/storage binding references, not corpus/evidence bytes. Empty URL
-approval means no fetch. S6 must check seeds, discovered links and every redirect;
-exclusions win. Keep admitted originals and URL/version/digest/transformation
-provenance privately. This layout authorizes no crawler, private access,
-relevance-based passage deletion or deletion of existing evidence. Checking is
-offline, installation does not crawl, and runtime collection ACLs remain separate.
-
-## Migration boundary
-
-The target contracts are `maestro-source/2`, `maestro-cli/catalog-check/2`,
-`maestro-project/2` and `maestro-authoring-lock/2`, with incremented changed
-source-descriptor versions. Reject old or mixed layouts with a migration
-diagnostic. Old source-bound locks need a fresh preview, not silent rebinding.
-Kernel model-card identities and the S1 preference schema do not change.
+- [Agent instructions and repository boundaries](AGENTS.md)
+- [Engineering rules](docs/standards/engineering.md)
+- [Security rules](docs/standards/security.md)
+- [Quality targets](docs/standards/northstar.md)
+- [Banner credits](.github/assets/CREDITS.md)
 
 ## Licence
 
-[MIT](LICENSE).
+[MIT](LICENSE). Third-party artwork and font terms are documented in the
+[banner credits](.github/assets/CREDITS.md).

@@ -1,8 +1,10 @@
-# Copilot instructions for Maestro manifests
+# Copilot instructions for maestro-manifests
 
 ## Start here
 
-Author reviewed capabilities for Maestro in one owner-first catalog.
+Declare an evidence-review capability in four files under
+`capabilities/practice/review/`. The package selects its resources by qualified
+ID; a directory name alone selects nothing.
 
 Paths below are relative to this repository. Before editing, read
 [AGENTS.md](../AGENTS.md) for the rules that bind every change and
@@ -29,6 +31,9 @@ in place.
 ```text
 .                                               # Repository root
 ├── .github/                                    # GitHub metadata, templates and workflows
+│   ├── assets/                                 # Images and other assets
+│   │   ├── CREDITS.md                          # Banner credits
+│   │   └── maestro-manifests.jpg               # Maestro Manifests: Declare once
 │   ├── copilot-instructions.md                 # This guide, written by rust-gate guide at every commit
 │   └── dependabot.yml                          # The organization merges only conventional titles: "ci(deps): bump ..."; rendered by rust-gate sync
 ├── docs/                                       # Documentation
