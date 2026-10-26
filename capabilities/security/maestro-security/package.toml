@@ -1,0 +1,21 @@
+kind = "package"
+name = "maestro-security"
+version = "0.1.0"
+owners = ["@Orchestration-Maestro"]
+description = "Autonomous security assessments: one runner, one pipeline, nine tools."
+status = "active"
+
+[metadata]
+schema = "maestro-source/2"
+maturity = "reviewed"
+rows = ["chat.M031 security", "delivery.C08 explicit instructions and skills with provenance"]
+workflows = ["security-assessment"]
+requires = [
+  "agent:maestro-security/security",
+  "agent:maestro-security/security-probe",
+  "agent:maestro-security/security-proof",
+  "agent:maestro-security/security-rebuild",
+  "agent:maestro-security/security-cyber",
+  "instructions:maestro-security/security-assessment",
+  "skill:maestro-security/security-assessment",
+]

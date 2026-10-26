@@ -1,0 +1,5 @@
+schema = "maestro-source/2"
+maturity = "reviewed"
+rows = ["delivery.C08 explicit instructions and skills with provenance"]
+workflows = ["security-assessment"]
+requires = []

@@ -1,0 +1,5 @@
+schema = "maestro-source/2"
+maturity = "reviewed"
+rows = ["chat.M006 roles, M023 step 12"]
+workflows = ["security-assessment"]
+requires = []

@@ -29,25 +29,46 @@ every commit and keeps each explanation already here, so improve an explanation
 in place.
 
 ```text
-.                                               # Repository root
-├── .github/                                    # GitHub metadata, templates and workflows
-│   ├── assets/                                 # Images and other assets
-│   │   ├── CREDITS.md                          # Banner credits
-│   │   └── maestro-manifests.jpg               # Maestro Manifests: Declare once
-│   ├── copilot-instructions.md                 # This guide, written by rust-gate guide at every commit
-│   └── dependabot.yml                          # The organization merges only conventional titles: "ci(deps): bump ..."; rendered by rust-gate sync
-├── docs/                                       # Documentation
-│   └── standards/                              # Standards
-│       ├── engineering.md                      # Engineering rules in maestro-manifests
-│       ├── northstar.md                        # Northstar for maestro-manifests
-│       └── security.md                         # Security rules in maestro-manifests
-├── .editorconfig                               # Editor settings that survive the editor; rendered by rust-gate sync
-├── .gitattributes                              # How Git should treat each kind of file; rendered by rust-gate sync
-├── .pre-commit-config.yaml                     # The commit hooks prek runs locally and CI runs over every file; rendered by rust-gate sync
-├── AGENTS.md                                   # Rules for coding agents: what to read, what never to weaken, how to verify
-├── LICENSE                                     # The licence this repository is distributed under
-├── README.md                                   # maestro-manifests
-└── typos.toml                                  # The words this repository means, from [typos] words in maestro-quality.toml; rendered by rust-gate sync
+.                                                        # Repository root
+├── .github/                                             # GitHub metadata, templates and workflows
+│   ├── assets/                                          # Images and other assets
+│   │   ├── CREDITS.md                                   # Banner credits
+│   │   └── maestro-manifests.jpg                        # Maestro Manifests: Declare once
+│   ├── copilot-instructions.md                          # This guide, written by rust-gate guide at every commit
+│   └── dependabot.yml                                   # The organization merges only conventional titles: "ci(deps): bump ..."; rendered by rust-gate sync
+├── capabilities/                                        # Capabilities
+│   └── security/                                        # Security
+│       └── maestro-security/                            # Maestro security
+│           ├── agents/                                  # Agents
+│           │   ├── security-cyber.agent.md              # Models threats and reports what the run proved
+│           │   ├── security-cyber.maestro.toml          # TOML settings: security cyber.maestro
+│           │   ├── security-probe.agent.md              # Recons a target and models it before any hypothesis is tested
+│           │   ├── security-probe.maestro.toml          # TOML settings: security probe.maestro
+│           │   ├── security-proof.agent.md              # Proves or refutes findings and keeps the evidence honest
+│           │   ├── security-proof.maestro.toml          # TOML settings: security proof.maestro
+│           │   ├── security-rebuild.agent.md            # Turns proven findings into fixes and disclosure packages
+│           │   ├── security-rebuild.maestro.toml        # TOML settings: security rebuild.maestro
+│           │   ├── security.agent.md                    # Runs autonomous security assessments and owns the run lifecycle
+│           │   └── security.maestro.toml                # TOML settings: security.maestro
+│           ├── instructions/                            # Instructions
+│           │   ├── security-assessment.instructions.md  # Treat a security assessment as one target at a time, started only by the user through /maestro-security or one of its transports
+│           │   └── security-assessment.maestro.toml     # TOML settings: security assessment.maestro
+│           ├── skills/                                  # Skills
+│           │   └── security-assessment/                 # Security assessment
+│           │       └── SKILL.md                         # Run one autonomous security assessment from doctor to disclosure
+│           └── package.toml                             # TOML settings: package
+├── docs/                                                # Documentation
+│   └── standards/                                       # Standards
+│       ├── engineering.md                               # Engineering rules in maestro-manifests
+│       ├── northstar.md                                 # Northstar for maestro-manifests
+│       └── security.md                                  # Security rules in maestro-manifests
+├── .editorconfig                                        # Editor settings that survive the editor; rendered by rust-gate sync
+├── .gitattributes                                       # How Git should treat each kind of file; rendered by rust-gate sync
+├── .pre-commit-config.yaml                              # The commit hooks prek runs locally and CI runs over every file; rendered by rust-gate sync
+├── AGENTS.md                                            # Rules for coding agents: what to read, what never to weaken, how to verify
+├── LICENSE                                              # The licence this repository is distributed under
+├── README.md                                            # maestro-manifests
+└── typos.toml                                           # The words this repository means, from [typos] words in maestro-quality.toml; rendered by rust-gate sync
 ```
 
 ## Change and verification procedure
