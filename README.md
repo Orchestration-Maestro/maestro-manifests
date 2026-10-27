@@ -218,6 +218,8 @@ its publisher. Protected review and runtime authorization are separate controls.
 ## 📚 Documentation
 
 - [Agent instructions and repository boundaries](AGENTS.md)
+- [Manifest glossary](CONTEXT.md)
+- [Development checks and releases](docs/development.md)
 - [Engineering rules](docs/standards/engineering.md)
 - [Security rules](docs/standards/security.md)
 - [Quality targets](docs/standards/northstar.md)
