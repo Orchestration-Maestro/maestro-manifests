@@ -1,0 +1,12 @@
+name: Issue 19 content proof
+
+on:
+  push:
+    branches: [ci/19-proof-1]
+
+permissions:
+  contents: read
+
+jobs:
+  content:
+    uses: Orchestration-Maestro/maestro-rust-workflows/.github/workflows/content.yml@aa4aa3a0f4f308f912951c226421dfbad39dcb78 # v0.16.0
