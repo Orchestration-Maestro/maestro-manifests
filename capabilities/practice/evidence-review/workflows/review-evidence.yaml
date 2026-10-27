@@ -1,0 +1,7 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: review-evidence
+description: Check factual claims against sources with the evidence-reviewer role
+chain:
+  - agent: evidence-reviewer
+    task: "Check the claims and cited source passages supplied here; return a corrected answer with citations and any evidence gaps: $@"

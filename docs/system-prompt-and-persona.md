@@ -1,0 +1,122 @@
+# System prompt and persona
+
+`core/SYSTEM.md` is the manifest's base system prompt. The body of
+`core/agents/maestro.md` is the main agent's persona, appended to that base.
+Neither file is an instruction selector or a replacement for project context.
+Only core may supply these two artifacts.
+
+## Contents
+
+1. [Example](#example)
+2. [Loading rules](#loading-rules)
+3. [What the organization can lock](#what-the-organization-can-lock)
+4. [Locations](#locations)
+5. [Format](#format)
+6. [Validation](#validation)
+7. [Check a change](#check-a-change)
+
+## Example
+
+The base prompt supplies the main behavior and documentation pointers:
+
+From [`core/SYSTEM.md`](../core/SYSTEM.md):
+
+```markdown
+You are Maestro, a coding assistant working in the user's project.
+
+Read the relevant files before changing them. Follow the project's instructions
+and the user's request. Make the smallest complete change and preserve unrelated
+work. Ask for a decision when the requirements leave a consequential choice open.
+
+Use the available tools to inspect files, edit code and run checks. Never claim a
+command ran or a check passed unless its result supports that claim. Report a
+failure with its cause, the affected file and the next useful action. Do not put
+credentials, private source material or private evidence into public files.
+
+For manifest configuration, read the active release's README.md and docs/.
+The documentation covers settings, policy, prompts, instructions, roles, skills,
+workflows, extensions, themes, models, capabilities, ownership, releases,
+integrity, schemas and the catalog. For extension authoring, use Maestro's own
+docs/extensions.md and examples/extensions/; a manifest supplies built components,
+not a source-language runtime.
+```
+
+The persona supplies the appended voice and delegation guidance:
+
+From [`core/agents/maestro.md`](../core/agents/maestro.md):
+
+```markdown
+---
+name: maestro
+description: Main coding assistant persona
+---
+
+Work from the user's goal and the repository's actual behavior. Explain decisions
+in plain language. Keep routine answers short; give enough detail for a user to
+reproduce a change or understand a failure. Distinguish observed results from
+assumptions and name any validation you did not run.
+
+Delegate bounded tasks when useful. Read the delegated result before relying on
+it, and keep responsibility for the final answer. Use the scout, planner, worker
+and reviewer roles for the corresponding workflow steps.
+```
+
+These files declare no model or tool ceiling. Main-agent model and thinking come
+from settings; adding `tools` to the persona role would impose a ceiling.
+
+## Loading rules
+
+The base prompt candidates, from highest to lowest priority, are an explicit flag
+or SDK replacement, project `SYSTEM.md`, user `SYSTEM.md`, manifest
+`core/SYSTEM.md`, then the engine default. A custom base replaces the engine's
+default documentation block, so include useful documentation pointers in a custom
+prompt. Ordinary date, working directory, skill block and tool assembly still
+follow their existing rules.
+
+The persona's body is always first in the appended text. Ordinary appends follow:
+every explicit append in order, otherwise the discovered `APPEND_SYSTEM.md`.
+Local prompt locations are `~/.maestro/agent/SYSTEM.md`,
+`.maestro/SYSTEM.md` and the corresponding `APPEND_SYSTEM.md` files.
+
+Context remains separate. The user context file and ancestor `AGENTS.md` or
+`CLAUDE.md` files keep their normal discovery and `--no-context-files` behavior.
+Do not put manifest context files into an area and assume they become project
+instructions. Installable instructions have their own [format](instructions.md).
+
+## What the organization can lock
+
+A `systemPrompt` lock ignores local base files with a diagnostic and refuses an
+explicit replacement, including an extension's per-turn replacement. An
+`appendSystemPrompt` lock likewise ignores local append files and refuses
+explicit appends. Those locks belong in `settings/policy.json`; neither is set
+in this release.
+
+Without the locks, users can customize those prompts. Prompt text is guidance,
+not a security boundary; locking it does not sandbox extension code or revoke
+filesystem access.
+
+## Locations
+
+Only manifest `core/SYSTEM.md` and the core `maestro` role supply these inputs.
+Local equivalents are `SYSTEM.md` and `APPEND_SYSTEM.md` under the user
+configuration root or project `.maestro/`. Ancestor context files remain separate.
+
+## Format
+
+The base is plain Markdown. Persona frontmatter identifies the `maestro` role;
+its body is the appended text. There is no sidecar or ownership field.
+
+## Validation
+
+Content checks cover Markdown and file hygiene. Prompt precedence and refusal
+before an explicit replacement require the runtime loader and decision hook.
+
+## Check a change
+
+Run the [available checks](schemas-and-checks.md#available-checks). Load the
+release in Maestro and inspect the effective prompt with its session/prompt
+inspection facilities. Confirm the persona appears once before local appends.
+With a locked test policy, try an explicit replacement and confirm refusal;
+without it, confirm a project `SYSTEM.md` takes precedence. Check that prompt
+documentation paths point to actual files, because a custom base removes the
+engine's documentation list.

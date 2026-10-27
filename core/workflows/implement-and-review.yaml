@@ -1,0 +1,11 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: implement-and-review
+description: Implement a task, check the change and apply the review
+chain:
+  - agent: worker
+    task: "Complete this implementation task: $@"
+  - agent: reviewer
+    task: "Check this implementation for defects: {previous}"
+  - agent: worker
+    task: "Update the implementation to address these review findings: {previous}"

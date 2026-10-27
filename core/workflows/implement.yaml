@@ -1,0 +1,11 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: implement
+description: Locate source context, plan the change and implement it
+chain:
+  - agent: scout
+    task: "Locate the source context needed for this task: $@"
+  - agent: planner
+    task: "Plan the changes needed for \"$@\" from this source report: {previous}"
+  - agent: worker
+    task: "Carry out this implementation plan: {previous}"

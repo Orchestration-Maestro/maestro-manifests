@@ -1,0 +1,7 @@
+{
+  "name": "@orchestration-maestro/maestro-manifests",
+  "private": true,
+  "description": "Organization configuration and authored artifacts for Maestro.",
+  "license": "MIT",
+  "maestro": {}
+}
