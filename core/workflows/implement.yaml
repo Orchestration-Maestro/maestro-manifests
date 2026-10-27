@@ -1,0 +1,11 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: implement
+description: Scout gathers context, planner creates a plan, worker implements
+chain:
+  - agent: scout
+    task: "Find all code relevant to: $@"
+  - agent: planner
+    task: "Create an implementation plan for \"$@\" using this context: {previous}"
+  - agent: worker
+    task: "Implement the plan from the previous step: {previous}"

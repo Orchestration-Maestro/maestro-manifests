@@ -1,0 +1,11 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: implement-and-review
+description: Worker implements, reviewer reviews, worker applies feedback
+chain:
+  - agent: worker
+    task: "Implement: $@"
+  - agent: reviewer
+    task: "Review the implementation from the previous step: {previous}"
+  - agent: worker
+    task: "Apply the feedback from this review: {previous}"
