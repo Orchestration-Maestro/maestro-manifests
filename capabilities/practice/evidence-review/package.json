@@ -1,0 +1,17 @@
+{
+  "name": "maestro-evidence-review",
+  "private": true,
+  "description": "Read-only evidence review guidance and a terminal theme.",
+  "license": "MIT",
+  "maestro": {
+    "skills": [
+      "./skills/review-evidence"
+    ],
+    "prompts": [
+      "./prompts/explain-change.md"
+    ],
+    "themes": [
+      "./themes/review-dark.json"
+    ]
+  }
+}

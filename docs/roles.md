@@ -5,30 +5,52 @@ its prompt. Manifest roles use the same format as user roles and project roles.
 The subagent consumer owns discovery and execution; this repository supplies
 content rather than an agent runner.
 
-## Complete example
+## Contents
 
-`core/agents/planner.md` can contain:
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Format](#format)
+4. [Roles supplied here](#roles-supplied-here)
+5. [Loading rules](#loading-rules)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Usage](#usage)
+8. [Validation](#validation)
+9. [Check a change](#check-a-change)
+
+## Locations
+
+Manifest roles live at `agents/*.md` in selected areas. Local roles live in the
+user's `agents/` folder under `~/.maestro/agent` and the nearest project `agents/`
+folder, not a project model file or settings descriptor.
+
+## Example
+
+The evidence-review capability includes a read-only role with no model override:
+
+From [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](../capabilities/practice/evidence-review/agents/evidence-reviewer.md):
 
 ```markdown
 ---
-name: planner
-description: Creates implementation plans from context and requirements
+name: evidence-reviewer
+description: Check factual claims against their cited source passages without editing.
 tools: read, grep, find, ls
-model: claude-sonnet-4-5
-thinking: medium
 ---
 
-You are a planning specialist. Read the supplied context and requirements.
-Do not change files. Return a concrete implementation plan.
+Read the supplied answer and its cited source passages. Do not modify files.
+For each factual claim, identify the passage that supports it. Report unsupported
+claims with the affected file and line when available. Return a corrected answer
+with citations and state what evidence is still missing.
 
-For each step name the file and function to change, the expected behavior and
-how to check it. List risks and any unresolved decision before handing the plan
-to a worker.
+Do not invent sources or publish private evidence. Distinguish a verified
+contradiction from uncertainty. List the files you read and any validation you
+could not perform.
 ```
 
-This is a complete shorter authoring example. The actual [planner](../core/agents/planner.md)
-preserves the reference role's detailed output contract and leaves thinking to
-the consumer's defaults. `thinking` above illustrates the optional v0.1 field.
+This role is separate from the core `reviewer`, so selecting the capability does
+not replace a default-chain role. Its tool list excludes writing and shell use;
+the host and policy still own actual tool availability.
+
+## Format
 
 | Field | Meaning |
 | --- | --- |
@@ -50,14 +72,15 @@ resource owner or workflow dependency metadata. Ownership comes from CODEOWNERS.
 | [planner](../core/agents/planner.md) | Produce a plan without editing | read, grep, find, ls |
 | [reviewer](../core/agents/reviewer.md) | Review quality, correctness and security | read, grep, find, ls, bash; prompt limits bash to read-only inspection |
 | [worker](../core/agents/worker.md) | Complete the delegated task in isolated context | All available tools within policy |
+| [evidence-reviewer](../capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in factual review with source citations | read, grep, find, ls |
 
 The reviewer prompt forbids modifications and builds. That is an instruction, not
-a shell sandbox. Scout defaults to `claude-haiku-4-5`; the other delegated roles
-default to `claude-sonnet-4-5`, as in the reference chains. Supply a compatible
+a shell sandbox. The core scout defaults to `claude-haiku-4-5`; core planner,
+reviewer and worker default to `claude-sonnet-4-5`, as in the reference chains. Supply a compatible
 model configuration or an allowed role preference before running them if those
 models are unavailable in your installation.
 
-## Discovery and overrides
+## Loading rules
 
 The subagent consumer discovers selected manifest-area roles, user `agents/`
 under `~/.maestro/agent` and the nearest project `agents/` folder. User and project
@@ -66,18 +89,10 @@ the whole definition; fields do not merge. Project roles retain the confirmation
 before execution.
 
 `roles.<name>.model` and `roles.<name>.thinking` in user settings are preferences
-within policy. For example:
+within policy. A role without a model field uses the consumer's ordinary model
+resolution; no endpoint is implied by its prompt.
 
-```json
-{
-  "roles": {
-    "planner": {
-      "model": "claude-sonnet-4-5",
-      "thinking": "high"
-    }
-  }
-}
-```
+## What the organization can lock
 
 Policy may lock `model`, `thinking` or `tools`, bound thinking, or restrict models
 for a role. Tools are always narrow-only. A required role cannot be shadowed; a
@@ -87,6 +102,19 @@ new roles are not globally forbidden by a role lock.
 The main `maestro` role is special: its body appends the persona and its declared
 `tools` limits the main agent's active tools. Main model and thinking defaults
 come from settings, not from that role's frontmatter. Only core may define it.
+
+## Usage
+
+Ask Maestro to list roles with sources, then delegate a small evidence check to
+`evidence-reviewer` after selecting its capability. Supply both a proposed answer
+and the source passage. Expect citations or an explicit evidence gap, not edits.
+Use [workflows](workflows.md) for the three core chains.
+
+## Validation
+
+Check frontmatter, role names and tool names. Generated schemas check structure
+when available; only the authored-agent consumer can prove role discovery,
+model availability, project confirmation and required-workflow closure.
 
 ## Check a change
 

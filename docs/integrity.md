@@ -6,36 +6,46 @@ checkout against the pinned commit and refreshes installed instruction copies.
 Drift is repaired with a notice, not silently retained and not treated as a
 reason to crash an otherwise recoverable session.
 
-## Complete example
+## Contents
 
-Select a published release in project `.maestro/settings.json`:
+1. [Example](#example)
+2. [Usage](#usage)
+3. [What is restored](#what-is-restored)
+4. [Recovery and offline behavior](#recovery-and-offline-behavior)
+5. [What the organization can lock](#what-the-organization-can-lock)
+6. [Validation](#validation)
+7. [Check a change](#check-a-change)
 
-```json
-{
-  "manifest": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
-  "manifestAreas": []
-}
+## Example
+
+This is the actual installable instruction in the evidence-review capability:
+
+From [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md):
+
+```markdown
+---
+applyTo: "**"
+---
+
+When reviewing a change, cite the affected file and line for each finding.
+Distinguish a verified failure from a hypothesis. List the checks you ran and
+name any check you could not run. Do not include credentials or private evidence
+in public review comments.
 ```
 
-Start a manifest-capable Maestro build, then run:
+To exercise copy integrity in a disposable project, select the capability and
+run `/manifest install review-evidence -l`. The destination is
+`.maestro/instructions/review-evidence.instructions.md`. Its recorded commit
+and digest identify the source above; a matching copy must be byte-for-byte equal.
 
-```text
-/manifest status
-```
+## Usage
 
-Use the source and pin it reports when inspecting the installed checkout, not a
-separate development clone. To inspect a checkout without changing it:
-
-```sh
-git status --porcelain --untracked-files=all
-git rev-parse HEAD
-git rev-parse 'v0.1.0^{commit}'
-```
-
-Run these inside that installed Git repository. The two commit IDs should agree
-and status should be empty. A clean tree alone is insufficient: it may be clean
-at the wrong commit. These inspection commands are read-only; they do not stand
-in for Maestro's startup verification.
+Use `/manifest status` to identify the selected source, pin and settings file.
+Inspect the installed Git checkout, not your development clone. Read-only
+`git status --porcelain --untracked-files=all` should be empty, and
+`git rev-parse HEAD` should equal the commit resolved from that pin. A clean
+checkout at a different commit is still drift. These inspection commands do not
+replace the consumer's startup verification.
 
 ## What is restored
 
@@ -78,13 +88,20 @@ commands and editing unlocked settings remain repair routes.
 the previously accepted composition so the existing session can continue.
 A fresh start must still pass before a release is considered usable.
 
-## Locks and trust limits
+## What the organization can lock
 
 Integrity applies to the selected release regardless of whether prompt or
 resource locks are set. It does not make the manifest publisher trustworthy,
 protect every user file or sandbox an extension. A `manifest` lock fixes the
 identity, and the update command remains the permitted same-identity ref route.
 Local optional artifacts remain customizable under their own policy rules.
+
+## Validation
+
+The consumer verifies both commit identity and tracked/untracked file bytes at
+start. Instruction provenance belongs to package state, not editable frontmatter.
+An offline fallback must use its accepted composition, never changed checkout
+bytes. Parsing an instruction or policy cannot establish those guarantees.
 
 ## Check a change
 

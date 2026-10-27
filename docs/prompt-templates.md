@@ -5,13 +5,34 @@ slash-command name, optional YAML frontmatter supplies a description and its bod
 expands into prompt text. Templates do not execute a workflow unless their text
 asks the agent to do so; use [workflow YAML](workflows.md) for a structured run.
 
-## Complete example
+## Contents
 
-Create `prompts/explain-change.md` in a manifest area:
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Format](#format)
+4. [Usage](#usage)
+5. [Argument expansion](#argument-expansion)
+6. [Loading rules](#loading-rules)
+7. [What the organization can lock](#what-the-organization-can-lock)
+8. [Validation](#validation)
+9. [Check a change](#check-a-change)
+
+## Locations
+
+Templates load from `~/.maestro/agent/prompts/*.md`, `.maestro/prompts/*.md`,
+package prompt paths and selected manifest areas. Local `prompts` settings can
+add files or directories; `--prompt-template` is repeatable.
+
+## Example
+
+The evidence-review capability provides this explanation template:
+
+From [`capabilities/practice/evidence-review/prompts/explain-change.md`](../capabilities/practice/evidence-review/prompts/explain-change.md):
 
 ```markdown
 ---
 description: Explain a change for a named audience.
+argument-hint: "<file> <audience> [details...]"
 ---
 
 Explain the change in $1 for $2.
@@ -22,16 +43,21 @@ Read the relevant files first. Describe the observable behavior and cite the
 source. Separate confirmed behavior from assumptions. Do not change any files.
 ```
 
-Invoke it as:
+## Format
 
-```text
-/explain-change src/settings.rs "new contributors" focus on policy refusals
-```
+The filename supplies the command name, so `explain-change.md` becomes
+`/explain-change`. Optional `description` supplies completion text; without it,
+the loader takes the first nonempty line. Optional `argument-hint` puts required
+`<arguments>` and optional `[arguments]` before the description in completion.
+The body is Markdown expanded as text, not shell code.
 
-The first argument is the path, the second is the quoted audience, and the rest
-become the additional details. Quotes keep words together as one argument; they
-are not a shell command. With the file installed locally at
-`.maestro/prompts/explain-change.md`, the same template works without a manifest.
+## Usage
+
+After selecting the capability, invoke this from a normal clone of the release:
+`/explain-change settings/settings.json "new contributors" focus on area selection`.
+The first argument is a real file in this release, the second is one quoted
+audience argument, and the remaining words fill the details tail. No file is
+changed. The same template works unchanged when copied into a local prompt folder.
 
 ## Argument expansion
 
@@ -47,25 +73,16 @@ shell-looking substitutions or an invented expression language. Workflow agent
 tasks, commands and asks use these same argument rules, with `{previous}` added
 for chain output.
 
-Descriptions can be supplied in frontmatter. Without one, the native loader
-uses its usual text-derived description. Templates can be exposed from
-`~/.maestro/agent/prompts/`, `.maestro/prompts/`, package prompt paths and selected
-manifest areas. A package can declare this example explicitly:
+## Loading rules
 
-```json
-{
-  "name": "explain-prompts",
-  "version": "0.1.0",
-  "maestro": {
-    "prompts": ["./prompts/explain-change.md"]
-  }
-}
-```
+Conventional `prompts/` discovery is nonrecursive. To expose a nested file, list
+it explicitly in the native package manifest or local prompt settings. The
+capability's package file lists the example by its exact relative path.
+`--no-prompt-templates` disables automatic discovery; explicit entries retain
+ordinary loading behavior within policy. Manifest settings cannot supply a
+`prompts` path array.
 
-Keep the file beside the package at that path. Do not put resource path arrays
-into the manifest area's settings document.
-
-## Locks and overrides
+## What the organization can lock
 
 Optional manifest templates may be replaced by same-name user or project
 resources. A `prompts` lock forbids local additions; automatic additions are
@@ -73,6 +90,12 @@ ignored with a diagnostic and explicit `--prompt-template` entries are refused.
 A required template cannot be disabled by filters, `--no-prompt-templates` or
 SDK overrides, and wins a same-name collision. Template text remains guidance:
 it does not bypass model, tool or role policy.
+
+## Validation
+
+Check frontmatter and relative package paths. Invoke the template to verify
+quoted arguments and slicing: parsing Markdown cannot prove the final text says
+what you intended. A valid template is guidance, not a grant of tool access.
 
 ## Check a change
 

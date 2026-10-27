@@ -5,49 +5,51 @@ a separately published capability package. A skill, role or workflow inside a
 Git release has no independent version. Select an item from a pinned container
 with filters; do not invent a per-file pin.
 
-## Complete selection and update example
+## Contents
 
-After the tags exist, this project `.maestro/settings.json` selects a release and
-keeps optional updates as proposals:
+1. [Example](#example)
+2. [Usage](#usage)
+3. [Checks, floors and automatic updates](#checks-floors-and-automatic-updates)
+4. [Permission growth and repair](#permission-growth-and-repair)
+5. [What the organization can lock](#what-the-organization-can-lock)
+6. [Publishing this repository](#publishing-this-repository)
+7. [Validation](#validation)
+8. [Check a change](#check-a-change)
+
+## Example
+
+The current common policy controls when release checks occur, with no minimum
+release floor imposed:
+
+From [`settings/policy.json`](../settings/policy.json):
 
 ```json
 {
-  "manifest": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
-  "manifestAutoUpdate": false,
-  "manifestAreas": []
+  "updateCheckMinutes": 30
 }
 ```
 
-In a manifest-capable Maestro session:
+The common settings leave optional automatic updates off. An update target must
+exist as a release of the selected Git source.
 
-```text
-/manifest status
-/manifest update 0.1.1
-```
+## Usage
 
-`status` shows the active release, selecting settings file, newest known release,
-minimum and intervening changelog entries. The explicit update can move forward
-or back within the same identity, never below the newest known minimum. For
-example, `/manifest update 0.1.0` rolls back only when that floor permits it.
-`/manifest update` without a version chooses the newest release.
+Select the manifest as described in [settings](settings.md#usage), then run
+`/manifest status`. It shows the active release, selecting file, newest known
+release, minimum and intervening changelog entries. `/manifest update` chooses
+the newest release; append an existing version to move forward or back within
+the same identity, never below the newest known minimum.
 
-Those version numbers illustrate a release sequence; the target tag must exist.
-The command shows the current and target versions, changed manifest files,
-changelog and permission growth before applying. An interactive user confirms.
-Application writes the new pin through the settings owner, acquires the release
-through ordinary package operations and reloads. For project settings, commit
-the pin change by pull request so teammates take it at their next start.
+The command shows current and target pins, changed manifest files, changelog and
+permission growth before applying. Interactive users confirm; scripts can run
+`maestro -p "/manifest status"` or `maestro -p` with the explicit update command.
+A model credential is needed for noninteractive startup even though status
+never calls the model. A headless update with growth refuses rather than treating
+silence as approval.
 
-Scripts can use the command in print mode:
-
-```sh
-maestro -p "/manifest status"
-maestro -p "/manifest update 0.1.1"
-```
-
-A configured model credential is needed for non-interactive startup even though
-`status` never calls the model. Noninteractive updates with permission growth
-refuse rather than treating silence as approval.
+Application writes the pin through the settings owner, installs through ordinary
+package acquisition and reloads. For project settings, submit the pin change by
+pull request so teammates take it at their next start.
 
 ## Checks, floors and automatic updates
 
@@ -58,19 +60,9 @@ manifest consumer checks the selected source for releases. The default is 30;
 per-prompt check exists. A running session sees a notice; required releases
 apply at its next start, or through `/manifest update` now.
 
-This complete common `settings/policy.json` marks a security release's floor and
-sets its notice interval:
-
-```json
-{
-  "minimumRelease": "0.1.1",
-  "updateCheckMinutes": 15
-}
-```
-
-Use that policy in release `0.1.1` or later, not in `0.1.0`. Only common and core
-can declare these members. Candidate inspection reads both optional common and
-core policies and the candidate `CHANGELOG.md` in temporary scope. The higher
+Only common and core can set `minimumRelease` or `updateCheckMinutes`. A floor
+must not exceed the release you publish. Candidate inspection reads the optional
+common and core policies and the candidate `CHANGELOG.md` in temporary scope. The higher
 minimum wins. Inspection does not execute a lifecycle script, build step or
 component.
 
@@ -95,6 +87,8 @@ compares against the last accepted composition; with none, the candidate's whole
 permission set counts as growth. If no candidate can apply, load fails with the
 fix. Drift recovery is separate; see [integrity](integrity.md).
 
+## What the organization can lock
+
 A `manifest` lock fixes identity but still permits `/manifest update` to change
 the same identity's ref. `maestro update` remains the ordinary engine/package
 updater and skips pinned packages; it is not the manifest update route. When
@@ -109,10 +103,38 @@ starting at `v0.1.0`. The root `package.json` is private and omits an independen
 npm version; the Git tag is the release identity. In-tree capabilities share
 that release. Keep separately versioned capabilities in separate containers.
 
+The release configuration is a real contributor-side file, not runtime policy:
+
+From [`.github/release-please/config.json`](../.github/release-please/config.json):
+
+```json
+{
+  "release-type": "simple",
+  "initial-version": "0.1.0",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "bump-minor-pre-major": true,
+  "changelog-sections": [
+    { "type": "ci", "section": "Continuous Integration" },
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance" }
+  ],
+  "packages": { ".": { "version-file": "version.txt" } }
+}
+```
+
 See [development](development.md) for App credentials and merge-queue setup.
 Never place those credentials in the catalog. Before tagging, load the exact
 release candidate and validate every selected capability combination; current
 content checks alone do not establish runtime compatibility.
+
+## Validation
+
+Semantic versions determine minimum floors after an optional leading `v`.
+Candidate composition, not just tag order, determines permission growth. Content
+checks cannot prove adoption/refusal behavior; exercise published fixture tags
+with the manifest consumer before a release.
 
 ## Check a change
 

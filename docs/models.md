@@ -1,14 +1,35 @@
 # Models
 
-Only core may supply `llm/models.json`. It uses the ordinary models format:
-providers with endpoint/API configuration and model definitions. The manifest
-model file loads before `~/.maestro/agent/models.json`; there is no project model
-file. Model credentials stay local.
+A models document defines providers, protocol adapters and model limits. Only
+core may supply manifest `llm/models.json`; this release deliberately supplies
+none, because it would add providers for every user, even without an optional
+capability. Credentials remain local and the complete inline example below is
+not shipped as an artifact.
 
-## Complete example
+## Contents
 
-For a running Ollama service with `llama3.1:8b` already available, this is a
-complete `core/llm/models.json`:
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Usage](#usage)
+4. [Format](#format)
+5. [What the organization can lock](#what-the-organization-can-lock)
+6. [Loading rules](#loading-rules)
+7. [Validation](#validation)
+8. [Check a change](#check-a-change)
+
+## Locations
+
+The manifest path is `core/llm/models.json`, read before the user file at
+`~/.maestro/agent/models.json`. There is no project models file. To try the
+example without changing the release, put it in your own user models file.
+See the explicit [artifact-index exception](index.md#example-coverage-and-exceptions).
+
+## Example
+
+For a running Ollama service with `llama3.1:8b` already available, the following
+complete document uses an environment reference instead of a literal key.
+
+Not shipped: complete user `models.json` example (approved inline exception):
 
 ```json
 {
@@ -43,20 +64,18 @@ complete `core/llm/models.json`:
 ```
 
 Set `OLLAMA_API_KEY` locally before starting Maestro; Ollama ignores the value,
-but the client expects a key. The manifest stores the variable name, never the
+but the client expects a key. A manifest stores the variable name, never the
 value. This is a local-service example, not a model endpoint shipped by this
 repository. No connection to that service is needed for content checks.
 
-To choose it as a default, pair it with core `settings/settings.json`:
+## Usage
 
-```json
-{
-  "defaultProvider": "ollama",
-  "defaultModel": "llama3.1:8b"
-}
-```
+Set `OLLAMA_API_KEY` locally and start Maestro with the service running. Open
+`/model` and choose `ollama/llama3.1:8b`. To make it a local default, set
+`defaultProvider` to `ollama` and `defaultModel` to `llama3.1:8b` in your user
+settings. No common setting in this release selects or requires that endpoint.
 
-## Provider and model fields
+## Format
 
 `baseUrl` selects the endpoint; `api` selects the protocol adapter. The native
 format supports `openai-completions`, `openai-responses`, `anthropic-messages` and
@@ -71,7 +90,7 @@ input modalities, context window, maximum output and per-million-token costs.
 Use actual service limits rather than copying the example for another model.
 Consult Maestro's model-format documentation for adapter-specific overrides.
 
-## Credentials and constraints
+## What the organization can lock
 
 Every manifest `apiKey` and credential header must be either an uppercase
 letters/digits/underscores environment variable name or a command reference
@@ -81,10 +100,7 @@ names in policy `credentialHeaders`. A noncredential header such as
 `Content-Type: application/json` can remain literal. Command references execute
 locally under ordinary permissions; review them as code.
 
-A user provider's partial override keeps manifest fields it does not set. A user
-model with the same provider and ID replaces the manifest model. Refresh and
-dynamic provider removal must reveal the correct underlying layer. A `providers`
-lock ignores the user model file with a diagnostic and refuses extension provider
+A `providers` lock ignores the user model file with a diagnostic and refuses extension provider
 registration.
 
 Policy `models` constrains every selection path: defaults, flags, `/model`,
@@ -94,6 +110,21 @@ diagnostic; explicit forbidden choices refuse before activation, history or
 settings changes. Thinking bounds apply to the requested level, then the model
 capability clamp applies; this example's non-reasoning model runs with thinking
 off even under a policy minimum.
+
+## Loading rules
+
+The manifest file precedes the user's model file and built-in models remain
+available. Partial provider overrides retain omitted manifest fields; a same-ID
+user model replaces its manifest model. Refresh and provider removal must reveal
+the correct underlying layer rather than erase it. Credentials and commands are
+resolved locally, never from a secret embedded in the release.
+
+## Validation
+
+The ordinary models parser validates the document. Manifest validation also
+rejects literal credential values. Neither parser proves that the endpoint is
+reachable, its advertised model exists or its compatibility settings are right.
+Test a real prompt separately; no network request is made by content checks.
 
 ## Check a change
 

@@ -1,14 +1,49 @@
 # Development
 
+Use the pinned contributor commands to validate catalog changes, install hooks
+and submit signed changes through protected review. This page describes the
+existing tooling and release setup; it does not add a separate validator or
+claim that runtime manifest loading is already a required check.
+
+## Contents
+
+1. [Local checks](#local-checks)
+2. [Example](#example)
+3. [Required CI](#required-ci)
+4. [Ownership and delivery](#ownership-and-delivery)
+5. [Releases](#releases)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Check a change](#check-a-change)
+
 ## Local checks
 
-Install [mise](https://mise.jdx.dev/), then run:
+Install [mise](https://mise.jdx.dev/), trust the checkout with `mise trust` and
+run `mise exec -- just setup` once. Then run `mise exec -- just check` and
+`mise exec -- just test` before proposing a change.
 
-```sh
-mise trust
-mise exec -- just setup
-mise exec -- just check
-mise exec -- just test
+## Example
+
+The complete contributor command file is shared by local work and CI:
+
+From [`justfile`](../justfile):
+
+```just
+# Install pinned tools and Git hooks.
+setup:
+    mise install
+    mise exec -- prek install
+
+# Run the repository-owned content checks used by CI.
+check:
+    prek run --all-files --stage manual
+
+# Use the same checks on the staged files without calling the Git hook again.
+pre-commit:
+    prek run --stage manual
+
+# Exercise contributor commands in disposable Git indexes.
+test:
+    python3 -m unittest discover -s tests
 ```
 
 `mise.toml` pins the tools; `mise.lock` records their download checksums. Prek
@@ -60,3 +95,18 @@ deletion.
 The release workflow uses the organization's `RELEASE_APP_CLIENT_ID` variable
 and `RELEASE_APP_PRIVATE_KEY` secret. The App token lets release pull requests
 trigger required checks. Keep those credentials in GitHub, never in this catalog.
+
+## What the organization can lock
+
+Repository rulesets require checks, signed changes and protected review. These
+are contributor controls, not entries in manifest policy. A runtime policy lock
+does not replace repository review, and a maintainer must not hand-edit generated
+rust-gate files to bypass their owner.
+
+## Check a change
+
+Run the check and test recipes above, review any automatic formatting and restage
+it. Commit through the installed hooks with a signed conventional header. Report
+which commands actually passed and which runtime/schema checks remain unavailable.
+Do not duplicate `.pre-commit-config.yaml` in CI. The generated rule maps under
+`docs/standards/` stay generated and are exempt from authored-guide formatting.

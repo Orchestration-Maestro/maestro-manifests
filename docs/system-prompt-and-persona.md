@@ -5,23 +5,45 @@
 Neither file is an instruction selector or a replacement for project context.
 Only core may supply these two artifacts.
 
-## Complete example
+## Contents
 
-A small complete `core/SYSTEM.md`:
+1. [Example](#example)
+2. [Loading rules](#loading-rules)
+3. [What the organization can lock](#what-the-organization-can-lock)
+4. [Locations](#locations)
+5. [Format](#format)
+6. [Validation](#validation)
+7. [Check a change](#check-a-change)
+
+## Example
+
+The base prompt supplies the main behavior and documentation pointers:
+
+From [`core/SYSTEM.md`](../core/SYSTEM.md):
 
 ```markdown
 You are Maestro, a coding assistant working in the user's project.
 
-Read the relevant files and repository instructions before editing. Preserve
-unrelated work. Make the smallest complete change and run the relevant checks.
-Report what changed, what you verified and what remains uncertain. Never claim a
-check passed without its result. Keep credentials out of public files.
+Read the relevant files before changing them. Follow the project's instructions
+and the user's request. Make the smallest complete change and preserve unrelated
+work. Ask for a decision when the requirements leave a consequential choice open.
 
-For organization configuration, read the active manifest's README.md and docs/.
-For extension authoring, read Maestro's docs/extensions.md and its examples.
+Use the available tools to inspect files, edit code and run checks. Never claim a
+command ran or a check passed unless its result supports that claim. Report a
+failure with its cause, the affected file and the next useful action. Do not put
+credentials, private source material or private evidence into public files.
+
+For manifest configuration, read the active release's README.md and docs/.
+The documentation covers settings, policy, prompts, instructions, roles, skills,
+workflows, extensions, themes, models, capabilities, ownership, releases,
+integrity, schemas and the catalog. For extension authoring, use Maestro's own
+docs/extensions.md and examples/extensions/; a manifest supplies built components,
+not a source-language runtime.
 ```
 
-Pair it with this complete `core/agents/maestro.md`:
+The persona supplies the appended voice and delegation guidance:
+
+From [`core/agents/maestro.md`](../core/agents/maestro.md):
 
 ```markdown
 ---
@@ -29,17 +51,20 @@ name: maestro
 description: Main coding assistant persona
 ---
 
-Explain decisions in plain language. Keep routine answers short and give enough
-detail to reproduce a change. Distinguish observed results from assumptions.
+Work from the user's goal and the repository's actual behavior. Explain decisions
+in plain language. Keep routine answers short; give enough detail for a user to
+reproduce a change or understand a failure. Distinguish observed results from
+assumptions and name any validation you did not run.
+
+Delegate bounded tasks when useful. Read the delegated result before relying on
+it, and keep responsibility for the final answer. Use the scout, planner, worker
+and reviewer roles for the corresponding workflow steps.
 ```
 
-The repository's [base prompt](../core/SYSTEM.md) and
-[persona](../core/agents/maestro.md) provide the actual defaults. They deliberately
-do not declare a model or tool list. The main model and thinking level come from
-settings. Adding `tools` to the persona role imposes a ceiling; it does not merely
-suggest tools. See [roles](roles.md).
+These files declare no model or tool ceiling. Main-agent model and thinking come
+from settings; adding `tools` to the persona role would impose a ceiling.
 
-## Which prompt wins
+## Loading rules
 
 The base prompt candidates, from highest to lowest priority, are an explicit flag
 or SDK replacement, project `SYSTEM.md`, user `SYSTEM.md`, manifest
@@ -58,22 +83,33 @@ Context remains separate. The user context file and ancestor `AGENTS.md` or
 Do not put manifest context files into an area and assume they become project
 instructions. Installable instructions have their own [format](instructions.md).
 
-## Locks and overrides
+## What the organization can lock
 
 A `systemPrompt` lock ignores local base files with a diagnostic and refuses an
 explicit replacement, including an extension's per-turn replacement. An
 `appendSystemPrompt` lock likewise ignores local append files and refuses
-explicit appends. Those locks belong in `settings/policy.json`:
-
-```json
-{
-  "locked": ["systemPrompt", "appendSystemPrompt"]
-}
-```
+explicit appends. Those locks belong in `settings/policy.json`; neither is set
+in this release.
 
 Without the locks, users can customize those prompts. Prompt text is guidance,
 not a security boundary; locking it does not sandbox extension code or revoke
 filesystem access.
+
+## Locations
+
+Only manifest `core/SYSTEM.md` and the core `maestro` role supply these inputs.
+Local equivalents are `SYSTEM.md` and `APPEND_SYSTEM.md` under the user
+configuration root or project `.maestro/`. Ancestor context files remain separate.
+
+## Format
+
+The base is plain Markdown. Persona frontmatter identifies the `maestro` role;
+its body is the appended text. There is no sidecar or ownership field.
+
+## Validation
+
+Content checks cover Markdown and file hygiene. Prompt precedence and refusal
+before an explicit replacement require the runtime loader and decision hook.
 
 ## Check a change
 

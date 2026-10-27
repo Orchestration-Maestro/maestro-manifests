@@ -4,7 +4,17 @@ Settings choose the manifest, optional areas and defaults. They use ordinary JSO
 keys, not a separate descriptor format. Policy is a different document: values
 belong in `settings/settings.json`, constraints in `settings/policy.json`.
 
-## Locations and order
+## Contents
+
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Usage](#usage)
+4. [Format](#format)
+5. [What the organization can lock](#what-the-organization-can-lock)
+6. [Validation](#validation)
+7. [Check a change](#check-a-change)
+
+## Locations
 
 The configuration root is `~/.maestro/agent` by default; the existing
 `MAESTRO_CODING_AGENT_DIR` override relocates it. Local settings live at
@@ -26,46 +36,12 @@ Settings combine with the ordinary one-level merge. Do not assume arbitrary
 recursive merging. Policy combines differently: locks join, model sets intersect
 and bounds narrow. See [policy](policy.md).
 
-## Complete example
+## Example
 
-To use just the common and core content shipped here, write this entire project
-`.maestro/settings.json` after the first release is published:
+The common area supplies the release defaults. Its settings select no optional
+capability and do not set a manifest source:
 
-```json
-{
-  "manifest": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
-  "manifestAreas": [],
-  "manifestAutoUpdate": false,
-  "defaultThinkingLevel": "medium"
-}
-```
-
-For a proposed revision use its full commit instead of the release tag. The ref
-must exist. A branch without an explicit pin, local path, npm source, wrong JSON
-kind or missing release is not a valid manifest selection. No manifest flag
-exists. An absent setting, empty string or object with empty `source` selects
-internal mode.
-
-The selection may be an object with `source` and package filters. For example,
-this complete selection keeps every skill except one optional path:
-
-```json
-{
-  "manifest": {
-    "source": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
-    "skills": ["!core/skills/experimental/**"]
-  }
-}
-```
-
-Filter paths are relative to the release root. A filter cannot disable a required
-resource. Only select paths for optional areas that actually exist, for example
-`languages/rust` or `capabilities/security/maestro-security` once those areas are
-included. Unknown paths or prefixes invalidate the manifest. Duplicates load once.
-
-## What an area can set
-
-The common settings shipped here are a complete minimal document:
+From [`settings/settings.json`](../settings/settings.json):
 
 ```json
 {
@@ -73,6 +49,28 @@ The common settings shipped here are a complete minimal document:
   "manifestAutoUpdate": false
 }
 ```
+
+`manifestAreas: []` leaves only common, standards and core selected. To try the
+evidence-review capability, add its full path,
+`capabilities/practice/evidence-review`, to `manifestAreas` in your own settings.
+Do not edit the installed common document to make a personal selection.
+
+## Usage
+
+In user or project settings, set `manifest` to
+`git:github.com/Orchestration-Maestro/maestro-manifests@` followed by an existing
+release tag or full commit. For a contribution, use the exact fetchable commit.
+An absent setting, empty string or object with empty `source` means internal
+mode. Local paths, npm sources, unpinned sources and wrong JSON kinds are invalid
+manifest selections. There is no manifest-selection flag.
+
+The selection can also be an object with `source` and the ordinary `extensions`,
+`skills`, `prompts` and `themes` package filters. Filters use release-relative
+paths; they cannot disable a required resource. `manifestAreas` accepts existing
+`languages/<name>` and `capabilities/<group>/<name>` paths. Unknown paths or
+prefixes invalidate selection; duplicates load once.
+
+## Format
 
 Language and capability settings cannot set or constrain `manifest`,
 `manifestAreas`, `minimumRelease` or `updateCheckMinutes`. Group folders supply
@@ -82,7 +80,7 @@ entries are required packages. See the governed-key table in [policy](policy.md)
 for the permitted defaults and constraints; machine paths and credentials are
 user-only.
 
-## Override and refusal
+## What the organization can lock
 
 User settings normally lose to project settings. If both select the same Git
 identity, the project ref wins. For different identities, the user's manifest is
@@ -95,6 +93,12 @@ or project settings. A stored conflict resolves with a diagnostic; an explicit
 forbidden change is refused before any effect. A lock applies in every process,
 including the workspace daemon; that daemon reads the persisted global view and
 never project settings.
+
+## Validation
+
+JSON parsing checks syntax. The manifest loader checks area paths, forbidden
+resource-path settings and combined policy. A stored conflicting preference is
+resolved without rewriting its file; an explicit conflicting request is refused.
 
 ## Check a change
 

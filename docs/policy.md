@@ -5,45 +5,40 @@ members are optional. Unknown members, unknown governed keys, invalid bounds and
 conflicting area constraints invalidate the manifest; a misspelled lock never
 silently becomes a preference.
 
-## Complete example
+## Contents
 
-This file uses the roles and workflow in this repository and needs no extra
-resource to satisfy its `required` path. It illustrates a stricter alternative to
-the shipped policy; it is not the default policy here.
+1. [Example](#example)
+2. [Locations](#locations)
+3. [Format](#format)
+4. [What the organization can lock](#what-the-organization-can-lock)
+5. [Combining areas and local values](#combining-areas-and-local-values)
+6. [Validation](#validation)
+7. [Check a change](#check-a-change)
+
+## Example
+
+The shipped common policy controls release-check timing and imposes no locks,
+bounds, required resources or model restrictions:
+
+From [`settings/policy.json`](../settings/policy.json):
 
 ```json
 {
-  "locked": ["systemPrompt", "appendSystemPrompt", "enableInstallTelemetry"],
-  "bounds": {
-    "defaultThinkingLevel": { "min": "medium", "max": "xhigh" },
-    "retry.maxRetries": { "max": 5 }
-  },
-  "required": ["core/workflows/implement-and-review.yaml"],
-  "roles": {
-    "reviewer": {
-      "locked": ["tools"],
-      "bounds": { "thinking": { "min": "medium", "max": "xhigh" } }
-    }
-  },
-  "credentialHeaders": ["X-Org-Token"],
   "updateCheckMinutes": 30
 }
 ```
 
-A lock takes its value from the manifest settings, or from the engine default if
-not set. To force telemetry off, pair this policy with the following area
-`settings/settings.json`:
+A value of 30 means every 30 minutes during a running session, plus every session
+start, subject to `update.versionCheck` and offline mode. The interval is policy,
+not a user-overridable preference. `0` means session start only.
 
-```json
-{
-  "enableInstallTelemetry": false
-}
-```
+## Locations
 
-Requiring the workflow also requires its worker and reviewer references from this
-release. It does not add a human approval step or sandbox the worker's tools.
+Each selected area may contribute `settings/policy.json`. Only common and core
+may set `minimumRelease` or `updateCheckMinutes`. Ownership comes from the
+release's CODEOWNERS, not fields in this file.
 
-## Members
+## Format
 
 | Member | Meaning |
 | --- | --- |
@@ -56,16 +51,15 @@ release. It does not add a human approval step or sandbox the worker's tools.
 | `minimumRelease` | Semantic version floor, optional leading `v`; common or core only |
 | `updateCheckMinutes` | Non-negative integer, default 30; `0` means session start only; common or core only |
 
-For example, `"models": ["anthropic/claude-*", "openai/gpt-6.1-sol"]`
-restricts every model selector, not only the default. `"minimumRelease": "1.5.1"`
-requires clients below that version to update when they discover the newer
-release. Do not set a floor higher than the release you publish.
+The `models` patterns restrict every model selector, not just the default.
+A newer release whose `minimumRelease` exceeds the current pin requires an
+update. Do not set a floor higher than the release you publish.
 
 Thinking order is `off < minimal < low < medium < high < xhigh`. Policy checks
 the requested level before the model's capability clamp; a non-reasoning model
 still runs with thinking off.
 
-## Governed keys
+## What the organization can lock
 
 | Keys | Permitted policy and values |
 | --- | --- |
@@ -111,6 +105,14 @@ extension calls and resource toggles are refused **before any effect** when they
 violate policy. A refusal changes no file, history, pending edit or active state.
 Local additions forbidden by a resource lock never execute. Extensions themselves
 still have the user's filesystem and process access.
+
+## Validation
+
+Unknown members, invalid constraint classes and impossible combined bounds make
+the release invalid. A lock takes the manifest value or engine default when
+unset. If you lock a privacy setting, set its intended value in the same area's
+settings rather than assuming what the engine default is. Required workflow paths
+also require their referenced roles from this release; they do not add approvals.
 
 ## Check a change
 

@@ -5,8 +5,9 @@
 # Maestro manifests
 
 This repository holds public organization configuration for Maestro: settings,
-policy, a system prompt, agent roles and workflows. A manifest is an optional
-source of the same authored artifacts developers use locally. Without a manifest,
+policy, a system prompt, agent roles, workflows and an opt-in evidence-review
+capability. A manifest is an optional source of the same authored artifacts
+developers use locally. Without a manifest,
 Maestro runs in internal mode; selecting one adds an organization layer below
 user and project configuration.
 
@@ -23,22 +24,29 @@ commit** in `.maestro/settings.json`; do not use an unpinned branch or install
 this repository as a local manifest. To try a proposed revision, use its full
 commit ID as the ref.
 
-A complete project selection for the first release is:
+The release's common settings leave optional areas unselected:
+
+From [`settings/settings.json`](settings/settings.json):
 
 ```json
 {
-  "manifest": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
   "manifestAreas": [],
   "manifestAutoUpdate": false
 }
 ```
 
-The tag must exist before this example can load. Development starts at version
-`0.0.0`; [Release Please](docs/releases-and-updates.md) publishes the first tag.
-Start Maestro in that project and run `/manifest status`. The manifest installs
-in project scope and the startup listing identifies its source, pin and settings
-file. No capability is selected by the empty `manifestAreas` list. Common,
-standards and core areas always load.
+In your own settings, set `manifest` to
+`git:github.com/Orchestration-Maestro/maestro-manifests@` followed by an existing
+release tag or full commit. Then start Maestro and run `/manifest status`.
+See [settings usage](docs/settings.md#usage) for selection and override rules.
+The source installs in the scope of the settings file that names it; common,
+standards and core always load. Development starts at version `0.0.0` and
+[Release Please](docs/releases-and-updates.md) publishes versioned tags.
+
+To opt in, add `capabilities/practice/evidence-review` to your own `manifestAreas`.
+It offers a skill, role, instruction, prompt and theme, with no added executable
+extension or model provider. Selecting it does not install its instruction or
+choose its theme automatically.
 
 This repository supplies three chains:
 
@@ -55,28 +63,11 @@ references. Read [workflows](docs/workflows.md) before changing a chain.
 
 ## Layout
 
-Actual authored content in this revision:
-
-```text
-package.json                    # common package; native maestro resource key
-settings/
-  settings.json                 # no optional areas or automatic updates selected
-  policy.json                   # release-check interval; no mandatory locks
-core/
-  SYSTEM.md                     # base system prompt
-  agents/
-    maestro.md                  # appended main-agent persona
-    scout.md
-    planner.md
-    reviewer.md
-    worker.md
-  workflows/
-    implement-and-review.yaml
-    implement.yaml
-    scout-and-plan.yaml
-docs/                           # formats, composition and contributor checks
-.github/CODEOWNERS              # review and catalog ownership
-```
+The common root holds `package.json` and `settings/`. Core holds the base prompt,
+main persona, four delegated roles and three workflows. The optional capability
+at `capabilities/practice/evidence-review/` keeps its native package and all five
+resources together. Documentation lives under `docs/`; CODEOWNERS supplies
+review and catalog attribution. The complete input inventory follows.
 
 Create an area only when it has real content. Supported additional locations are
 `standards/<domain>/`, `languages/<name>/` and
@@ -88,6 +79,39 @@ The security capability is maintained separately and is not included in this
 revision. Its integration must use
 `capabilities/security/maestro-security/`, native role files and one package.
 Do not copy another lane's unpublished content into this tree.
+
+## Artifact index
+
+Every authored manifest input is listed below in file-name order, together with
+the ownership and shared release-version records. Contributor tooling, generated
+rule maps and documentation are not runtime artifacts. Models and executable
+extensions are intentionally absent; their explicit
+[exceptions](docs/index.md#example-coverage-and-exceptions) let checks distinguish
+them from missing files. Keep every row linked to its real file and add a row
+whenever an artifact is added.
+
+| File | Provides |
+| --- | --- |
+| [`.github/CODEOWNERS`](.github/CODEOWNERS) | Last-match review and catalog ownership for every path. |
+| [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
+| [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](capabilities/practice/evidence-review/instructions/review-evidence.instructions.md) | Installable review guidance with applyTo frontmatter. |
+| [`capabilities/practice/evidence-review/package.json`](capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
+| [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
+| [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
+| [`capabilities/practice/evidence-review/themes/review-dark.json`](capabilities/practice/evidence-review/themes/review-dark.json) | A complete 51-token optional terminal theme. |
+| [`core/SYSTEM.md`](core/SYSTEM.md) | Base system prompt and documentation pointers. |
+| [`core/agents/maestro.md`](core/agents/maestro.md) | Appended main-agent persona. |
+| [`core/agents/planner.md`](core/agents/planner.md) | Read-only implementation planning with a concrete handoff. |
+| [`core/agents/reviewer.md`](core/agents/reviewer.md) | Code review findings with source locations and severity. |
+| [`core/agents/scout.md`](core/agents/scout.md) | Compressed code context and exact source ranges. |
+| [`core/agents/worker.md`](core/agents/worker.md) | Implementation in an isolated delegated context. |
+| [`core/workflows/implement-and-review.yaml`](core/workflows/implement-and-review.yaml) | Worker, reviewer, worker chain with previous-output passing. |
+| [`core/workflows/implement.yaml`](core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
+| [`core/workflows/scout-and-plan.yaml`](core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
+| [`package.json`](package.json) | Common native package record; no independent npm version. |
+| [`settings/policy.json`](settings/policy.json) | Common release-check interval, with no locks or minimum release. |
+| [`settings/settings.json`](settings/settings.json) | Common defaults: no optional areas and no automatic optional updates. |
+| [`version.txt`](version.txt) | Release Please version record for the shared Git release. |
 
 ## How composition works
 
@@ -110,40 +134,22 @@ artifacts; see their separate guides.
 
 ## Documentation
 
-| Write or change | Guide |
-| --- | --- |
-| Settings layers and area selection | [Settings](docs/settings.md) |
-| Locks, bounds and required resources | [Policy](docs/policy.md) |
-| Base prompt, persona and context | [System prompt and persona](docs/system-prompt-and-persona.md) |
-| Installable guidance | [Instructions](docs/instructions.md) |
-| Delegated-agent definitions | [Roles](docs/roles.md) |
-| On-demand procedures | [Skills](docs/skills.md) |
-| Slash-command text | [Prompt templates](docs/prompt-templates.md) |
-| Multi-step runs | [Workflows](docs/workflows.md) |
-| Built code integrations | [Extensions](docs/extensions.md) |
-| Terminal colors | [Themes](docs/themes.md) |
-| Providers, models and credentials | [Models](docs/models.md) |
-| Team bundles and path ownership | [Capabilities and ownership](docs/capabilities-and-ownership.md) |
-| Version pins, minimums and rollback | [Releases and updates](docs/releases-and-updates.md) |
-| Checkout and installed-copy repair | [Integrity](docs/integrity.md) |
-| Content checks and runtime validation | [Schemas and checks](docs/schemas-and-checks.md) |
-| Cards, ownership and dependency relations | [Catalog](docs/catalog.md) |
+Start with the [documentation index](docs/index.md), in reading order. It covers
+settings, policy, prompts, instructions, roles, skills, workflows, themes, models,
+extensions, capabilities, ownership, releases, integrity, schemas and the catalog.
+It also records the models/extensions exceptions and generated-rule-map boundary.
+[CONTEXT.md](CONTEXT.md) defines the vocabulary; [development](docs/development.md)
+describes pinned tools, hooks, CI and delivery.
 
-[CONTEXT.md](CONTEXT.md) defines the vocabulary.
-[Development](docs/development.md) covers pinned tools, hooks, CI and delivery.
-The repository's [engineering](docs/standards/engineering.md),
-[security](docs/standards/security.md) and
-[quality](docs/standards/northstar.md) maps describe its contributor standards.
-They are documentation, not `standards/<domain>/` manifest resources.
+The generated [engineering](docs/standards/engineering.md),
+[security](docs/standards/security.md) and [quality](docs/standards/northstar.md)
+maps describe contributor standards, not runtime `standards/<domain>/` resources.
 
 ## Check a contribution
 
-```sh
-mise trust
-mise exec -- just setup
-mise exec -- just check
-mise exec -- just test
-```
+Run `mise trust`, `mise exec -- just setup`, `mise exec -- just check` and
+`mise exec -- just test`. The real [justfile](justfile) owns these recipes; see
+[development](docs/development.md#local-checks) for the complete file and hooks.
 
 Start with an issue, keep changes within its scope and follow
 [AGENTS.md](AGENTS.md). Managed files remain generated by `rust-gate`.

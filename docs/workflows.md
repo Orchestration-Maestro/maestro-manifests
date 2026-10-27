@@ -5,10 +5,23 @@ maestro.workflow/v1` and `kind: Workflow`. The same file works in a manifest are
 `~/.maestro/agent/workflows/` or `.maestro/workflows/`. Maestro's subagent
 capability supplies the runner; the manifest supplies files, not another engine.
 
-## Complete chain example
+## Contents
 
-This is the actual [implement-and-review](../core/workflows/implement-and-review.yaml)
-chain shipped here:
+1. [Example](#example)
+2. [Format](#format)
+3. [Chain text, commands and questions](#chain-text-commands-and-questions)
+4. [The three defaults](#the-three-defaults)
+5. [Loading rules](#loading-rules)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Usage](#usage)
+8. [Validation](#validation)
+9. [Check a change](#check-a-change)
+
+## Example
+
+The core chain implements the task, reviews it, then applies the feedback:
+
+From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-and-review.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1
@@ -30,7 +43,7 @@ Each role runs in its own context. The result is the last step's output, not a
 merged transcript. A handoff should therefore include paths and enough context
 for the next role.
 
-## File members
+## Format
 
 | Member | Contract |
 | --- | --- |
@@ -50,21 +63,6 @@ Agent steps contain `agent`, `task` and optional `cwd`. `chain` runs in order.
 running at once, and returns every result. Do not rely on previous-output passing
 between parallel tasks.
 
-This complete `workflows/inspect.yaml` demonstrates parallel inspection:
-
-```yaml
-apiVersion: maestro.workflow/v1
-kind: Workflow
-name: inspect
-description: Independently inspect a change's implementation and tests
-agentScope: user
-tasks:
-  - agent: scout
-    task: "Find implementation code relevant to: $@"
-  - agent: scout
-    task: "Find tests relevant to: $@"
-```
-
 ## Chain text, commands and questions
 
 Agent tasks expand `$1`, `$@`, `$ARGUMENTS`, `${@:N}` and `${@:N:L}` using
@@ -79,22 +77,7 @@ Arguments and `{previous}` expand within each string. A command returns standard
 output and fails on a nonzero exit. `ask` fails on cancellation or without an
 interactive terminal.
 
-This complete optional `workflows/confirm-diff.yaml` uses both:
-
-```yaml
-apiVersion: maestro.workflow/v1
-kind: Workflow
-name: confirm-diff
-description: Inspect a diff and ask what to investigate
-chain:
-  - command: [git, diff, --stat]
-  - ask: "Diff summary: {previous}. What should the scout investigate?"
-  - agent: scout
-    task: "Investigate the user's request without editing: {previous}"
-```
-
-This is an authoring example, not an extra default workflow. No shell means
-pipes, redirects and `&&` are not interpreted. Every step still runs within the
+Without a shell, pipes, redirects and `&&` are not interpreted. Every step still runs within the
 ordinary model, tool and role policy. A failed, refused or cancelled step stops
 the chain; later steps do not run. The diagnostic is
 `Workflow stopped at step <n> (<step>): <message>`.
@@ -111,11 +94,13 @@ These are the reference subagent chains step for step. There is no added
 approval, test, commit or release step. The planner is read-only; the worker
 implements. Their [role definitions](roles.md) keep their output contracts.
 
-## Discovery, requirements and overrides
+## Loading rules
 
 Definitions load from manifest areas in area order, then user, then project. A
 later same-name optional definition replaces the whole earlier workflow. New
 local workflows are always permitted; policy cannot lock all workflow additions.
+
+## What the organization can lock
 
 A workflow named under `required` cannot be disabled or shadowed. Its roles,
 prompt files and other references resolve only from the same release. A local
@@ -123,12 +108,20 @@ role with the same name cannot replace a role inside that closure. Literal text
 in a required workflow stays fixed, but declared positional arguments remain
 per-run inputs. Role model and thinking choices remain within role policy.
 
-## Run and check
+## Usage
 
 Ask Maestro to list workflows with sources, show `implement`, check a workflow
 file, or run `scout-and-plan` with a concrete task. The contract does not define
 a separate CLI flag or slash-command spelling for the runner; use the installed
 runner's listing/help rather than inventing one.
+
+## Validation
+
+The YAML parser checks syntax; schema validation checks members when delivered.
+The runner and manifest loader must check role resolution and required-reference
+closure. A parse success does not show that an agent or command can run.
+
+## Check a change
 
 Run the [available repository checks](schemas-and-checks.md#available-checks).
 In a compatible build, check every default with the runner, verify roles resolve,

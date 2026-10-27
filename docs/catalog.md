@@ -5,9 +5,20 @@ manifest consumer supplies blueprint and relation data; this repository supplies
 the authored artifacts and CODEOWNERS that data describes. The catalog is a view,
 not another copy of the configuration or an agent-session runtime.
 
-## Complete example
+## Contents
 
-Consider the actual core workflow in this release:
+1. [Example](#example)
+2. [Blueprints and relations](#blueprints-and-relations)
+3. [What the organization can lock](#what-the-organization-can-lock)
+4. [Usage](#usage)
+5. [Validation](#validation)
+6. [Check a change](#check-a-change)
+
+## Example
+
+A workflow card can be derived from this actual core file:
+
+From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-and-review.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1
@@ -23,32 +34,15 @@ chain:
     task: "Apply the feedback from this review: {previous}"
 ```
 
-With the actual catch-all ownership rule:
+It uses the worker and reviewer roles. The worker runs twice but is one role
+entity; the catalog should not create a second role card for the last step.
+With this release's CODEOWNERS, the owner is `@FrancoisLDaigneault`. The common
+policy does not require the workflow, so its card is optional. The selected Git
+pin supplies its release property; no workflow-level version is needed.
 
-```text
-* @FrancoisLDaigneault
-```
-
-A compatible catalog can derive the following view without a separate entity
-file:
-
-```text
-manifest release
-  contains -> core area
-                contains -> implement-and-review workflow
-                              uses -> worker role
-                              uses -> reviewer role
-
-implement-and-review
-  source: core/workflows/implement-and-review.yaml
-  description: Worker implements, reviewer reviews, worker applies feedback
-  required: false under the shipped policy
-  owner: @FrancoisLDaigneault
-```
-
-The worker runs twice but is one referenced role entity. The release field comes
-from the selected Git pin, not a workflow-level version. This example describes
-derived data; it is not a new catalog serialization format to commit.
+The evidence-review capability similarly provides its role, skill, instruction,
+prompt and theme. Those relations come from real paths and native package
+entries, not a second catalog entity file committed beside each resource.
 
 ## Blueprints and relations
 
@@ -72,7 +66,7 @@ The catalog reads the installed release when a page opens and keeps no duplicate
 content store. Blueprint implementation belongs to the catalog/manifest
 consumers; do not add a second hand-maintained ownership or dependency index here.
 
-## Ownership, locks and overrides
+## What the organization can lock
 
 The release's `.github/CODEOWNERS` supplies ownership using GitHub's last matching
 pattern. An unmatched entry is unowned. The catch-all in this repository avoids
@@ -90,6 +84,20 @@ unreviewed extension code.
 The browser application remains in internal mode and has no package installer.
 Browsing a manifest in the catalog is not selecting it as the browser agent's
 runtime configuration.
+
+## Usage
+
+In a build with the catalog consumer, open the installed release, inspect a
+workflow card, then follow its role relations. Browse a capability to see what
+it provides and who owns it. Changes still go through the owning maintainers;
+browsing a card neither installs the capability nor changes the session pin.
+
+## Validation
+
+Check the source file and CODEOWNERS match before attributing a card. Blueprint
+and relation implementation belongs to the catalog/manifest consumers. Current
+content checks can validate inputs but cannot prove rendered cards or graph
+edges; report that distinction when those consumers are unavailable.
 
 ## Check a change
 

@@ -4,11 +4,29 @@ Themes are JSON color definitions for the terminal interface. A manifest may
 supply theme files and a default `theme` setting, but choosing a theme remains the
 user's choice. No theme is required for the core workflows to run.
 
-## Complete example
+## Contents
 
-Create `themes/review-dark.json` in an area, or use the same file at
-`~/.maestro/agent/themes/review-dark.json` or
-`.maestro/themes/review-dark.json`:
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Format](#format)
+4. [Usage](#usage)
+5. [Loading rules](#loading-rules)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Validation](#validation)
+8. [Check a change](#check-a-change)
+
+## Locations
+
+Manifest theme files live under an area's `themes/` or explicit package paths.
+Local folders are `~/.maestro/agent/themes/` and `.maestro/themes/`. Local
+`themes` settings and repeatable `--theme` paths can also expose files.
+
+## Example
+
+The evidence-review capability includes a complete dark theme, not a default
+selection:
+
+From [`capabilities/practice/evidence-review/themes/review-dark.json`](../capabilities/practice/evidence-review/themes/review-dark.json):
 
 ```json
 {
@@ -73,52 +91,54 @@ Create `themes/review-dark.json` in an area, or use the same file at
 }
 ```
 
-This defines all 51 required color tokens. `vars` is optional and lets colors
-reference a shared value. A color is a `#RRGGBB` string, an ANSI 256-color integer
-from 0 to 255, an empty string for the terminal default, or a variable name.
-Keep every required token even when its value is the terminal default. A theme
-name identifies the definition; use a unique name to avoid accidental collisions.
+All 51 required tokens are present. This is the full file used by the capability,
+so a color change needs a matching documentation update.
 
-The tokens cover ordinary UI text and borders, selected/message/tool backgrounds,
-Markdown, diffs, syntax highlighting, thinking-level borders and bash mode.
-Foreground and background contrast both matter: test success/error output and
-selected rows rather than only the accent color. A theme file changes colors,
-not policy, keybindings or model behavior.
+## Format
 
-## Selection and packaging
+`name` and `colors` are required. Optional `vars` defines reusable colors;
+optional `$schema` enables editor schema support, and `export` supplies export
+colors in the native theme format. Each color is `#RRGGBB`, an ANSI 256-color
+integer from 0 to 255, an empty string for the terminal default or a variable
+name. Resolve aliases without missing names or cycles.
 
-Select the loaded theme in `/settings` or set a local preference:
+The 51 tokens cover UI text/borders, message and tool backgrounds, Markdown,
+diffs, syntax highlighting, thinking-level borders and bash mode. Six tokens
+are backgrounds and the other 45 are foregrounds. Test readable contrast for
+success, failure and selected rows, not just the accent color.
 
-```json
-{
-  "theme": "review-dark"
-}
-```
+## Usage
 
-A package may list the example in native `package.json`:
+Select `capabilities/practice/evidence-review` in `manifestAreas`, then choose
+`review-dark` in `/settings`. The capability's native package manifest explicitly
+lists this file. No `theme` preference is shipped, and selecting the capability
+does not switch your active theme.
 
-```json
-{
-  "name": "review-colors",
-  "version": "0.1.0",
-  "maestro": {
-    "themes": ["./themes/review-dark.json"]
-  }
-}
-```
+For local use without a manifest, copy this exact file to a local theme folder
+and select its name. Do not edit an installed release checkout for customization.
 
-Manifest areas can also expose the conventional `themes/` directory. Do not set
-resource path arrays in the manifest area's settings. Local `themes` arrays and
-explicit `--theme` paths retain their ordinary discovery behavior; `--no-themes`
-disables automatic discovery, subject to required-resource rules.
+## Loading rules
 
-## Overrides and locks
+Manifest areas can expose conventional folders or native package entries.
+Manifest settings cannot set a `themes` resource-path array; local settings can.
+`--no-themes` disables automatic discovery within required-resource rules.
+Optional same-name local definitions can replace a manifest theme. The active
+custom theme supports hot reload for local color edits.
+
+## What the organization can lock
 
 The manifest can offer themes and default `theme`; it cannot lock or bound either
 `theme` or `themes`. User and project resources can replace optional same-name
 manifest definitions. A required resource cannot be removed by discovery flags
 or filters, but offering a theme does not force its selection. Machine-specific
 terminal presentation stays local.
+
+## Validation
+
+The native theme loader checks required tokens and resolves variables. Editor
+and runtime schemas have different tolerance for unknown fields; neither checks
+readability on your terminal palette. A JSON parse alone cannot detect missing
+tokens, bad aliases or unusable contrast.
 
 ## Check a change
 

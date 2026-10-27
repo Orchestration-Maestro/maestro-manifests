@@ -5,9 +5,36 @@ install. Selecting an area does **not** inject every instruction into the prompt
 The manifest consumer copies the chosen file; the rules system decides when to
 load and apply it.
 
-## Complete example
+## Contents
 
-Create `instructions/review-evidence.instructions.md` in an area:
+1. [Locations](#locations)
+2. [Format](#format)
+3. [Example](#example)
+4. [Usage](#usage)
+5. [Loading rules](#loading-rules)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Validation](#validation)
+8. [Check a change](#check-a-change)
+
+## Locations
+
+A selected area offers `instructions/*.instructions.md`. Installed user copies
+live under `~/.maestro/agent/instructions/`; project copies live under
+`.maestro/instructions/`. The rules consumer reads those local folders.
+
+## Format
+
+An instruction contains `applyTo` YAML frontmatter and a Markdown body. No
+sidecar, resource ID or ownership field is needed. Matching belongs to the rules
+system, including always-apply behavior, `globs`, `rule://` reads and TTSR; the
+manifest contract only supplies and installs files. A YAML parse does not prove
+that a rule will match a particular request.
+
+## Example
+
+The opt-in evidence-review capability ships this broad review instruction:
+
+From [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md):
 
 ```markdown
 ---
@@ -20,33 +47,18 @@ name any check you could not run. Do not include credentials or private evidence
 in public review comments.
 ```
 
-There is no sidecar. The frontmatter belongs in the Markdown file. `applyTo`
-describes matching for the rules consumer; it is not a workflow label, dependency
-ID or permission grant. For path-specific guidance, a file may use a pattern such
-as `src/**/*.rs`. The manifest contract supplies the file and installation route;
-the rules-system contract owns full rule matching, always-apply behavior,
-`globs`, `rule://` reads and TTSR. Do not infer those mechanisms from a YAML parse
-success.
+`applyTo: "**"` is the rules consumer's matching input, not permission to execute
+or a declaration that selecting the capability automatically applies the text.
 
-Once this example is in the selected release, install it interactively:
+## Usage
 
-```text
-/manifest install review-evidence
-```
+Select `capabilities/practice/evidence-review`, then run
+`/manifest install review-evidence` in a compatible Maestro session. It copies
+this file to the user instructions folder. Use
+`/manifest install review-evidence -l` for a project copy. The basename remains
+`review-evidence.instructions.md`. See [settings](settings.md#usage) for selection.
 
-The default destination is
-`~/.maestro/agent/instructions/review-evidence.instructions.md`. For a project
-copy, use:
-
-```text
-/manifest install review-evidence -l
-```
-
-That destination is `.maestro/instructions/review-evidence.instructions.md`.
-The filename above is an example to add, not an instruction already shipped by
-this revision. An installation needs the instruction to exist in a selected area.
-
-## Copies, updates and local changes
+## Loading rules
 
 The manifest consumer records the source release commit and file digest in its
 own package state. At each session start it compares installed copies with their
@@ -60,7 +72,7 @@ Local instruction folders are also the rules system's input. Local
 `APPEND_SYSTEM.md` and context files remain available for ordinary project
 guidance; they are not installed manifest copies.
 
-## Locks and requirements
+## What the organization can lock
 
 The policy `required` list can name release-relative resources, but how required
 standards instructions stay installed and applied belongs to the rules-system
@@ -68,10 +80,16 @@ work. This catalog does not implement a new enforcement mechanism. Prompt locks
 control the base and appended prompts, not `applyTo` matching. Do not promise
 mandatory application merely because an instruction exists under `standards/`.
 
+## Validation
+
+Validate frontmatter structure with the generated schemas when available, then
+exercise actual matching with the rules consumer. Installation provenance and
+startup refresh belong to the manifest consumer, not Markdown validation.
+
 ## Check a change
 
-Run the [available checks](schemas-and-checks.md#available-checks), including YAML
-frontmatter validation when the generated schemas are available. In a compatible
+Run the [available checks](schemas-and-checks.md#available-checks) and validate
+frontmatter against generated schemas when they are available. In a compatible
 Maestro build, install the example into a disposable project and verify the file
 bytes and recorded provenance. Exercise matching and nonmatching files through
 the rules consumer. Modify only the disposable installed copy, restart, and

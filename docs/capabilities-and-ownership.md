@@ -1,121 +1,156 @@
 # Capabilities and ownership
 
-A capability is one package at `capabilities/<group>/<name>/`. It bundles the
-team's roles, skills, instructions, prompts, workflows and other supported
-resources. A group is a navigation folder, not a settings area. Both group and
-name are lowercase, hyphenated and at most 64 characters.
+A capability is one opt-in package at `capabilities/<group>/<name>/`, bundling a
+team's authored resources. The group is navigation, not a settings layer, and
+ownership comes from the release's CODEOWNERS. Maestro reads these paths, not
+GitHub repository properties.
 
-Maestro reads folder paths. An organization may map them to its GitHub structure,
-but Maestro never queries repository properties to discover areas.
+## Contents
 
-## Complete capability example
+1. [Locations](#locations)
+2. [Example](#example)
+3. [Format](#format)
+4. [Usage](#usage)
+5. [Loading rules](#loading-rules)
+6. [Ownership](#ownership)
+7. [What the organization can lock](#what-the-organization-can-lock)
+8. [Validation](#validation)
+9. [Check a change](#check-a-change)
 
-This small capability needs exactly two files. It illustrates a new public
-capability; it does not claim the separately maintained security capability is
-already present.
+## Locations
 
-`capabilities/practice/evidence-review/package.json`:
+Both group and capability names are lowercase, hyphenated and at most 64
+characters. The example lives at `capabilities/practice/evidence-review/`.
+The separately maintained security capability is not included here; this
+revision does not copy that lane's branch or claim its migration is complete.
+
+Only core may contain `SYSTEM.md`, the main `maestro` role, models or MCP
+configuration. A capability can include skills, instructions, prompts, roles,
+workflows, themes and built extensions once the corresponding consumer supports
+them. Do not create empty artifact folders or a `knowledge/` format without a
+consumer.
+
+## Example
+
+The evidence-review capability is one package with explicit native resource paths:
+
+From [`capabilities/practice/evidence-review/package.json`](../capabilities/practice/evidence-review/package.json):
 
 ```json
 {
   "name": "maestro-evidence-review",
-  "version": "0.1.0",
   "private": true,
-  "description": "Review an answer against its cited passages.",
+  "description": "Read-only evidence review guidance and a terminal theme.",
+  "license": "MIT",
   "maestro": {
-    "skills": ["./skills/review-evidence"]
+    "skills": [
+      "./skills/review-evidence"
+    ],
+    "prompts": [
+      "./prompts/explain-change.md"
+    ],
+    "themes": [
+      "./themes/review-dark.json"
+    ]
   }
 }
 ```
 
-`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`:
+Its conventional `agents/` and `instructions/` files are discovered by their
+owning consumers, not by an invented ownership descriptor. It ships one
+[evidence-reviewer role](../capabilities/practice/evidence-review/agents/evidence-reviewer.md),
+[skill](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
+[instruction](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md),
+[prompt](../capabilities/practice/evidence-review/prompts/explain-change.md) and
+[theme](../capabilities/practice/evidence-review/themes/review-dark.json).
 
-```markdown
----
-name: review-evidence
-description: Check an answer against its cited source passages.
----
+## Format
 
-Read the answer and each cited passage. For each factual claim, identify its
-supporting passage. Mark unsupported claims and return a corrected answer with
-citations. Never invent a source or publish private evidence.
-```
+`package.json` is the native package record. Paths in its `maestro` arrays are
+relative to the package root, and every entry above has a real file or directory.
+This private in-tree package has no independent npm version: its Git release is
+the versioned container. It has no lifecycle scripts, credentials or executable
+components.
 
-After those files are included in a published release, select the capability in
-project settings:
+## Usage
 
-```json
-{
-  "manifest": "git:github.com/Orchestration-Maestro/maestro-manifests@v0.1.0",
-  "manifestAreas": ["capabilities/practice/evidence-review"]
-}
-```
+In your own user/project settings, select this pinned manifest and add
+`capabilities/practice/evidence-review` to `manifestAreas`. See
+[settings usage](settings.md#usage). The common file leaves the list empty, so
+this capability is not active merely because its files exist in the checkout.
+An absent area or the short name `evidence-review` is not a valid selection.
 
-Use the actual tag or commit containing the two files; the example path is not
-part of this revision. Selecting only `evidence-review` is invalid. An absent
-selected area invalidates the manifest. Do not create an empty folder to satisfy
-selection.
+Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate to
+`evidence-reviewer`, or choose `review-dark`. Instructions still need explicit
+installation; selecting the capability does not inject them automatically.
 
-Other real resources can be added under the same root: `agents/*.md`,
-`instructions/*.instructions.md`, `prompts/*.md`, `workflows/*.yaml`, `extensions/`
-and `themes/`. Add settings and policy only when needed. `SYSTEM.md`, the main
-`maestro` role, model files and MCP configuration are core-only. Do not add
-`knowledge/` until a package actually reads that artifact kind.
+## Loading rules
+
+Selected capabilities load after selected languages and after common, standards
+and core. A group folder contributes no settings. Each capability contributes
+its own native resources, settings and policy when present; this example adds
+no settings or policy. Optional local resources can replace optional same-name
+resources under their kind's ordinary rules.
+
+Capabilities in this repository share one release pin. A capability needing an
+independent release cycle must live in a separate Git/npm package, required by
+pinned `packages` settings. Package-owned role/workflow filters use the owning
+consumer and ordinary package filter semantics. A manifest selection itself is
+always pinned Git, even though ordinary packages can use npm.
 
 ## Ownership
 
-This repository's real approved owner is `@FrancoisLDaigneault`.
-[CODEOWNERS](../.github/CODEOWNERS) covers every path with that principal, and
-explicitly covers `capabilities/security/` and its future `maestro-security/`
-capability. No unverified team is assigned to a real path.
+Review and catalog principals come from this file:
 
-An organization **with these example teams** could instead map group and
-capability ownership as follows. These are illustrative team names, not teams
-configured in this repository:
+From [`.github/CODEOWNERS`](../.github/CODEOWNERS):
 
 ```text
-* @example-org/manifest-maintainers
-/capabilities/practice/ @example-org/practice
-/capabilities/practice/evidence-review/ @example-org/evidence-review
+# The last matching pattern supplies review and catalog ownership.
+* @FrancoisLDaigneault
+
+# Explicit ownership for the capability group and capability paths.
+/capabilities/security/ @FrancoisLDaigneault
+/capabilities/security/maestro-security/ @FrancoisLDaigneault
+
+/capabilities/practice/ @FrancoisLDaigneault
+/capabilities/practice/evidence-review/ @FrancoisLDaigneault
 ```
 
-GitHub applies the last matching pattern. The more specific capability rule must
-follow its group rule; a later broad rule can override both. The catch-all covers
-all other files, including documentation, policy and tooling. Use valid
-principals with repository access before adopting a team example. CODEOWNERS
-supplies review and catalog attribution, not runtime permissions or folder-level
-secrecy. Protected review settings remain a separate repository control.
+The approved principal is `@FrancoisLDaigneault`; no unverified team is assigned.
+A group rule precedes its capability rule because GitHub's last matching pattern
+wins. The catch-all covers all other files, including documentation and tooling.
+A later broad rule can override a specific rule, so review ordering explicitly.
 
-Sessions never read CODEOWNERS. The [catalog](catalog.md) reads it from the
-release and derives entity ownership with the same last-match rule. Do not add
-owner frontmatter or a second ownership descriptor to an artifact.
+An organization with real teams can map a group folder to its workspace team and
+a capability folder to its workzone team. For example, an authorized
+`@example-org/practice` team could own the practice group and
+`@example-org/evidence-review` its capability, with the specific rule last.
+Those example teams are not configured here. Confirm repository access before
+assigning any real principal. Ownership is review attribution, not runtime
+permission or folder-level confidentiality.
 
-## Versions, locks and overrides
+Sessions do not read CODEOWNERS. The [catalog](catalog.md) derives ownership from
+it; individual artifacts must not invent their own ownership fields.
 
-Capabilities inside this repository share its Git release version. Their files
-do not have independent refs. A capability needing a separate release cycle must
-live in its own Git or npm package; the manifest can require that package with a
-pin in settings `packages`. Ordinary package sources support both Git and npm;
-**the manifest selection itself remains pinned Git only**.
+## What the organization can lock
 
-Language and capability areas may add constraints or narrow existing ones. They
-cannot loosen earlier locks or bounds and cannot set or constrain `manifest`,
-`manifestAreas`, `minimumRelease` or `updateCheckMinutes`. Optional resources may
-be replaced locally according to their kind. Required resources and workflow
-closures cannot be shadowed. See [policy](policy.md).
+Capabilities and languages can only add or narrow earlier constraints. They
+cannot loosen a lock or bound, or set/constrain `manifest`, `manifestAreas`,
+`minimumRelease` or `updateCheckMinutes`. Common/core can lock area selection.
+Required resources and required workflow closures cannot be shadowed locally.
+See the full [policy table](policy.md#what-the-organization-can-lock).
 
-The security lane must integrate its content at
-`capabilities/security/maestro-security/`, with one `package.json`, one Markdown
-file per role, native skill frontmatter and instruction files. Sidecars and old
-source metadata are not part of the v0.1 format. This change does not copy that
-lane's branch or claim its migration is complete.
+## Validation
+
+Check group/name spelling, native resource paths, selected-area existence and
+CODEOWNERS principals/order. Schema validation checks structure when available;
+loading the release checks policy combinations and reference closure. A package
+file alone does not prove an instruction was installed or a workflow can run.
 
 ## Check a change
 
-Run the [available checks](schemas-and-checks.md#available-checks), check every
-package path and load the exact selected area in a pinned revision. Confirm its
-resources appear once, under the expected source. Review CODEOWNERS ordering for
-each new group and capability and verify every real principal has access. Check
-selected combinations against earlier policy: a capability must not unlock an
-organization constraint. In catalog builds, inspect the capability's owner and
-provided-resource relations.
+Run the [available checks](schemas-and-checks.md#available-checks). Confirm every
+new artifact appears in the README index and every quoted example matches its
+file. Load the pin once without optional areas and once with evidence-review;
+verify the resources appear only in the selected case and the theme is not
+chosen automatically. Check catalog ownership against the last matching rule.

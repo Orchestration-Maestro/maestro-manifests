@@ -4,3 +4,6 @@
 # Explicit ownership for the capability group and capability paths.
 /capabilities/security/ @FrancoisLDaigneault
 /capabilities/security/maestro-security/ @FrancoisLDaigneault
+
+/capabilities/practice/ @FrancoisLDaigneault
+/capabilities/practice/evidence-review/ @FrancoisLDaigneault
