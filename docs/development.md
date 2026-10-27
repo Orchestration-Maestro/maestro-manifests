@@ -27,6 +27,21 @@ that fix before retrying.
 passes, malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
 untracked files. Tests do not change your index.
 
+## Required CI
+
+The organization's `hygiene-central` ruleset requires the shared
+`content.yml@v0.16.0` workflow on pull requests and merge groups targeting the
+default branch. Its job is `Required content checks`; this repository needs no
+caller workflow. The repository's `merge-queue` ruleset uses Maestro's queue
+settings: squash merges, all checks green, up to seven entries building and
+five entries merging, with a six-hour check timeout.
+
+`hygiene-central` targets only `maestro-manifests` by repository name. GitHub
+accepts either repository-name or repository-property selection, not both; the
+repository's `stack=other` property remains unchanged. Add `.github` to the
+include list when it provides `just check`; add `maestro-packages` when it does
+the same if it remains non-Rust. Neither repository is included yet.
+
 ## Ownership and delivery
 
 Start with a GitHub issue and the triage labels described in [AGENTS.md](../AGENTS.md).
