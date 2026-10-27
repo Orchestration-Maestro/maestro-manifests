@@ -1,0 +1,15 @@
+# Development tools used by the local hooks and shared content check.
+[settings]
+lockfile = true
+
+[tool_alias]
+prek = "github:j178/prek"
+typos = "github:crate-ci/typos"
+
+[tools]
+just = "1.58.0"
+prek = "0.5.4"
+typos = "1.50.2"
+rumdl = "0.2.77"
+editorconfig-checker = "4.0.2"
+gitleaks = "8.30.1"

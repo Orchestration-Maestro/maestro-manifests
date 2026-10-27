@@ -9,4 +9,4 @@ permissions:
 
 jobs:
   content:
-    uses: Orchestration-Maestro/maestro-rust-workflows/.github/workflows/content.yml@065e3a52762d7e9cb83919f7f02236337c0f78e0
+    uses: Orchestration-Maestro/maestro-rust-workflows/.github/workflows/content.yml@87257450b9a11087a5eedd140732b3190f8d2234
