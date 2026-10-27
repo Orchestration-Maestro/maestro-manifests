@@ -1,0 +1,14 @@
+{
+  "release-type": "simple",
+  "initial-version": "0.1.0",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "bump-minor-pre-major": true,
+  "changelog-sections": [
+    { "type": "ci", "section": "Continuous Integration" },
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance" }
+  ],
+  "packages": { ".": { "version-file": "version.txt" } }
+}
