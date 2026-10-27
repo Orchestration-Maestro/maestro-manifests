@@ -24,14 +24,14 @@ From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-an
 apiVersion: maestro.workflow/v1
 kind: Workflow
 name: implement-and-review
-description: Worker implements, reviewer reviews, worker applies feedback
+description: Implement a task, check the change and apply the review
 chain:
   - agent: worker
-    task: "Implement: $@"
+    task: "Complete this implementation task: $@"
   - agent: reviewer
-    task: "Review the implementation from the previous step: {previous}"
+    task: "Check this implementation for defects: {previous}"
   - agent: worker
-    task: "Apply the feedback from this review: {previous}"
+    task: "Update the implementation to address these review findings: {previous}"
 ```
 
 It uses the worker and reviewer roles. The worker runs twice but is one role

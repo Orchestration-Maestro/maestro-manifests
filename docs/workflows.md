@@ -27,14 +27,14 @@ From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-an
 apiVersion: maestro.workflow/v1
 kind: Workflow
 name: implement-and-review
-description: Worker implements, reviewer reviews, worker applies feedback
+description: Implement a task, check the change and apply the review
 chain:
   - agent: worker
-    task: "Implement: $@"
+    task: "Complete this implementation task: $@"
   - agent: reviewer
-    task: "Review the implementation from the previous step: {previous}"
+    task: "Check this implementation for defects: {previous}"
   - agent: worker
-    task: "Apply the feedback from this review: {previous}"
+    task: "Update the implementation to address these review findings: {previous}"
 ```
 
 The run's arguments become the first task. The reviewer's task receives the
@@ -42,6 +42,26 @@ worker's final output; the last worker receives the reviewer's final output.
 Each role runs in its own context. The result is the last step's output, not a
 merged transcript. A handoff should therefore include paths and enough context
 for the next role.
+
+The optional evidence-review capability supplies a read-only chain. It is
+available only after selecting `capabilities/practice/evidence-review` in
+`manifestAreas`:
+
+From [`capabilities/practice/evidence-review/workflows/review-evidence.yaml`](../capabilities/practice/evidence-review/workflows/review-evidence.yaml):
+
+```yaml
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: review-evidence
+description: Check factual claims against sources with the evidence-reviewer role
+chain:
+  - agent: evidence-reviewer
+    task: "Check the claims and cited source passages supplied here; return a corrected answer with citations and any evidence gaps: $@"
+```
+
+Supply an answer and its cited source passages as the run's task. The single
+step returns the role's corrected answer, citations and evidence gaps; it makes
+no implementation handoff.
 
 ## Format
 
@@ -90,9 +110,9 @@ the chain; later steps do not run. The diagnostic is
 | [implement.yaml](../core/workflows/implement.yaml) | scout, planner, worker | Scout arguments; plan for original arguments with previous context; implement previous plan |
 | [scout-and-plan.yaml](../core/workflows/scout-and-plan.yaml) | scout, planner | Scout arguments; plan for original arguments with previous context; return plan without implementation |
 
-These are the reference subagent chains step for step. There is no added
-approval, test, commit or release step. The planner is read-only; the worker
-implements. Their [role definitions](roles.md) keep their output contracts.
+These chains have no approval, test, commit or release step. The planner is
+read-only; the worker implements. Their [role definitions](roles.md) specify
+the output passed to the next step.
 
 ## Loading rules
 
@@ -127,6 +147,9 @@ Run the [available repository checks](schemas-and-checks.md#available-checks).
 In a compatible build, check every default with the runner, verify roles resolve,
 and run `scout-and-plan` on a disposable project. It must return a plan without
 editing. Run the implementation chains on a disposable change and inspect
-handoffs. Exercise a deliberately failing command in a separate local workflow
-and confirm no later step runs. Requiring a workflow also needs the loader's
+handoffs. Without the optional capability, confirm `review-evidence` is absent;
+select the capability and run it with an answer and source passages. It must
+return citations and evidence gaps without editing files. Exercise a deliberately
+failing command in a separate local workflow and confirm no later step runs.
+Requiring a workflow also needs the loader's
 same-release closure check; parsing YAML alone is insufficient.

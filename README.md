@@ -44,17 +44,20 @@ standards and core always load. Development starts at version `0.0.0` and
 [Release Please](docs/releases-and-updates.md) publishes versioned tags.
 
 To opt in, add `capabilities/practice/evidence-review` to your own `manifestAreas`.
-It offers a skill, role, instruction, prompt and theme, with no added executable
-extension or model provider. Selecting it does not install its instruction or
-choose its theme automatically.
+It offers a skill, role, instruction, prompt, theme and workflow, with no added
+executable extension or model provider. Selecting it does not install its
+instruction or choose its theme automatically.
 
-This repository supplies three chains:
+Core supplies three chains:
 
 | Workflow | Steps | Final output |
 | --- | --- | --- |
 | `implement-and-review` | worker, reviewer, worker | Implementation with review feedback applied |
 | `implement` | scout, planner, worker | Implemented plan |
 | `scout-and-plan` | scout, planner | Plan only; no implementation |
+
+The opt-in capability adds [review-evidence](capabilities/practice/evidence-review/workflows/review-evidence.yaml),
+a one-step chain using `evidence-reviewer` to check claims against cited sources.
 
 Ask Maestro to list workflows, show one with its source, or run it with a task.
 The files contain no approval step. Optional roles and workflows can be replaced
@@ -65,7 +68,7 @@ references. Read [workflows](docs/workflows.md) before changing a chain.
 
 The common root holds `package.json` and `settings/`. Core holds the base prompt,
 main persona, four delegated roles and three workflows. The optional capability
-at `capabilities/practice/evidence-review/` keeps its native package and all five
+at `capabilities/practice/evidence-review/` keeps its native package and all six
 resources together. Documentation lives under `docs/`; CODEOWNERS supplies
 review and catalog attribution. The complete input inventory follows.
 
@@ -99,6 +102,7 @@ whenever an artifact is added.
 | [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
 | [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
 | [`capabilities/practice/evidence-review/themes/review-dark.json`](capabilities/practice/evidence-review/themes/review-dark.json) | A complete 51-token optional terminal theme. |
+| [`capabilities/practice/evidence-review/workflows/review-evidence.yaml`](capabilities/practice/evidence-review/workflows/review-evidence.yaml) | Opt-in factual review chain using evidence-reviewer. |
 | [`core/SYSTEM.md`](core/SYSTEM.md) | Base system prompt and documentation pointers. |
 | [`core/agents/maestro.md`](core/agents/maestro.md) | Appended main-agent persona. |
 | [`core/agents/planner.md`](core/agents/planner.md) | Read-only implementation planning with a concrete handoff. |

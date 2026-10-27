@@ -76,8 +76,8 @@ resource owner or workflow dependency metadata. Ownership comes from CODEOWNERS.
 
 The reviewer prompt forbids modifications and builds. That is an instruction, not
 a shell sandbox. The core scout defaults to `claude-haiku-4-5`; core planner,
-reviewer and worker default to `claude-sonnet-4-5`, as in the reference chains. Supply a compatible
-model configuration or an allowed role preference before running them if those
+reviewer and worker default to `claude-sonnet-4-5`. Supply a compatible model
+configuration or an allowed role preference before running them if those
 models are unavailable in your installation.
 
 ## Loading rules

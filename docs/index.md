@@ -45,9 +45,9 @@ this page puts the guides in reading order.
 ## Example coverage and exceptions
 
 The opt-in `capabilities/practice/evidence-review/` supplies a real package, role,
-skill, instruction, prompt and theme. Common supplies settings/policy; core
-supplies system/persona text and all three workflow files. No optional area is
-selected by default.
+skill, instruction, prompt, theme and workflow. Common supplies settings/policy;
+core supplies system/persona text and the three implementation/planning workflows.
+No optional area is selected by default.
 
 | Exempt kind or path | Reason | Where to read it |
 | --- | --- | --- |

@@ -24,10 +24,13 @@ defined in the real [justfile](../justfile), not a separate CI implementation.
 
 `just setup` installs pinned tools and prek hooks. `.pre-commit-config.yaml`
 owns the checks; the shared required CI invokes the same `just check`. Do not
-create a second copy of those checks in a workflow. `just test` runs the existing
+create a second copy of those checks in a workflow. `just test` runs the
 contributor-command tests in disposable indexes and covers malformed YAML, JSON,
-TOML and staged-versus-untracked behavior. There is no Rust crate in this
-repository, so there are no Cargo tests or Clippy invocation here.
+TOML and staged-versus-untracked behavior. It also checks the authored role
+contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
+documentation examples. Those are content assertions, not runtime execution.
+There is no Rust crate in this repository, so there are no Cargo tests or Clippy
+invocation here.
 
 The content checks parse YAML/JSON/TOML and check spelling, Markdown, EditorConfig,
 file hygiene and conflict markers. Staged commit hooks also scan secrets and
@@ -70,14 +73,14 @@ From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-an
 apiVersion: maestro.workflow/v1
 kind: Workflow
 name: implement-and-review
-description: Worker implements, reviewer reviews, worker applies feedback
+description: Implement a task, check the change and apply the review
 chain:
   - agent: worker
-    task: "Implement: $@"
+    task: "Complete this implementation task: $@"
   - agent: reviewer
-    task: "Review the implementation from the previous step: {previous}"
+    task: "Check this implementation for defects: {previous}"
   - agent: worker
-    task: "Apply the feedback from this review: {previous}"
+    task: "Update the implementation to address these review findings: {previous}"
 ```
 
 A YAML parser alone cannot decide whether worker and reviewer resolve from the

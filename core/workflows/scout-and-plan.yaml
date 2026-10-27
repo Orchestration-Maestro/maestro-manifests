@@ -1,9 +1,9 @@
 apiVersion: maestro.workflow/v1
 kind: Workflow
 name: scout-and-plan
-description: Scout gathers context, planner creates an implementation plan without implementing
+description: Locate source context and return a plan without editing
 chain:
   - agent: scout
-    task: "Find all code relevant to: $@"
+    task: "Locate the source context needed for this task: $@"
   - agent: planner
-    task: "Create an implementation plan for \"$@\" using this context: {previous}. Do NOT implement; return only the plan."
+    task: "Plan the changes needed for \"$@\" from this source report: {previous}. Do not implement; return the plan only."

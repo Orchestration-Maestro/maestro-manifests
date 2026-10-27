@@ -56,13 +56,14 @@ From [`capabilities/practice/evidence-review/package.json`](../capabilities/prac
 }
 ```
 
-Its conventional `agents/` and `instructions/` files are discovered by their
-owning consumers, not by an invented ownership descriptor. It ships one
+Its conventional `agents/`, `instructions/` and `workflows/` files are discovered
+by their owning consumers, not by an invented ownership descriptor. It ships one
 [evidence-reviewer role](../capabilities/practice/evidence-review/agents/evidence-reviewer.md),
 [skill](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
 [instruction](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md),
-[prompt](../capabilities/practice/evidence-review/prompts/explain-change.md) and
-[theme](../capabilities/practice/evidence-review/themes/review-dark.json).
+[prompt](../capabilities/practice/evidence-review/prompts/explain-change.md),
+[theme](../capabilities/practice/evidence-review/themes/review-dark.json) and
+[workflow](../capabilities/practice/evidence-review/workflows/review-evidence.yaml).
 
 ## Format
 
@@ -81,8 +82,11 @@ this capability is not active merely because its files exist in the checkout.
 An absent area or the short name `evidence-review` is not a valid selection.
 
 Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate to
-`evidence-reviewer`, or choose `review-dark`. Instructions still need explicit
-installation; selecting the capability does not inject them automatically.
+`evidence-reviewer`, run the `review-evidence` workflow, or choose `review-dark`.
+Supply the workflow with the answer and cited source passages to check; its
+single role returns a corrected answer and evidence gaps. Instructions still
+need explicit installation; selecting the capability does not inject them
+automatically.
 
 ## Loading rules
 
