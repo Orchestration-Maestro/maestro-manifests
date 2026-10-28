@@ -70,15 +70,26 @@ resource owner or workflow dependency metadata. Ownership comes from CODEOWNERS.
 | [maestro](../core/agents/maestro.md) | Main-agent persona | No additional ceiling declared |
 | [scout](../core/agents/scout.md) | Gather compressed context with precise source ranges | read, grep, find, ls, bash |
 | [planner](../core/agents/planner.md) | Produce a plan without editing | read, grep, find, ls |
-| [reviewer](../core/agents/reviewer.md) | Review quality, correctness and security | read, grep, find, ls, bash; prompt limits bash to read-only inspection |
+| [reviewer](../core/agents/reviewer.md) | Review quality, correctness and security | read, grep, find, ls |
 | [worker](../core/agents/worker.md) | Complete the delegated task in isolated context | All available tools within policy |
 | [evidence-reviewer](../capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in factual review with source citations | read, grep, find, ls |
 
-The reviewer prompt forbids modifications and builds. That is an instruction, not
-a shell sandbox. The core scout defaults to `claude-haiku-4-5`; core planner,
-reviewer and worker default to `claude-sonnet-4-5`. Supply a compatible model
-configuration or an allowed role preference before running them if those
+The reviewer has no shell and no write tool. Its authority comes from the tool
+list, which the host enforces, and not from a request in its prompt. The core
+scout defaults to `claude-haiku-5-5`, the planner and reviewer to
+`claude-opus-5-5` and the worker to `claude-sonnet-5-5`. The release's policy
+sets no allowed-model set, so these defaults bind nothing. Supply a compatible
+model configuration or an allowed role preference before running them if those
 models are unavailable in your installation.
+
+Each core role reports in sections a reader can check:
+
+| Role | Required in the report | Checked by |
+| --- | --- | --- |
+| scout | Files retrieved with exact line ranges, Key code, Architecture, Start here | The planner reads the ranges; the heading list is tested |
+| planner | Verification: one `Done when` command and each test to add first | The worker runs the command and reports its exit code |
+| reviewer | Each finding gives `path:line`, the cause and the smallest fix; one line per security rule, all eleven | The tool list gives read access only; the next worker step applies each finding |
+| worker | A failing test committed before the change; each command run with its exit code; line ranges changed; the unified diff with its deleted lines | Git history shows the test commit first; the reviewer reads the ranges and the diff |
 
 ## Loading rules
 
