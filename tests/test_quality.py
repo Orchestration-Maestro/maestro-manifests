@@ -37,9 +37,10 @@ class QualityCommands(unittest.TestCase):
 
     def test_check_runs_the_content_checks_and_the_tests_without_recursion(self):
         """Run the tests in `check`, which CI runs, but not in `content`, which they run."""
-        self.assertIn(
-            "unittest discover", self.run_command("just", "--dry-run", "check").stderr
-        )
+        check = self.run_command("just", "--dry-run", "check")
+        self.assertEqual(check.returncode, 0, check.stderr)
+        self.assertIn("prek run --all-files --stage manual", check.stderr)
+        self.assertIn("unittest discover", check.stderr)
         content = self.run_command("just", "--dry-run", "content")
         self.assertEqual(content.returncode, 0, content.stderr)
         self.assertNotIn("unittest", content.stderr)
