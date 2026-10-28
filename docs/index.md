@@ -4,7 +4,7 @@ Read these guides to select a release, understand its composition and author
 resources in their native formats. Each artifact guide quotes a real release
 file, except the explicitly approved model and extension examples below. The
 [README artifact index](../README.md#artifact-index) inventories the release inputs;
-this page puts the guides in reading order. Everything Maestro reads sits under
+this page puts the guides in reading order. All manifest content sits under
 `manifests/`, the manifest root; these guides, the checks and the README stay
 outside it.
 
