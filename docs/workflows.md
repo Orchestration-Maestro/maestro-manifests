@@ -110,9 +110,10 @@ the chain; later steps do not run. The diagnostic is
 | [implement.yaml](../core/workflows/implement.yaml) | scout, planner, worker | Scout arguments; plan for original arguments with previous context; implement previous plan |
 | [scout-and-plan.yaml](../core/workflows/scout-and-plan.yaml) | scout, planner | Scout arguments; plan for original arguments with previous context; return plan without implementation |
 
-These chains have no approval, test, commit or release step. The planner is
-read-only; the worker implements. Their [role definitions](roles.md) specify
-the output passed to the next step.
+These chains have no approval, test, commit or release step of their own. The
+planner and reviewer only read; the worker implements and commits its failing
+test first. Their [role definitions](roles.md) specify the output passed to the
+next step.
 
 ## Loading rules
 
