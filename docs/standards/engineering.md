@@ -46,7 +46,7 @@ A row reads "Not mapped yet" until a maintainer maps it.
 | ENF-010 Configuration is the authority | Organization: its settings as code in `.github/org/`, checked weekly by `org-drift.yml` |
 | ENF-011 Instructions grant nothing | Organization: authority lives in rulesets, workflow `permissions:` and access control; no instruction file grants any |
 | ENF-012 Pinned inputs | Not mapped yet |
-| ENF-013 No secret in history | Organization: secret scanning with push protection and validity checks (`maestrolabs-baseline`); CI: gitleaks |
+| ENF-013 No secret in history | Organization: secret scanning with push protection and validity checks (`maestrolabs-baseline`); commit hook: gitleaks on the staged change |
 | ENF-014 Multi-factor authentication | Organization: two-factor authentication is required of every member and outside collaborator |
 | C-001 Map every rule | These pages, edited by hand; a row reads "Not mapped yet" until a maintainer maps it |
 | C-004 Detect drift | Organization: the daily drift check opens a `Drift:` issue for this repository |
