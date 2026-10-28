@@ -141,9 +141,9 @@ a lock fixes is in `settings/settings.json`.
 | `maestro`, `planner`, `reviewer`, `scout`, `worker` | `model`, `thinking` and `tools` locked per role | A role runs on the model, thinking level and tools its file declares |
 
 The `maestro` role takes no model or thinking level; the main agent's come from
-settings, so those two locks hold the engine default. The `manifestAreas` lock
-means a user cannot select the evidence-review capability; the organization
-selects it in `settings/settings.json`.
+settings, so the `model` and `thinking` locks on that role do not select them.
+The `manifestAreas` lock means a user cannot select the evidence-review
+capability; the organization selects it in `settings/settings.json`.
 
 Not in the baseline yet: guard files and core skills and instructions, which
 the core does not ship, and locks on local workflows and roles, which the
