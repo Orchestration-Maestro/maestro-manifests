@@ -38,7 +38,7 @@ commit ID as the ref.
 The release's common settings choose the default model and thinking level, turn
 install telemetry off, block images and leave optional areas unselected:
 
-From [`manifests/settings/settings.json`](manifests/settings/settings.json):
+Excerpt from [`manifests/settings/settings.json`](manifests/settings/settings.json):
 
 ```json
 {

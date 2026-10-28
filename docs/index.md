@@ -68,7 +68,7 @@ come from their consumer, not handwritten examples or empty folders.
 
 The common settings make the opt-in boundary visible:
 
-From [`manifests/settings/settings.json`](../manifests/settings/settings.json):
+Excerpt from [`manifests/settings/settings.json`](../manifests/settings/settings.json):
 
 ```json
 {

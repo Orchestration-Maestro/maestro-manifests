@@ -12,25 +12,101 @@ POLICY = json.loads(POLICY_TEXT)
 SETTINGS = json.loads(SETTINGS_TEXT)
 THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"]
 
-# The keys the manifest-mode specification lets a manifest lock, plus its lock names.
+# The named settings and actions governed by the manifest-mode contract.
 LOCKABLE = {
-    "systemPrompt", "appendSystemPrompt", "providers",
-    "defaultProvider", "defaultModel", "defaultThinkingLevel", "enabledModels",
+    "enableInstallTelemetry", "images.blockImages", "defaultProvider", "defaultModel",
+    "systemPrompt", "appendSystemPrompt", "manifest", "manifestAreas", "manifestAutoUpdate",
+    "packages", "extensions", "skills", "prompts", "providers", "enabledModels", "transport",
+    "steeringMode", "followUpMode", "enableSkillCommands", "images.autoResize",
+    "holdUncheckedText", "compaction.enabled", "compaction.reserveTokens",
+    "compaction.keepRecentTokens", "branchSummary.reserveTokens", "branchSummary.skipPrompt",
+    "retry.enabled", "retry.maxRetries", "retry.baseDelayMs", "retry.provider.timeoutMs",
+    "retry.provider.maxRetries", "retry.provider.maxRetryDelayMs", "themes", "actions",
+    "contributions", "workflows", "agents", "instructions", "mcpServers", "shellPath",
+    "sessionDir", "npmCommand", "showChangelog", "credentials.anthropic", "theme",
+    "shellCommandPrefix", "hideThinkingBlock", "quietStartup", "collapseChangelog",
+    "terminal.showImages", "terminal.imageWidthCells", "terminal.clearOnShrink",
+    "terminal.showTerminalProgress", "doubleEscapeAction", "treeFilterMode", "editorPaddingX",
+    "autocompleteMaxVisible", "showHardwareCursor", "markdown.codeBlockIndent",
+    "warnings.anthropicExtraUsage", "multiplexer.theme.autoSwitch", "multiplexer.sidebarWidth",
+    "multiplexer.sidebarMinWidth", "multiplexer.sidebarMaxWidth",
+    "multiplexer.sidebarStartCollapsed", "multiplexer.sidebarCollapsedMode",
+    "multiplexer.mobileWidthThreshold", "multiplexer.mouseCapture", "multiplexer.copyOnSelect",
+    "multiplexer.hostCursor", "multiplexer.rightClickPassthroughModifier",
+    "multiplexer.redrawOnFocusGained", "multiplexer.confirmClose", "multiplexer.promptNewTabName",
+    "multiplexer.promptNewWorkspaceName", "multiplexer.paneBorders",
+    "multiplexer.paneOuterBorders", "multiplexer.paneScrollbars", "multiplexer.paneGaps",
+    "multiplexer.showAgentLabelsOnPaneBorders", "multiplexer.hideTabBarWhenSingleTab",
+    "multiplexer.tabBarPosition", "multiplexer.tabBarRight", "multiplexer.tabBarRightSeparator",
+    "multiplexer.windowTitle", "multiplexer.agentPanelSort", "multiplexer.statusIndicators",
+    "multiplexer.sidebar.agents.rowGap", "multiplexer.sidebar.agents.rows",
+    "multiplexer.sidebar.agents.rowsByAgent", "multiplexer.sidebar.spaces.rowGap",
+    "multiplexer.sidebar.spaces.rows", "multiplexer.accent", "multiplexer.toast.delivery",
+    "multiplexer.toast.delaySeconds", "multiplexer.toast.workspace.position",
+    "multiplexer.toast.clipboard.enabled", "multiplexer.toast.clipboard.position",
+    "multiplexer.sound.enabled", "multiplexer.sound.agents", "multiplexer.remote.manageSshConfig",
+    "multiplexer.allowNested", "multiplexer.kittyGraphics",
+    "multiplexer.revealHiddenCursorForCjkIme", "multiplexer.cjkImeAgents",
+    "multiplexer.cjkImeCursorShape", "multiplexer.switchAsciiInputSourceInPrefix",
+    "daemon.paneShell", "daemon.paneShellMode", "daemon.newPaneCwd",
+    "daemon.resumeAgentsOnRestore", "daemon.headlessCols", "daemon.headlessRows",
+    "daemon.worktreesDirectory", "daemon.scrollbackLimitBytes", "daemon.paneHistory",
+    "daemon.detectionCatalogCheck", "update.versionCheck", "update.channel",
+    "multiplexer.onboarding", "multiplexer.theme.name", "multiplexer.theme.darkName",
+    "multiplexer.theme.lightName", "multiplexer.theme.custom", "multiplexer.mouseScrollLines",
+    "multiplexer.sound.path", "multiplexer.sound.donePath", "multiplexer.sound.requestPath",
+    "keybindings.app.interrupt", "keybindings.app.clear", "keybindings.app.exit",
+    "keybindings.app.suspend", "keybindings.app.thinking.cycle",
+    "keybindings.app.model.cycleForward", "keybindings.app.model.cycleBackward",
+    "keybindings.app.model.select", "keybindings.app.tools.expand",
+    "keybindings.app.thinking.toggle", "keybindings.app.session.toggleNamedFilter",
+    "keybindings.app.editor.external", "keybindings.app.message.followUp",
+    "keybindings.app.message.dequeue", "keybindings.app.clipboard.pasteImage",
+    "keybindings.app.session.new", "keybindings.app.session.tree", "keybindings.app.session.fork",
+    "keybindings.app.session.resume", "keybindings.app.tree.foldOrUp",
+    "keybindings.app.tree.unfoldOrDown", "keybindings.app.tree.editLabel",
+    "keybindings.app.tree.toggleLabelTimestamp", "keybindings.app.session.togglePath",
+    "keybindings.app.session.toggleSort", "keybindings.app.session.rename",
+    "keybindings.app.session.delete", "keybindings.app.session.deleteNoninvasive",
+    "keybindings.app.models.save", "keybindings.app.models.enableAll",
+    "keybindings.app.models.clearAll", "keybindings.app.models.toggleProvider",
+    "keybindings.app.models.reorderUp", "keybindings.app.models.reorderDown",
+    "keybindings.app.tree.filter.default", "keybindings.app.tree.filter.noTools",
+    "keybindings.app.tree.filter.userOnly", "keybindings.app.tree.filter.labeledOnly",
+    "keybindings.app.tree.filter.all", "keybindings.app.tree.filter.cycleForward",
+    "keybindings.app.tree.filter.cycleBackward", "keybindings.tui.editor.cursorUp",
+    "keybindings.tui.editor.cursorDown", "keybindings.tui.editor.cursorLeft",
+    "keybindings.tui.editor.cursorRight", "keybindings.tui.editor.cursorWordLeft",
+    "keybindings.tui.editor.cursorWordRight", "keybindings.tui.editor.cursorLineStart",
+    "keybindings.tui.editor.cursorLineEnd", "keybindings.tui.editor.jumpForward",
+    "keybindings.tui.editor.jumpBackward", "keybindings.tui.editor.pageUp",
+    "keybindings.tui.editor.pageDown", "keybindings.tui.editor.deleteCharBackward",
+    "keybindings.tui.editor.deleteCharForward", "keybindings.tui.editor.deleteWordBackward",
+    "keybindings.tui.editor.deleteWordForward", "keybindings.tui.editor.deleteToLineStart",
+    "keybindings.tui.editor.deleteToLineEnd", "keybindings.tui.editor.yank",
+    "keybindings.tui.editor.yankPop", "keybindings.tui.editor.undo",
+    "keybindings.tui.input.newLine", "keybindings.tui.input.submit", "keybindings.tui.input.tab",
+    "keybindings.tui.input.copy", "keybindings.tui.select.up", "keybindings.tui.select.down",
+    "keybindings.tui.select.pageUp", "keybindings.tui.select.pageDown",
+    "keybindings.tui.select.confirm", "keybindings.tui.select.cancel", "defaultThinkingLevel",
     "thinkingBudgets.minimal", "thinkingBudgets.low", "thinkingBudgets.medium",
-    "thinkingBudgets.high", "transport", "steeringMode", "followUpMode",
-    "enableSkillCommands", "images.autoResize", "images.blockImages",
-    "enableInstallTelemetry", "holdUncheckedText",
-    "compaction.enabled", "compaction.reserveTokens", "compaction.keepRecentTokens",
-    "branchSummary.reserveTokens", "branchSummary.skipPrompt",
-    "retry.enabled", "retry.maxRetries", "retry.baseDelayMs",
-    "retry.provider.timeoutMs", "retry.provider.maxRetries",
-    "retry.provider.maxRetryDelayMs",
-    "packages", "extensions", "skills", "prompts", "actions", "contributions",
-    "manifest", "manifestAreas", "manifestAutoUpdate",
-    "multiplexer.tabBarRight", "multiplexer.allowNested",
-    "multiplexer.remote.manageSshConfig",
-    "daemon.resumeAgentsOnRestore", "daemon.detectionCatalogCheck",
-    "update.versionCheck", "update.channel",
+    "thinkingBudgets.high"
+}
+NEW_LOCKS = {
+    "actions", "agents", "branchSummary.reserveTokens", "branchSummary.skipPrompt",
+    "compaction.enabled", "compaction.keepRecentTokens", "compaction.reserveTokens",
+    "contributions", "credentials.anthropic", "daemon.detectionCatalogCheck",
+    "daemon.newPaneCwd", "daemon.paneHistory", "daemon.paneShell",
+    "daemon.paneShellMode", "daemon.resumeAgentsOnRestore", "daemon.worktreesDirectory",
+    "enableSkillCommands", "enabledModels", "followUpMode", "images.autoResize",
+    "instructions", "mcpServers", "multiplexer.remote.manageSshConfig",
+    "multiplexer.allowNested", "multiplexer.tabBarRight", "npmCommand", "providers",
+    "retry.baseDelayMs",
+    "retry.enabled", "retry.maxRetries", "retry.provider.maxRetries",
+    "retry.provider.maxRetryDelayMs", "retry.provider.timeoutMs", "sessionDir",
+    "shellCommandPrefix", "shellPath", "showChangelog", "steeringMode", "themes",
+    "transport", "update.channel", "update.versionCheck",
+    "warnings.anthropicExtraUsage", "workflows",
 }
 CORE_ROLES = sorted(path.stem for path in (MANIFEST / "core/agents").glob("*.md"))
 
@@ -88,6 +164,45 @@ class BaselinePolicy(unittest.TestCase):
         for key in ["packages", "extensions", "skills", "prompts"]:
             with self.subTest(key=key):
                 self.assertNotIn(key, SETTINGS, "area folders supply these resources")
+
+    def test_remaining_governed_surfaces_are_locked(self):
+        """Lock behavior and local additions while leaving personal UI settings free."""
+        self.assertLessEqual(NEW_LOCKS, set(POLICY.get("locked", [])))
+        explicit = {
+            "credentials.anthropic": ["environment", "signIn"],
+            "showChangelog": True,
+        }
+        for key in NEW_LOCKS:
+            with self.subTest(key=key):
+                self.assertEqual(setting(key), explicit.get(key))
+        self.assertNotIn("lastChangelogVersion", POLICY.get("locked", []))
+        self.assertEqual(POLICY.get("required"), ["core/agents", "core/workflows"])
+
+    def test_personal_ui_is_not_locked(self):
+        """Leave presentation, workspace UI and all 72 named bindings editable."""
+        personal = {
+            "theme", "hideThinkingBlock", "quietStartup", "collapseChangelog",
+            "doubleEscapeAction", "treeFilterMode", "editorPaddingX",
+            "autocompleteMaxVisible", "showHardwareCursor", "daemon.headlessCols",
+            "daemon.headlessRows", "daemon.scrollbackLimitBytes",
+        } | {key for key in LOCKABLE if key.startswith(
+            ("terminal.", "markdown.", "multiplexer.", "keybindings."))} - NEW_LOCKS
+        self.assertEqual(sum(key.startswith("keybindings.") for key in personal), 72)
+        self.assertFalse(personal & set(POLICY.get("locked", [])))
+        for key in personal:
+            with self.subTest(key=key):
+                self.assertIsNone(setting(key))
+        self.assertIn("actions", POLICY.get("locked", []))
+
+    def test_output_holding_waits_for_guards(self):
+        """Do not author or lock output holding until guards ship."""
+        self.assertNotIn("holdUncheckedText", POLICY.get("locked", []))
+        self.assertNotIn("holdUncheckedText", SETTINGS)
+
+    def test_npm_command_keeps_the_engine_default(self):
+        """Lock the absent command so Git installs retain --omit=dev."""
+        self.assertIn("npmCommand", POLICY.get("locked", []))
+        self.assertNotIn("npmCommand", SETTINGS)
 
     def test_core_roles_and_workflows_are_required(self):
         """Require every core role and workflow, and only paths the release holds."""

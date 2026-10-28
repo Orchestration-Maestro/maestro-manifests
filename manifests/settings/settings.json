@@ -7,5 +7,12 @@
     "blockImages": true
   },
   "manifestAreas": [],
-  "manifestAutoUpdate": false
+  "manifestAutoUpdate": false,
+  "showChangelog": true,
+  "credentials": {
+    "anthropic": [
+      "environment",
+      "signIn"
+    ]
+  }
 }

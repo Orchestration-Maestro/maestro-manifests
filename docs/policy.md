@@ -38,7 +38,51 @@ From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
     "packages",
     "extensions",
     "skills",
-    "prompts"
+    "prompts",
+    "providers",
+    "enabledModels",
+    "transport",
+    "steeringMode",
+    "followUpMode",
+    "enableSkillCommands",
+    "images.autoResize",
+    "compaction.enabled",
+    "compaction.reserveTokens",
+    "compaction.keepRecentTokens",
+    "branchSummary.reserveTokens",
+    "branchSummary.skipPrompt",
+    "retry.enabled",
+    "retry.maxRetries",
+    "retry.baseDelayMs",
+    "retry.provider.timeoutMs",
+    "retry.provider.maxRetries",
+    "retry.provider.maxRetryDelayMs",
+    "themes",
+    "actions",
+    "contributions",
+    "workflows",
+    "agents",
+    "instructions",
+    "mcpServers",
+    "shellPath",
+    "sessionDir",
+    "npmCommand",
+    "showChangelog",
+    "credentials.anthropic",
+    "shellCommandPrefix",
+    "warnings.anthropicExtraUsage",
+    "multiplexer.remote.manageSshConfig",
+    "multiplexer.allowNested",
+    "multiplexer.tabBarRight",
+    "daemon.paneShell",
+    "daemon.paneShellMode",
+    "daemon.newPaneCwd",
+    "daemon.resumeAgentsOnRestore",
+    "daemon.worktreesDirectory",
+    "daemon.paneHistory",
+    "daemon.detectionCatalogCheck",
+    "update.versionCheck",
+    "update.channel"
   ],
   "bounds": {
     "defaultThinkingLevel": { "max": "high" },
@@ -74,7 +118,7 @@ release's CODEOWNERS, not fields in this file.
 
 | Member | Meaning |
 | --- | --- |
-| `locked` | Dotted setting paths, plus `systemPrompt`, `appendSystemPrompt`, `providers`; `manifest` fixes source identity |
+| `locked` | Dotted settings paths and resource lock names; `manifest` fixes source identity |
 | `bounds` | `min` and/or `max` for eligible numeric values and thinking levels |
 | `models` | Allowed model patterns, in `enabledModels` syntax; all selection routes must match |
 | `required` | Release-relative paths; a resource at or below a listed path is required |
@@ -103,25 +147,37 @@ still runs with thinking off.
 | `compaction.enabled`, `.reserveTokens`, `.keepRecentTokens` | Default, lock; numeric members may be bounded |
 | `branchSummary.reserveTokens`, `.skipPrompt` | Default, lock; numeric members may be bounded |
 | `retry.enabled`, `.maxRetries`, `.baseDelayMs`, `retry.provider.timeoutMs`, `.maxRetries`, `.maxRetryDelayMs` | Default, lock; numeric members may be bounded |
+| `holdUncheckedText` | Default, lock; output guards require `true` |
 | `images.blockImages`, `enableInstallTelemetry` | Default, lock; normally true and false respectively |
-| `packages`, `extensions`, `skills`, `prompts`, `actions`, `contributions` | Lock local additions, require entries; manifest resource folders supply paths |
+| `packages`, `extensions`, `skills`, `prompts`, `themes`, `actions`, `contributions`, `workflows`, `agents`, `instructions`, `mcpServers` | Lock local additions, require entries; manifest resource folders supply paths |
 | `manifest` | Lock identity |
 | `manifestAreas`, `manifestAutoUpdate` | Default, lock |
 | `multiplexer.tabBarRight`, `.allowNested`, `.remote.manageSshConfig` | Default, lock |
 | `daemon.resumeAgentsOnRestore`, `.detectionCatalogCheck` | Default, lock |
 | `update.versionCheck`, `.channel` | Default, lock |
-| `theme`, `themes`, `shellCommandPrefix` | Defaults only; never locks or bounds |
-| Every other setting | User-only, including presentation, keybindings, machine paths and credentials |
+| `shellPath`, `sessionDir`, `daemon.paneShell`, `daemon.worktreesDirectory` | Lock only; an authored location needs its matching lock |
+| `npmCommand` | Lock only; the whole argument vector, never a partial command |
+| `keybindings.<action>` | Lock one named action to its authored binding or engine default |
+| `showChangelog` | Lock startup display; `/changelog` stays available |
+| `credentials.<provider>` | Lock allowed sources: `environment`, `command`, `signIn`, `storedFile`; never a secret |
+| `theme`, `shellCommandPrefix` and other presentation settings | Default, lock |
+| `lastChangelogVersion` | State, never a lock |
 
-There is no policy lock that forbids new local workflows or roles. Each workflow
-step still follows model, tool and role policy. Actions and contributions become
-governed when their kinds are collected. Required-instruction persistence belongs
-to the rules-system contract, not this manifest's installation mechanism.
+`agents` is the lock name for local roles; it is not a settings array. The same
+is true of `workflows`, `instructions` and `mcpServers`. An instruction lock does
+not suppress context files such as `AGENTS.md` or `CLAUDE.md`. Actions and
+contributions become governed when their kinds are collected. Required
+instructions stay present through the rules system. Guard rules need no lock:
+they come only from the manifest.
 
 ## The baseline
 
-The organization locks broadly. Every row is in `manifests/settings/policy.json`;
-the value a lock fixes is in `manifests/settings/settings.json`.
+The organization locks behavior and local additions, leaving personal UI editable.
+Every locked row is in `manifests/settings/policy.json`;
+an explicit value is in `manifests/settings/settings.json`. When a value is unset,
+the lock fixes the engine default, not a user or project preference. This keeps
+platform-specific defaults portable without allowing local overrides. The owner
+approved this baseline on 2026-10-28: lock behaviour, leave personal UI.
 
 | Keys | Policy | Reason |
 | --- | --- | --- |
@@ -139,16 +195,46 @@ the value a lock fixes is in `manifests/settings/settings.json`.
 | `packages`, `extensions`, `skills`, `prompts` | Locked | No local additions |
 | `core/agents`, `core/workflows` | Required | Core roles and workflows cannot be replaced or removed |
 | `maestro`, `planner`, `reviewer`, `scout`, `worker` | `model`, `thinking` and `tools` locked per role | A role runs on the model, thinking level and tools its file declares |
+| `providers` | Locked; unset (engine default) | No local provider definitions |
+| `enabledModels`, `transport`, `steeringMode`, `followUpMode`, `enableSkillCommands` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `images.autoResize`, `compaction.enabled`, `compaction.reserveTokens`, `compaction.keepRecentTokens`, `branchSummary.reserveTokens` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `branchSummary.skipPrompt`, `retry.enabled`, `retry.maxRetries`, `retry.baseDelayMs`, `retry.provider.timeoutMs` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `retry.provider.maxRetries`, `retry.provider.maxRetryDelayMs`, `shellCommandPrefix` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `warnings.anthropicExtraUsage`, `update.versionCheck`, `update.channel` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `themes`, `actions`, `contributions`, `workflows`, `agents` | Locked; unset (engine default) | No local additions; area folders supply resources |
+| `instructions`, `mcpServers` | Locked; unset (engine default) | No local additions; area folders supply resources |
+| `shellPath`, `sessionDir`, `daemon.paneShell`, `daemon.worktreesDirectory` | Locked; unset (engine default) | Use the engine location resolver; do not hard-code one host's paths |
+| `daemon.paneShellMode`, `daemon.newPaneCwd`, `daemon.resumeAgentsOnRestore` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
+| `daemon.paneHistory`, `daemon.detectionCatalogCheck` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
+| `multiplexer.remote.manageSshConfig`, `multiplexer.allowNested`, `multiplexer.tabBarRight` | Locked; unset (engine default) | Keep SSH configuration, nested sessions and status commands at engine defaults |
+| `npmCommand` | Locked; unset (engine default) | Git installs keep `install --omit=dev`; explicit `["npm"]` changes this to `install` |
+| `showChangelog` | Locked to `true` | Keep release changes visible at startup |
+| `credentials.anthropic` | Locked to `["environment", "signIn"]` | Allow environment credentials and sign-in; refuse command-produced and literal stored keys |
 
 The `maestro` role takes no model or thinking level; the main agent's come from
 settings, so the `model` and `thinking` locks on that role do not select them.
 The `manifestAreas` lock means a user cannot select the evidence-review
 capability; the organization selects it in `manifests/settings/settings.json`.
 
-Not in the baseline yet: guard files and core skills and instructions, which
-the core does not ship, and locks on local workflows and roles, which the
-specification does not allow yet. Add each to `required` or `locked` in the
-change that makes it possible.
+Personal UI is not locked: `theme`, `hideThinkingBlock`, `quietStartup`,
+`collapseChangelog`, `terminal.*`, `doubleEscapeAction`, `treeFilterMode`,
+`editorPaddingX`, `autocompleteMaxVisible`, `showHardwareCursor`, `markdown.*`,
+workspace presentation settings, `daemon.headlessCols`, `daemon.headlessRows`,
+`daemon.scrollbackLimitBytes` and all 72 named `keybindings.*` actions remain
+editable. The `actions` lock forbids local action additions; it does not lock
+those keybindings. Workspace behavior remains locked: SSH configuration, nested
+sessions and `multiplexer.tabBarRight`, which can run periodic commands.
+`holdUncheckedText` is absent from the baseline; guards lock
+it on when they ship.
+
+Guard files in `required` wait for #27. Core skills and instructions also wait
+until the core ships them; then add their release-relative paths to `required`.
+The local-addition locks do not substitute for those required entries. Existing
+core roles and workflows remain required. Locations left unset use engine
+resolution, including host and environment fallbacks; they are not a portable
+fixed executable or a filesystem sandbox. Credential restrictions apply to
+`anthropic`; no secret is shipped. Thinking remains bounded rather than locked,
+as previously approved.
 
 ## Combining areas and local values
 
