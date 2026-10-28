@@ -174,8 +174,8 @@ Stored conflicting preferences resolve with diagnostics without rewriting the
 file. Explicit forbidden changes fail before changing state. The policy here
 locks broadly, as [policy](docs/policy.md#the-baseline) lists; it checks for newer
 releases at session start and every 30 minutes, subject to `update.versionCheck`
-and offline mode. Choosing a theme, credentials and machine-local state remains
-local.
+and offline mode. Personal theme selection and display stay editable. Credential
+sources and behaviour locations can be governed; the baseline locks them.
 
 Instructions are offered for installation, not automatically appended by area
 selection. System prompt, persona and installed instructions are different
@@ -200,9 +200,11 @@ runtime `standards/<domain>/` resources.
 The [policy guide](docs/policy.md#what-the-organization-can-lock) names the
 settings and resources an organization can constrain. This release's
 [baseline](docs/policy.md#the-baseline) fixes the prompt, model defaults and area
-selection, and requires core roles and workflows. Themes and credentials stay
-local. Repository rulesets govern contributions separately: required checks,
-signed commits and owner review do not sandbox runtime code.
+selection, and requires core roles and workflows. It also locks local theme and
+workflow additions, credential sources and behaviour locations. Personal theme
+selection and display stay editable. Repository rulesets govern contributions
+separately: required checks, signed commits and owner review do not sandbox
+runtime code.
 
 <a id="check-a-contribution"></a>
 

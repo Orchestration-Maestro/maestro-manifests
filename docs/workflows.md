@@ -120,8 +120,9 @@ next step.
 ## Loading rules
 
 Definitions load from manifest areas in area order, then user, then project. A
-later same-name optional definition replaces the whole earlier workflow. New
-local workflows are always permitted; policy cannot lock all workflow additions.
+later same-name optional definition replaces the whole earlier workflow, subject
+to policy. The `workflows` lock forbids local workflow additions; the
+[baseline](policy.md#the-baseline) includes this lock.
 
 ## What the organization can lock
 
