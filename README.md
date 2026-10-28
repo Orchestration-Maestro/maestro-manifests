@@ -86,8 +86,8 @@ Do not copy another lane's unpublished content into this tree.
 ## Artifact index
 
 Every authored manifest input is listed below in file-name order, together with
-the ownership and shared release-version records. Contributor tooling, rule
-maps and documentation are not runtime artifacts. Models and executable
+the ownership and shared release-version records. Contributor tooling, the
+standards pages and documentation are not runtime artifacts. Models and executable
 extensions are intentionally absent; their explicit
 [exceptions](docs/index.md#example-coverage-and-exceptions) let checks distinguish
 them from missing files. Keep every row linked to its real file and add a row
@@ -141,13 +141,14 @@ artifacts; see their separate guides.
 Start with the [documentation index](docs/index.md), in reading order. It covers
 settings, policy, prompts, instructions, roles, skills, workflows, themes, models,
 extensions, capabilities, ownership, releases, integrity, schemas and the catalog.
-It also records the models/extensions exceptions and the rule-map boundary.
+It also records the models and extensions exceptions.
 [CONTEXT.md](CONTEXT.md) defines the vocabulary; [development](docs/development.md)
 describes pinned tools, hooks, CI and delivery.
 
 The [engineering](docs/standards/engineering.md),
-[security](docs/standards/security.md) and [quality](docs/standards/northstar.md)
-maps describe contributor standards, not runtime `standards/<domain>/` resources.
+[security](docs/standards/security.md) and [Northstar](docs/standards/northstar.md)
+pages explain how contributors follow the organization's rules here. They are not
+runtime `standards/<domain>/` resources.
 
 ## Check a contribution
 

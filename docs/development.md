@@ -108,5 +108,5 @@ bypass the check or the owner it names.
 Run the check and test recipes above, review any automatic formatting and restage
 it. Commit through the installed hooks with a signed conventional header. Report
 which commands actually passed and which runtime/schema checks remain unavailable.
-Do not duplicate `.pre-commit-config.yaml` in CI. The rule maps under
-`docs/standards/` are edited by hand and pass the same checks as every page.
+Do not duplicate `.pre-commit-config.yaml` in CI. The pages under
+`docs/standards/` are written by hand and follow the authored-guide format.

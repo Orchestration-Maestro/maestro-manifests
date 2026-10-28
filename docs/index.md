@@ -41,6 +41,9 @@ this page puts the guides in reading order.
 - [Catalog](catalog.md) - inspect cards, owners and dependency relations.
 - [Schemas and checks](schemas-and-checks.md) - distinguish content parsing, schemas and actual loading.
 - [Development](development.md) - pinned tools, hooks, protected review and release automation.
+- [Engineering standards](standards/engineering.md) - how this repository follows the organization's engineering rules.
+- [Security standards](standards/security.md) - what the repository protects and how its security rules are held.
+- [Northstar](standards/northstar.md) - the repository's point and one measured KPI per pillar.
 
 ## Example coverage and exceptions
 
@@ -53,7 +56,6 @@ No optional area is selected by default.
 | --- | --- | --- |
 | Models (`core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
 | Extensions (`*.wasm`) | Not shipped: no executable components are added merely for documentation; quote the real external greeting source | [Extensions](extensions.md#example) |
-| `docs/standards/*` | Contributor rule maps, edited by hand; not runtime resources | [Engineering](standards/engineering.md), [security](standards/security.md), [quality](standards/northstar.md) |
 
 These explicit exceptions let the artifact-index check distinguish an intentional
 absence from a missing row or file. Models and extensions must not be added to

@@ -37,11 +37,11 @@ class InstructionClaims(unittest.TestCase):
         self.assertNotRegex(setup, r"(?i)required\s+workflow")
 
     def test_secret_scan_is_not_attributed_to_ci(self):
-        """Find gitleaks in the commit hook row, not in CI."""
+        """Find gitleaks attributed to the commit hook, not CI."""
         text = (ROOT / "docs/standards/engineering.md").read_text()
-        (row,) = [line for line in text.splitlines() if line.startswith("| ENF-013")]
-        self.assertNotRegex(row, r"\bCI\b")
-        self.assertIn("gitleaks", row)
+        section = text.split("\n## Pin inputs and keep secrets out\n", 1)[1].split("\n## ", 1)[0]
+        self.assertIn("The hook `gitleaks` scans each staged change at commit.", section)
+        self.assertRegex(section, r"It is a local hook and no\s+CI job runs it\.")
 
     def test_every_editorconfig_section_matches_a_tracked_file(self):
         """Find no section for a kind of file the repository does not hold."""
