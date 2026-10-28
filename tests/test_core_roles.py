@@ -58,11 +58,10 @@ class CoreRoles(unittest.TestCase):
         _, body = read_role("reviewer")
         for required in ["path:line", "cause", "smallest fix"]:
             self.assertIn(required, body)
-        security_map = (ROOT / "docs/standards/security.md").read_text()
-        rules = set(re.findall(r"SEC-\d{3}", body))
-        self.assertGreaterEqual(len(rules), 5)
-        for rule in rules:
-            self.assertIn(f"| {rule} ", security_map)
+        security_page = (ROOT / "docs/standards/security.md").read_text()
+        named = set(re.findall(r"\bSEC-\d{3}\b", security_page))
+        self.assertEqual(set(re.findall(r"SEC-\d{3}", body)), named)
+        self.assertIn("not applicable", body)
 
     def test_planner_states_how_done_is_checked(self):
         """Require the check that means done and the tests to add first."""
@@ -81,6 +80,16 @@ class CoreRoles(unittest.TestCase):
         """Pass line ranges from the worker so the reviewer can read the change."""
         self.assertIn("line range", read_role("worker")[1])
         self.assertIn("Files changed", read_role("reviewer")[1])
+
+    def test_worker_patch_lets_the_reviewer_read_deleted_lines(self):
+        """Hand the reviewer the unified diff, with deletions, since it cannot run git."""
+        worker = read_role("worker")[1]
+        self.assertIn("## Patch", worker)
+        self.assertRegex(worker, r"(?i)unified diff")
+        self.assertRegex(worker, r"(?i)deleted")
+        reviewer = read_role("reviewer")[1]
+        self.assertIn("Patch", reviewer)
+        self.assertRegex(reviewer, r"(?i)deleted")
 
     def test_roles_speak_in_maestro_voice(self):
         """Lead the persona with the result and the next action, and avoid hype words."""

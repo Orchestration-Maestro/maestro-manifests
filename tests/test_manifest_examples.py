@@ -27,7 +27,7 @@ class ManifestExamples(unittest.TestCase):
               "Minor (fix in this change)", "Security", "Summary"],
              "You are a senior code reviewer"),
             ("worker", None, "claude-sonnet-5-5",
-             ["Completed", "Files changed", "Commands run", "Notes (if any)"],
+             ["Completed", "Files changed", "Patch", "Commands run", "Notes (if any)"],
              "without polluting the main conversation"),
         ]:
             with self.subTest(role=role):

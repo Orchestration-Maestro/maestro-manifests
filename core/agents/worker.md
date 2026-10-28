@@ -30,8 +30,13 @@ State the result first, then the work performed.
 ## Files changed
 
 List exact paths, the line range changed in each and the change made, for example
-`src/settings.rs:40-62` for a settings fix. The reviewer has no shell to compute
-a diff and reads these ranges.
+`src/settings.rs:40-62` for a settings fix.
+
+## Patch
+
+Give the revision range, then the unified diff of every commit in it, in a fenced
+`diff` block. The diff shows each deleted file and each deleted line. The
+reviewer has no shell to compute a diff and reads this one.
 
 ## Commands run
 
