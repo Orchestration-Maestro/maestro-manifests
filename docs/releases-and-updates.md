@@ -18,19 +18,10 @@ with filters; do not invent a per-file pin.
 
 ## Example
 
-The current common policy controls when release checks occur, with no minimum
-release floor imposed:
-
-From [`settings/policy.json`](../settings/policy.json):
-
-```json
-{
-  "updateCheckMinutes": 30
-}
-```
-
-The common settings leave optional automatic updates off. An update target must
-exist as a release of the selected Git source.
+The common policy sets `updateCheckMinutes` to 30 and imposes no minimum release
+floor; its other members are in [policy](policy.md#example). The common settings
+leave optional automatic updates off, and the policy locks that choice. An update
+target must exist as a release of the selected Git source.
 
 ## Usage
 
@@ -69,9 +60,9 @@ component.
 If the newest release's minimum exceeds the current pin, the next start must
 apply it. Without permission growth it does so without asking. With growth it
 asks, and declining refuses the session with the fix; without a terminal it
-refuses. Setting `manifestAutoUpdate: true` also allows optional newer releases
-to apply without asking, but never bypasses growth confirmation. Otherwise an
-optional pinned release does not move automatically.
+refuses. Setting `manifestAutoUpdate: true` in the common settings also allows
+optional newer releases to apply without asking, but never bypasses growth
+confirmation. Otherwise an optional pinned release does not move automatically.
 
 ## Permission growth and repair
 

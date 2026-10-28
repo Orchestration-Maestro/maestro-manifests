@@ -11,25 +11,57 @@ silently becomes a preference.
 2. [Locations](#locations)
 3. [Format](#format)
 4. [What the organization can lock](#what-the-organization-can-lock)
-5. [Combining areas and local values](#combining-areas-and-local-values)
-6. [Validation](#validation)
-7. [Check a change](#check-a-change)
+5. [The baseline](#the-baseline)
+6. [Combining areas and local values](#combining-areas-and-local-values)
+7. [Validation](#validation)
+8. [Check a change](#check-a-change)
 
 ## Example
 
-The shipped common policy controls release-check timing and imposes no locks,
-bounds, required resources or model restrictions:
+The shipped common policy sets the [baseline](#the-baseline). Locks take their
+values from the common [settings](settings.md#example).
 
 From [`settings/policy.json`](../settings/policy.json):
 
 ```json
 {
+  "locked": [
+    "enableInstallTelemetry",
+    "images.blockImages",
+    "defaultProvider",
+    "defaultModel",
+    "systemPrompt",
+    "appendSystemPrompt",
+    "manifest",
+    "manifestAreas",
+    "manifestAutoUpdate",
+    "packages",
+    "extensions",
+    "skills",
+    "prompts"
+  ],
+  "bounds": {
+    "defaultThinkingLevel": { "max": "high" },
+    "thinkingBudgets.minimal": { "max": 1024 },
+    "thinkingBudgets.low": { "max": 2048 },
+    "thinkingBudgets.medium": { "max": 8192 },
+    "thinkingBudgets.high": { "max": 16384 }
+  },
+  "models": ["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"],
+  "required": ["core/agents", "core/workflows"],
+  "roles": {
+    "maestro": { "locked": ["model", "thinking", "tools"] },
+    "planner": { "locked": ["model", "thinking", "tools"] },
+    "reviewer": { "locked": ["model", "thinking", "tools"] },
+    "scout": { "locked": ["model", "thinking", "tools"] },
+    "worker": { "locked": ["model", "thinking", "tools"] }
+  },
   "updateCheckMinutes": 30
 }
 ```
 
-A value of 30 means every 30 minutes during a running session, plus every session
-start, subject to `update.versionCheck` and offline mode. The interval is policy,
+An `updateCheckMinutes` value of 30 means every 30 minutes during a running
+session, plus every session start, subject to `update.versionCheck` and offline mode. The interval is policy,
 not a user-overridable preference. `0` means session start only.
 
 ## Locations
@@ -85,6 +117,38 @@ There is no policy lock that forbids new local workflows or roles. Each workflow
 step still follows model, tool and role policy. Actions and contributions become
 governed when their kinds are collected. Required-instruction persistence belongs
 to the rules-system contract, not this manifest's installation mechanism.
+
+## The baseline
+
+The organization locks broadly. Every row is in `settings/policy.json`; the value
+a lock fixes is in `settings/settings.json`.
+
+| Keys | Policy | Reason |
+| --- | --- | --- |
+| `enableInstallTelemetry` | Locked off | Install telemetry stays off for every user |
+| `images.blockImages` | Locked on | Images are withheld from model providers |
+| `defaultProvider`, `defaultModel` | Locked to `anthropic` and `claude-sonnet-5-5` | One default model for the main agent |
+| `models` | `claude-haiku-5-5`, `claude-opus-5-5`, `claude-sonnet-5-5` | Approved model set; every selection route must match it |
+| `defaultThinkingLevel` | Bounded to `high` at most | Spend ceiling; the default is `medium` |
+| `thinkingBudgets.minimal` | Bounded to 1024 tokens at most | Engine default is the ceiling |
+| `thinkingBudgets.low` | Bounded to 2048 tokens at most | Engine default is the ceiling |
+| `thinkingBudgets.medium` | Bounded to 8192 tokens at most | Engine default is the ceiling |
+| `thinkingBudgets.high` | Bounded to 16384 tokens at most | Engine default is the ceiling |
+| `systemPrompt`, `appendSystemPrompt` | Locked | Local files and flags cannot replace the core prompt or persona |
+| `manifest`, `manifestAreas`, `manifestAutoUpdate` | Locked; no optional area, no automatic optional update | Users cannot change the source, areas or update mode |
+| `packages`, `extensions`, `skills`, `prompts` | Locked | No local additions |
+| `core/agents`, `core/workflows` | Required | Core roles and workflows cannot be replaced or removed |
+| `maestro`, `planner`, `reviewer`, `scout`, `worker` | `model`, `thinking` and `tools` locked per role | A role runs on the model, thinking level and tools its file declares |
+
+The `maestro` role takes no model or thinking level; the main agent's come from
+settings, so those two locks hold the engine default. The `manifestAreas` lock
+means a user cannot select the evidence-review capability; the organization
+selects it in `settings/settings.json`.
+
+Not in the baseline yet: guard files and core skills and instructions, which
+the core does not ship, and locks on local workflows and roles, which the
+specification does not allow yet. Add each to `required` or `locked` in the
+change that makes it possible.
 
 ## Combining areas and local values
 

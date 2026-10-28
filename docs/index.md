@@ -68,14 +68,20 @@ From [`settings/settings.json`](../settings/settings.json):
 
 ```json
 {
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-5-5",
+  "defaultThinkingLevel": "medium",
+  "enableInstallTelemetry": false,
+  "images": {
+    "blockImages": true
+  },
   "manifestAreas": [],
   "manifestAutoUpdate": false
 }
 ```
 
-The empty list does not prevent a user from selecting the real evidence-review
-capability in their own settings. It keeps that selection out of the default
-composition.
+The empty list keeps the real evidence-review capability out of the default
+composition. The policy locks `manifestAreas`, so only the organization can add it.
 
 ## What the organization can lock
 

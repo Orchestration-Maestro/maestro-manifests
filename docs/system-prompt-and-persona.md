@@ -88,8 +88,8 @@ instructions. Installable instructions have their own [format](instructions.md).
 A `systemPrompt` lock ignores local base files with a diagnostic and refuses an
 explicit replacement, including an extension's per-turn replacement. An
 `appendSystemPrompt` lock likewise ignores local append files and refuses
-explicit appends. Those locks belong in `settings/policy.json`; neither is set
-in this release.
+explicit appends. Those locks belong in `settings/policy.json`; this release sets
+both, so users cannot replace the core prompt or persona.
 
 Without the locks, users can customize those prompts. Prompt text is guidance,
 not a security boundary; locking it does not sandbox extension code or revoke
