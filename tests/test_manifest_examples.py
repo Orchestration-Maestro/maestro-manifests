@@ -9,6 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CAPABILITY = ROOT / "capabilities/practice/evidence-review"
 
 
+def skill_rules(skill):
+    """Return the skill's rule table as rows of stripped cells, header first."""
+    return [[cell.strip() for cell in row.strip("|").split("|")]
+            for row in re.findall(r"^\|.+\|$", skill, re.M)]
+
+
 class ManifestExamples(unittest.TestCase):
     """Keep example content and its documented contracts in sync."""
 
@@ -149,8 +155,7 @@ class ManifestExamples(unittest.TestCase):
                     self.assertIn(f"`{term}`", text)
                 self.assertIn(f"```markdown\n{text}```", (ROOT / f"docs/{guide}.md").read_text())
         skill = (CAPABILITY / files[1][0]).read_text()
-        rows = [[cell.strip() for cell in row.strip("|").split("|")]
-                for row in re.findall(r"^\|.+\|$", skill, re.M)]
+        rows = skill_rules(skill)
         self.assertEqual(rows[:1], [["Rule", "Required", "Checked by"]])
         self.assertEqual([row[0] for row in rows[2:]],
                          ["Cite", "Classify", "Report runs", "Report gaps",
@@ -160,6 +165,15 @@ class ManifestExamples(unittest.TestCase):
         task = re.findall(r"^    task: (.+)$",
                           (CAPABILITY / "workflows/review-evidence.yaml").read_text(), re.M)[0]
         self.assertIn("report", task)
+
+    def test_evidence_review_skill_requires_cited_corrected_answers(self):
+        """Keep the standalone skill's corrected answer cited, as the role requires."""
+        skill = (CAPABILITY / "skills/review-evidence/SKILL.md").read_text()
+        self.assertRegex(skill, r"(?m)^\d+\. Return .*corrected answer .*cites its sources")
+        cite = next(row for row in skill_rules(skill) if row[0] == "Cite")
+        self.assertIn("`Corrected answer`", cite[1])
+        self.assertIn("`Corrected answer`", cite[2])
+        self.assertIn(f"```markdown\n{skill}```", (ROOT / "docs/skills.md").read_text())
 
     def test_evidence_review_text_uses_maestro_voice(self):
         """Give each instruction its own line and avoid the words Maestro avoids."""
