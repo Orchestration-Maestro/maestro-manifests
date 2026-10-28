@@ -1,0 +1,11 @@
+{
+  "name": "maestro-security",
+  "private": true,
+  "description": "Security assessment roles, instructions and a skill. The maestro-security package supplies the tools.",
+  "license": "MIT",
+  "maestro": {
+    "skills": [
+      "./skills/security-assessment"
+    ]
+  }
+}
