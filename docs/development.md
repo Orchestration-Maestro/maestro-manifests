@@ -65,7 +65,7 @@ untracked files. Tests do not change your index.
 ## Required CI
 
 The organization's `hygiene-central` ruleset requires the shared
-`content.yml@v0.16.0` workflow on pull requests and merge groups targeting the
+`content.yml@v0.16.1` workflow on pull requests and merge groups targeting the
 default branch. Its job is `Required content checks`; this repository needs no
 caller workflow. The repository's `merge-queue` ruleset uses Maestro's queue
 settings: squash merges, all checks green, up to seven entries building and
