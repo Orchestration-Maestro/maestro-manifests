@@ -40,8 +40,8 @@ With this release's CODEOWNERS, the owner is `@FrancoisLDaigneault`. The common
 policy does not require the workflow, so its card is optional. The selected Git
 pin supplies its release property; no workflow-level version is needed.
 
-The evidence-review capability similarly provides its role, skill, instruction,
-prompt and theme. Those relations come from real paths and native package
+The evidence-review capability similarly provides its role, skill, prompt and
+theme. Those relations come from real paths and native package
 entries, not a second catalog entity file committed beside each resource.
 
 ## Blueprints and relations

@@ -56,12 +56,12 @@ name: review-evidence
 description: Check factual claims against sources with the evidence-reviewer role
 chain:
   - agent: evidence-reviewer
-    task: "Check the claims and cited source passages supplied here; return a corrected answer with citations and any evidence gaps: $@"
+    task: "Check the claims against the cited source passages supplied here and return your report: $@"
 ```
 
 Supply an answer and its cited source passages as the run's task. The single
-step returns the role's corrected answer, citations and evidence gaps; it makes
-no implementation handoff.
+step returns the role's report: corrected answer, findings, checks run and checks
+not run. It makes no implementation handoff.
 
 ## Format
 
@@ -149,7 +149,7 @@ and run `scout-and-plan` on a disposable project. It must return a plan without
 editing. Run the implementation chains on a disposable change and inspect
 handoffs. Without the optional capability, confirm `review-evidence` is absent;
 select the capability and run it with an answer and source passages. It must
-return citations and evidence gaps without editing files. Exercise a deliberately
+return the report without editing files. Exercise a deliberately
 failing command in a separate local workflow and confirm no later step runs.
 Requiring a workflow also needs the loader's
 same-release closure check; parsing YAML alone is insufficient.
