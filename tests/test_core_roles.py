@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "manifests"
 ROLES = ["maestro", "scout", "planner", "reviewer", "worker"]
 CURRENT_MODELS = {"claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"}
 SHELL_AND_WRITE_TOOLS = {"bash", "edit", "write"}
@@ -16,7 +17,7 @@ AVOIDED_WORDS = (
 
 def read_role(name):
     """Return a core role's frontmatter fields and prompt body."""
-    _, frontmatter, body = (ROOT / f"core/agents/{name}.md").read_text().split("---\n", 2)
+    _, frontmatter, body = (MANIFEST / f"core/agents/{name}.md").read_text().split("---\n", 2)
     fields = dict(line.split(": ", 1) for line in frontmatter.splitlines())
     return fields, body
 
@@ -30,8 +31,8 @@ class CoreRoles(unittest.TestCase):
             fields, _ = read_role(name)
             if "model" in fields:
                 self.assertIn(fields["model"], CURRENT_MODELS, name)
-        sources = [*ROOT.glob("core/**/*.md"), *ROOT.glob("docs/**/*.md"),
-                   *ROOT.glob("capabilities/**/*.md"), ROOT / "README.md"]
+        sources = [*MANIFEST.glob("core/**/*.md"), *ROOT.glob("docs/**/*.md"),
+                   *MANIFEST.glob("capabilities/**/*.md"), ROOT / "README.md"]
         for path in sources:
             self.assertNotRegex(path.read_text(), r"claude-[a-z]+-4-5", path.name)
 

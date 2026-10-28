@@ -27,7 +27,7 @@ add files or directories; `--prompt-template` is repeatable.
 
 The evidence-review capability provides this explanation template:
 
-From [`capabilities/practice/evidence-review/prompts/explain-change.md`](../capabilities/practice/evidence-review/prompts/explain-change.md):
+From [`manifests/capabilities/practice/evidence-review/prompts/explain-change.md`](../manifests/capabilities/practice/evidence-review/prompts/explain-change.md):
 
 ```markdown
 ---
@@ -56,7 +56,7 @@ The body is Markdown expanded as text, not shell code.
 ## Usage
 
 After selecting the capability, invoke this from a normal clone of the release:
-`/explain-change settings/settings.json "new contributors" focus on area selection`.
+`/explain-change manifests/settings/settings.json "new contributors" focus on area selection`.
 The first argument is a real file in this release, the second is one quoted
 audience argument, and the remaining words fill the details tail. No file is
 changed. The same template works unchanged when copied into a local prompt folder.

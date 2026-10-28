@@ -34,7 +34,7 @@ repos:
         language: system
         entry: rumdl check --no-cache --disable MD013,MD041 --config 'MD033.allowed-elements = ["a", "br", "details", "h1", "img", "p", "picture", "source", "strong", "summary"]'
         types: [markdown]
-        exclude: '^CHANGELOG\.md$'
+        exclude: '^manifests/CHANGELOG\.md$'
       - id: workspace-check
         name: Check staged content
         language: system

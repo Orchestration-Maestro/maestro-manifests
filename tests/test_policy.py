@@ -5,8 +5,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-POLICY_TEXT = (ROOT / "settings/policy.json").read_text()
-SETTINGS_TEXT = (ROOT / "settings/settings.json").read_text()
+MANIFEST = ROOT / "manifests"
+POLICY_TEXT = (MANIFEST / "settings/policy.json").read_text()
+SETTINGS_TEXT = (MANIFEST / "settings/settings.json").read_text()
 POLICY = json.loads(POLICY_TEXT)
 SETTINGS = json.loads(SETTINGS_TEXT)
 THINKING = ["off", "minimal", "low", "medium", "high", "xhigh"]
@@ -31,7 +32,7 @@ LOCKABLE = {
     "daemon.resumeAgentsOnRestore", "daemon.detectionCatalogCheck",
     "update.versionCheck", "update.channel",
 }
-CORE_ROLES = sorted(path.stem for path in (ROOT / "core/agents").glob("*.md"))
+CORE_ROLES = sorted(path.stem for path in (MANIFEST / "core/agents").glob("*.md"))
 
 
 def setting(path):
@@ -94,10 +95,10 @@ class BaselinePolicy(unittest.TestCase):
         self.assertTrue(required)
         for path in required:
             with self.subTest(path=path):
-                self.assertTrue((ROOT / path).exists(), "required path is missing")
-        for resource in [*(ROOT / "core/agents").glob("*.md"),
-                         *(ROOT / "core/workflows").glob("*.yaml")]:
-            relative = resource.relative_to(ROOT).as_posix()
+                self.assertTrue((MANIFEST / path).exists(), "required path is missing")
+        for resource in [*(MANIFEST / "core/agents").glob("*.md"),
+                         *(MANIFEST / "core/workflows").glob("*.yaml")]:
+            relative = resource.relative_to(MANIFEST).as_posix()
             with self.subTest(resource=relative):
                 self.assertTrue(any(relative == path or relative.startswith(f"{path}/")
                                     for path in required))
@@ -113,7 +114,7 @@ class BaselinePolicy(unittest.TestCase):
     def test_every_model_a_core_role_declares_is_allowed(self):
         """Allow each model a core role declares, since its model lock fixes that choice."""
         for name in CORE_ROLES:
-            frontmatter = (ROOT / f"core/agents/{name}.md").read_text().split("---\n")[1]
+            frontmatter = (MANIFEST / f"core/agents/{name}.md").read_text().split("---\n")[1]
             declared = [line.split(": ", 1)[1] for line in frontmatter.splitlines()
                         if line.startswith("model: ")]
             for model in declared:

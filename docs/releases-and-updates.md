@@ -53,7 +53,7 @@ apply at its next start, or through `/manifest update` now.
 
 Only common and core can set `minimumRelease` or `updateCheckMinutes`. A floor
 must not exceed the release you publish. Candidate inspection reads the optional
-common and core policies and the candidate `CHANGELOG.md` in temporary scope. The higher
+common and core policies and the candidate `manifests/CHANGELOG.md` in temporary scope. The higher
 minimum wins. Inspection does not execute a lifecycle script, build step or
 component.
 
@@ -88,9 +88,9 @@ unlocked, hand-editing a pin remains possible within the minimum-release rules.
 ## Publishing this repository
 
 The existing Release Please workflow opens a release pull request from
-conventional commits. It updates `version.txt`, `CHANGELOG.md` and its version
+conventional commits. It updates `version.txt`, `manifests/CHANGELOG.md` and its version
 manifest. Merging that pull request creates a protected `v`-prefixed tag,
-starting at `v0.1.0`. The root `package.json` is private and omits an independent
+starting at `v0.1.0`. The common `manifests/package.json` is private and omits an independent
 npm version; the Git tag is the release identity. In-tree capabilities share
 that release. Keep separately versioned capabilities in separate containers.
 
@@ -111,7 +111,9 @@ From [`.github/release-please/config.json`](../.github/release-please/config.jso
     { "type": "fix", "section": "Bug Fixes" },
     { "type": "perf", "section": "Performance" }
   ],
-  "packages": { ".": { "version-file": "version.txt" } }
+  "packages": {
+    ".": { "version-file": "version.txt", "changelog-path": "manifests/CHANGELOG.md" }
+  }
 }
 ```
 

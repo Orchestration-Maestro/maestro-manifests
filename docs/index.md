@@ -4,7 +4,9 @@ Read these guides to select a release, understand its composition and author
 resources in their native formats. Each artifact guide quotes a real release
 file, except the explicitly approved model and extension examples below. The
 [README artifact index](../README.md#artifact-index) inventories the release inputs;
-this page puts the guides in reading order.
+this page puts the guides in reading order. All manifest content sits under
+`manifests/`, the manifest root; these guides, the checks and the README stay
+outside it.
 
 ## Contents
 
@@ -47,14 +49,14 @@ this page puts the guides in reading order.
 
 ## Example coverage and exceptions
 
-The opt-in `capabilities/practice/evidence-review/` supplies a real package, role,
+The opt-in `manifests/capabilities/practice/evidence-review/` supplies a real package, role,
 skill, instruction, prompt, theme and workflow. Common supplies settings/policy;
 core supplies system/persona text and the three implementation/planning workflows.
 No optional area is selected by default.
 
 | Exempt kind or path | Reason | Where to read it |
 | --- | --- | --- |
-| Models (`core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
+| Models (`manifests/core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
 | Extensions (`*.wasm`) | Not shipped: no executable components are added merely for documentation; quote the real external greeting source | [Extensions](extensions.md#example) |
 
 These explicit exceptions let the artifact-index check distinguish an intentional
@@ -66,7 +68,7 @@ come from their consumer, not handwritten examples or empty folders.
 
 The common settings make the opt-in boundary visible:
 
-From [`settings/settings.json`](../settings/settings.json):
+From [`manifests/settings/settings.json`](../manifests/settings/settings.json):
 
 ```json
 {

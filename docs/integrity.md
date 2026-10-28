@@ -20,7 +20,7 @@ reason to crash an otherwise recoverable session.
 
 This is the actual installable instruction in the evidence-review capability:
 
-From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
+From [`manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
 
 ```markdown
 ---

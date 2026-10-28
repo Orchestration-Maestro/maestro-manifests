@@ -1,6 +1,6 @@
 # Capabilities and ownership
 
-A capability is one opt-in package at `capabilities/<group>/<name>/`, bundling a
+A capability is one opt-in package at `manifests/capabilities/<group>/<name>/`, bundling a
 team's authored resources. The group is navigation, not a settings layer, and
 ownership comes from the release's CODEOWNERS. Maestro reads these paths, not
 GitHub repository properties.
@@ -20,7 +20,7 @@ GitHub repository properties.
 ## Locations
 
 Both group and capability names are lowercase, hyphenated and at most 64
-characters. The example lives at `capabilities/practice/evidence-review/`.
+characters. The example lives at `manifests/capabilities/practice/evidence-review/`.
 The separately maintained security capability is not included here; this
 revision does not copy that lane's branch or claim its migration is complete.
 
@@ -34,7 +34,7 @@ consumer.
 
 The evidence-review capability is one package with explicit native resource paths:
 
-From [`capabilities/practice/evidence-review/package.json`](../capabilities/practice/evidence-review/package.json):
+From [`manifests/capabilities/practice/evidence-review/package.json`](../manifests/capabilities/practice/evidence-review/package.json):
 
 ```json
 {
@@ -58,12 +58,12 @@ From [`capabilities/practice/evidence-review/package.json`](../capabilities/prac
 
 Its conventional `agents/`, `instructions/` and `workflows/` files are discovered
 by their owning consumers, not by an invented ownership descriptor. It ships one
-[evidence-reviewer role](../capabilities/practice/evidence-review/agents/evidence-reviewer.md),
-[skill](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
-[instruction](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md),
-[prompt](../capabilities/practice/evidence-review/prompts/explain-change.md),
-[theme](../capabilities/practice/evidence-review/themes/review-dark.json) and
-[workflow](../capabilities/practice/evidence-review/workflows/review-evidence.yaml).
+[evidence-reviewer role](../manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md),
+[skill](../manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
+[instruction](../manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md),
+[prompt](../manifests/capabilities/practice/evidence-review/prompts/explain-change.md),
+[theme](../manifests/capabilities/practice/evidence-review/themes/review-dark.json) and
+[workflow](../manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml).
 
 ## Format
 
@@ -77,7 +77,7 @@ components.
 
 In your own user/project settings, select this pinned manifest. The policy locks
 `manifestAreas`, so the organization adds `capabilities/practice/evidence-review`
-to it in `settings/settings.json`. See [settings usage](settings.md#usage). The
+(a path under the manifest root) to it in `manifests/settings/settings.json`. See [settings usage](settings.md#usage). The
 common file leaves the list empty, so this capability is not active merely because
 its files exist in the checkout. An absent area or the short name
 `evidence-review` is not a valid selection.
@@ -114,12 +114,13 @@ From [`.github/CODEOWNERS`](../.github/CODEOWNERS):
 # The last matching pattern supplies review and catalog ownership.
 * @FrancoisLDaigneault
 
-# Explicit ownership for the capability group and capability paths.
-/capabilities/security/ @FrancoisLDaigneault
-/capabilities/security/maestro-security/ @FrancoisLDaigneault
+# Explicit ownership for the capability group and capability paths under the
+# manifest root.
+/manifests/capabilities/security/ @FrancoisLDaigneault
+/manifests/capabilities/security/maestro-security/ @FrancoisLDaigneault
 
-/capabilities/practice/ @FrancoisLDaigneault
-/capabilities/practice/evidence-review/ @FrancoisLDaigneault
+/manifests/capabilities/practice/ @FrancoisLDaigneault
+/manifests/capabilities/practice/evidence-review/ @FrancoisLDaigneault
 ```
 
 The approved principal is `@FrancoisLDaigneault`; no unverified team is assigned.

@@ -19,7 +19,7 @@ not shipped as an artifact.
 
 ## Locations
 
-The manifest path is `core/llm/models.json`, read before the user file at
+The manifest path is `manifests/core/llm/models.json`, read before the user file at
 `~/.maestro/agent/models.json`. There is no project models file. To try the
 example without changing the release, put it in your own user models file.
 See the explicit [artifact-index exception](index.md#example-coverage-and-exceptions).

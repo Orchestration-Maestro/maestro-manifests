@@ -35,7 +35,7 @@ that a rule will match a particular request.
 The opt-in evidence-review capability ships this instruction. It selects only
 files under `docs/`:
 
-From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
+From [`manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
 
 ```markdown
 ---

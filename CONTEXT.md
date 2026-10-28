@@ -9,12 +9,18 @@ repository validate files; they do not execute policy or approve a publisher.
 - **Manifest:** An organization's optional configuration layer, selected by a
   pinned Git source in the `manifest` setting.
 - **Internal mode:** Maestro with no manifest selected.
-- **Manifest area:** The common release root, a standard domain, core, a language
-  or a capability. Areas load in the order documented in [settings](docs/settings.md).
-- **Capability group:** The navigation folder under `capabilities/` that groups
-  capabilities. It is not a settings area and Maestro reads no GitHub properties.
-- **Capability:** One package at `capabilities/<group>/<name>/`, selected by that
-  full path in `manifestAreas`.
+- **Manifest root:** The one folder of a release, `manifests/`, that holds all of
+  its manifest content. Maestro reads manifest content only from it;
+  documentation, schemas, catalog blueprints and CI stay outside.
+- **Manifest area:** The manifest root itself (the common area), a standard
+  domain, core, a language or a capability. Areas load in the order documented in
+  [settings](docs/settings.md).
+- **Capability group:** The navigation folder under `manifests/capabilities/` that
+  groups capabilities. It is not a settings area and Maestro reads no GitHub
+  properties.
+- **Capability:** One package at `manifests/capabilities/<group>/<name>/`, selected
+  in `manifestAreas` by its path under the manifest root,
+  `capabilities/<group>/<name>`.
 - **Package:** A versioned resource container with a native `package.json` and
   `maestro` resource declarations, or conventional resource directories. Code
   integrations ship already-built extension components.

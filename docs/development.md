@@ -93,7 +93,7 @@ owner lookup. Submit signed conventional commits through a pull request and use
 ## Releases
 
 Release Please opens a release pull request from conventional commits on `main`.
-It updates `version.txt`, `CHANGELOG.md` and its version manifest. Merging that
+It updates `version.txt`, `manifests/CHANGELOG.md` and its version manifest. Merging that
 pull request creates a `v`-prefixed release tag, starting at `v0.1.0`. The
 organization's `floor-release-tags` ruleset protects those tags from changes and
 deletion.

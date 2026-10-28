@@ -291,7 +291,7 @@ human or agent, changes shipped content unseen.
 
 The organization's `commits-are-conventional` ruleset refuses any other title on
 the default branch. The hooks `conventional-commit-header` and `eighty-columns`
-check the message at commit. Release Please builds `CHANGELOG.md` from the commit
+check the message at commit. Release Please builds `manifests/CHANGELOG.md` from the commit
 types in `.github/release-please/config.json`. The `default-branch-discipline`
 ruleset requires a pull request, signed commits, squash merges and resolved
 review threads. It requires no count of approving reviews, so the owner's merge
@@ -322,7 +322,7 @@ checksum and provenance. Action references in
 `.github/workflows/release-please.yml` use full commit SHAs, which the
 organization's Actions policy requires, and `.github/dependabot.yml` proposes
 updates weekly after a seven-day cooldown. No dependency needs a lockfile:
-`package.json` lists none and the tests use only the Python standard library.
+`manifests/package.json` lists none and the tests use only the Python standard library.
 
 The hook `gitleaks` scans each staged change at commit. It is a local hook and no
 CI job runs it. On the platform, secret scanning with push protection and

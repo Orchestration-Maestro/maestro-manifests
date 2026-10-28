@@ -21,7 +21,7 @@ silently becomes a preference.
 The shipped common policy sets the [baseline](#the-baseline). Locks take their
 values from the common [settings](settings.md#example).
 
-From [`settings/policy.json`](../settings/policy.json):
+From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
 
 ```json
 {
@@ -120,8 +120,8 @@ to the rules-system contract, not this manifest's installation mechanism.
 
 ## The baseline
 
-The organization locks broadly. Every row is in `settings/policy.json`; the value
-a lock fixes is in `settings/settings.json`.
+The organization locks broadly. Every row is in `manifests/settings/policy.json`;
+the value a lock fixes is in `manifests/settings/settings.json`.
 
 | Keys | Policy | Reason |
 | --- | --- | --- |
@@ -143,7 +143,7 @@ a lock fixes is in `settings/settings.json`.
 The `maestro` role takes no model or thinking level; the main agent's come from
 settings, so the `model` and `thinking` locks on that role do not select them.
 The `manifestAreas` lock means a user cannot select the evidence-review
-capability; the organization selects it in `settings/settings.json`.
+capability; the organization selects it in `manifests/settings/settings.json`.
 
 Not in the baseline yet: guard files and core skills and instructions, which
 the core does not ship, and locks on local workflows and roles, which the
