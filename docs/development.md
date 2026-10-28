@@ -100,13 +100,13 @@ trigger required checks. Keep those credentials in GitHub, never in this catalog
 
 Repository rulesets require checks, signed changes and protected review. These
 are contributor controls, not entries in manifest policy. A runtime policy lock
-does not replace repository review, and a maintainer must not hand-edit generated
-rust-gate files to bypass their owner.
+does not replace repository review, and a maintainer must not edit a file to
+bypass the check or the owner it names.
 
 ## Check a change
 
 Run the check and test recipes above, review any automatic formatting and restage
 it. Commit through the installed hooks with a signed conventional header. Report
 which commands actually passed and which runtime/schema checks remain unavailable.
-Do not duplicate `.pre-commit-config.yaml` in CI. The generated rule maps under
-`docs/standards/` stay generated and are exempt from authored-guide formatting.
+Do not duplicate `.pre-commit-config.yaml` in CI. The rule maps under
+`docs/standards/` are edited by hand and pass the same checks as every page.

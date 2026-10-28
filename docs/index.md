@@ -53,7 +53,7 @@ No optional area is selected by default.
 | --- | --- | --- |
 | Models (`core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
 | Extensions (`*.wasm`) | Not shipped: no executable components are added merely for documentation; quote the real external greeting source | [Extensions](extensions.md#example) |
-| `docs/standards/*` | Generated rule maps owned by rust-gate; do not hand-edit for authored-page formatting | [Engineering](standards/engineering.md), [security](standards/security.md), [quality](standards/northstar.md) |
+| `docs/standards/*` | Contributor rule maps, edited by hand; not runtime resources | [Engineering](standards/engineering.md), [security](standards/security.md), [quality](standards/northstar.md) |
 
 These explicit exceptions let the artifact-index check distinguish an intentional
 absence from a missing row or file. Models and extensions must not be added to

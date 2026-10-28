@@ -5,9 +5,8 @@ rules](https://github.com/Orchestration-Maestro/.github/blob/864d85597a833864cd8
 This page is its rule map (C-001): for every rule, what holds it here, or why it
 does not apply. A row may name a stricter local rule; none weakens one.
 
-`rust-gate rules` writes the rows from the golden rules of `.github@864d855` at
-every commit and keeps what each row says here. A rule added there arrives as
-"Not mapped yet", and the daily drift check reports it until it is mapped.
+A maintainer writes the rows by hand from the golden rules of `.github@864d855`.
+A row reads "Not mapped yet" until a maintainer maps it.
 
 ## Rule map
 
@@ -49,7 +48,7 @@ every commit and keeps what each row says here. A rule added there arrives as
 | ENF-012 Pinned inputs | Not mapped yet |
 | ENF-013 No secret in history | Organization: secret scanning with push protection and validity checks (`maestrolabs-baseline`); CI: gitleaks |
 | ENF-014 Multi-factor authentication | Organization: two-factor authentication is required of every member and outside collaborator |
-| C-001 Map every rule | These pages, kept current by `rust-gate rules` at every commit; the daily drift check reports a row not mapped yet |
+| C-001 Map every rule | These pages, edited by hand; a row reads "Not mapped yet" until a maintainer maps it |
 | C-004 Detect drift | Organization: the daily drift check opens a `Drift:` issue for this repository |
 | C-005 Keep the evidence | GitHub: pull requests, CI runs with their reports, and drift issues |
 | C-006 Controlled exceptions | Review: an exception is recorded in the pull request that makes it, with its scope, rationale and expiry |
