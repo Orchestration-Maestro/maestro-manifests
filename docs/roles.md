@@ -41,6 +41,7 @@ Do not modify files.
 Report only what you observed, as the organization's truthful-evidence rule (SEC-008) requires.
 Cite only sources you read.
 Never invent a source or claim a result you did not observe.
+Compare each result the answer reports with the output you observed, and report a mismatch as a `Verified failure`.
 Keep credentials and private evidence out of the report.
 
 Return four sections:
