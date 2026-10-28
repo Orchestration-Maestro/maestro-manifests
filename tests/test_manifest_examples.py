@@ -20,25 +20,26 @@ class ManifestExamples(unittest.TestCase):
 
     def test_core_roles_keep_contracts_with_maestro_wording(self):
         """Preserve permissions, models and output sections during prose edits."""
-        for role, tools, headings, former_intro in [
-            ("scout", "read, grep, find, ls, bash",
+        for role, tools, model, headings, former_intro in [
+            ("scout", "read, grep, find, ls, bash", "claude-haiku-5-5",
              ["Files retrieved", "Key code", "Architecture", "Start here"],
              "Quickly investigate a codebase"),
-            ("planner", "read, grep, find, ls",
-             ["Goal", "Plan", "Files to modify", "New files (if any)", "Risks"],
+            ("planner", "read, grep, find, ls", "claude-opus-5-5",
+             ["Goal", "Plan", "Files to modify", "New files (if any)", "Verification",
+              "Risks"],
              "You are a planning specialist"),
-            ("reviewer", "read, grep, find, ls, bash",
-             ["Files reviewed", "Critical (must fix)", "Warnings (should fix)",
-              "Suggestions (consider)", "Summary"],
+            ("reviewer", "read, grep, find, ls", "claude-opus-5-5",
+             ["Files reviewed", "Critical (blocks)", "Important (blocks)",
+              "Minor (fix in this change)", "Security", "Summary"],
              "You are a senior code reviewer"),
-            ("worker", None, ["Completed", "Files changed", "Notes (if any)"],
+            ("worker", None, "claude-sonnet-5-5",
+             ["Completed", "Files changed", "Patch", "Commands run", "Notes (if any)"],
              "without polluting the main conversation"),
         ]:
             with self.subTest(role=role):
                 text = (ROOT / f"core/agents/{role}.md").read_text()
                 frontmatter, body = text.split("---\n")[1:3]
                 self.assertIn(f"name: {role}\n", frontmatter)
-                model = "claude-haiku-4-5" if role == "scout" else "claude-sonnet-4-5"
                 self.assertIn(f"model: {model}\n", frontmatter)
                 if tools:
                     self.assertIn(f"tools: {tools}\n", frontmatter)
