@@ -162,10 +162,9 @@ artifact.
 ### How it is applied here
 
 A deletion states why the thing existed, from the issue or commit that added it;
-`git log -S` finds that commit. An improvement outside the goal stays inside a
-file the change already edits, and the description lists it. Broken windows have
-a gate: `just check` runs `prek run --all-files`, so spelling, Markdown and
-hygiene debt anywhere in the repository fails the next pull request, not only
+`git log -S` finds that commit. Necessary adjacent fixes stay within the affected
+diff, and the description lists them. Broken windows have a gate: `just check`
+runs `prek run --all-files`, so spelling, Markdown and hygiene debt anywhere in the repository fails the next pull request, not only
 the lines that pull request touches.
 
 ## Refuse bad input and bad states
@@ -267,8 +266,8 @@ same change.
 The allowances are the `FND` word in `typos.toml`, the rules disabled and the
 HTML elements allowed in the `rumdl` entry, and `-disable-indent-size` in the
 `editorconfig-checker` entry of `.pre-commit-config.yaml`. Each is added with its
-reason in the pull request. No check fails when one goes stale, so review alone
-holds that rule here.
+reason in the pull request. Review covers the recorded reasons; stale-entry
+detection remains unsupported here.
 
 ## Deliver through signed pull requests
 
