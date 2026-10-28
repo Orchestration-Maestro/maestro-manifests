@@ -34,12 +34,13 @@ answer on every run. A review is a judgement, and the page says so where a
 review is all that holds a practice. Where neither exists, the rule is
 unsupported here and the page says that too.
 
-- **Content check.** `just check` runs the hooks of `.pre-commit-config.yaml` on
-  every tracked file. The job `Required content checks` runs it on each pull
-  request and merge group, on a hosted `ubuntu-24.04` runner with `contents: read`
-  and no secret. The `hygiene-central` ruleset requires that job.
-- **Tests.** `just test` runs the standard-library tests under `tests/`. No
-  required job runs them, so a contributor runs them before proposing a change.
+- **Content check.** `just check` runs `just content`, which runs the hooks of
+  `.pre-commit-config.yaml` on every tracked file, and then `just test`. The job
+  `Required content checks` runs it on each pull request and merge group, on a
+  hosted `ubuntu-24.04` runner with `contents: read` and no secret. The
+  `hygiene-central` ruleset requires that job.
+- **Tests.** `just test` runs the standard-library tests under `tests/`. Because
+  `just check` runs them, a pull request that breaks one fails the required job.
 - **Commit hooks.** `just setup` installs them. At commit, the hook
   `workspace-check` runs `just pre-commit` on the staged files and the hook
   `gitleaks` scans them for secrets. The hooks `conventional-commit-header` and
