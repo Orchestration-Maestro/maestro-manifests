@@ -7,5 +7,16 @@
     "blockImages": true
   },
   "manifestAreas": [],
-  "manifestAutoUpdate": false
+  "manifestAutoUpdate": false,
+  "npmCommand": [
+    "npm"
+  ],
+  "holdUncheckedText": true,
+  "showChangelog": true,
+  "credentials": {
+    "anthropic": [
+      "environment",
+      "signIn"
+    ]
+  }
 }

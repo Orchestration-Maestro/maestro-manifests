@@ -55,7 +55,18 @@ From [`manifests/settings/settings.json`](../manifests/settings/settings.json):
     "blockImages": true
   },
   "manifestAreas": [],
-  "manifestAutoUpdate": false
+  "manifestAutoUpdate": false,
+  "npmCommand": [
+    "npm"
+  ],
+  "holdUncheckedText": true,
+  "showChangelog": true,
+  "credentials": {
+    "anthropic": [
+      "environment",
+      "signIn"
+    ]
+  }
 }
 ```
 
@@ -87,8 +98,13 @@ Language and capability settings cannot set or constrain `manifest`,
 no settings. The manifest must not set `extensions`, `skills`, `prompts` or
 `themes` path arrays; area resource folders supply those inputs. Its `packages`
 entries are required packages. See the governed-key table in [policy](policy.md)
-for the permitted defaults and constraints; machine paths and credentials are
-user-only.
+for the permitted defaults and constraints. Locations and `npmCommand` may
+appear only as the values of matching locks. This baseline fixes `npmCommand`
+to `["npm"]`, the whole vector, while leaving locations at engine defaults.
+Credential values name allowed sources, never secrets. The `anthropic` lock
+allows `environment` and `signIn`, not `command` or `storedFile`. Resource locks
+for `workflows`, `agents`, `instructions` and `mcpServers` take no settings array.
+Named action locks use `keybindings.<action>`; other action names stay free.
 
 ## What the organization can lock
 
