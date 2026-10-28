@@ -5,7 +5,8 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PROMPT = (ROOT / "core/SYSTEM.md").read_text()
+MANIFEST = ROOT / "manifests"
+PROMPT = (MANIFEST / "core/SYSTEM.md").read_text()
 
 # Each rule is one imperative sentence with the organization rules it serves.
 RULES = [

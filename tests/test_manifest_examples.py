@@ -6,7 +6,8 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CAPABILITY = ROOT / "capabilities/practice/evidence-review"
+MANIFEST = ROOT / "manifests"
+CAPABILITY = MANIFEST / "capabilities/practice/evidence-review"
 
 
 def skill_rules(skill):
@@ -37,7 +38,7 @@ class ManifestExamples(unittest.TestCase):
              "without polluting the main conversation"),
         ]:
             with self.subTest(role=role):
-                text = (ROOT / f"core/agents/{role}.md").read_text()
+                text = (MANIFEST / f"core/agents/{role}.md").read_text()
                 frontmatter, body = text.split("---\n")[1:3]
                 self.assertIn(f"name: {role}\n", frontmatter)
                 self.assertIn(f"model: {model}\n", frontmatter)
@@ -58,7 +59,7 @@ class ManifestExamples(unittest.TestCase):
             ("scout-and-plan", ["scout", "planner"], [0, 1]),
         ]:
             with self.subTest(workflow=name):
-                text = (ROOT / f"core/workflows/{name}.yaml").read_text()
+                text = (MANIFEST / f"core/workflows/{name}.yaml").read_text()
                 self.assertIn("apiVersion: maestro.workflow/v1\n", text)
                 self.assertIn(f"kind: Workflow\nname: {name}\n", text)
                 self.assertEqual(re.findall(r"^  - agent: (.+)$", text, re.M), roles)
@@ -117,7 +118,7 @@ class ManifestExamples(unittest.TestCase):
         relative = path.relative_to(ROOT).as_posix()
         self.assertIn(f"[`{relative}`]({relative})", (ROOT / "README.md").read_text())
         self.assertIn(f"```yaml\n{text}```", (ROOT / "docs/workflows.md").read_text())
-        settings = json.loads((ROOT / "settings/settings.json").read_text())
+        settings = json.loads((MANIFEST / "settings/settings.json").read_text())
         self.assertEqual(settings["manifestAreas"], [])
         self.assertNotIn("theme", settings)
         self.assertEqual((CAPABILITY / "agents/evidence-reviewer.md").read_text()
