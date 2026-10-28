@@ -44,10 +44,11 @@ standards and core always load. Development starts at version `0.0.0` and
 [Release Please](docs/releases-and-updates.md) publishes versioned tags.
 
 To opt in, add `capabilities/practice/evidence-review` to your own `manifestAreas`.
-It offers a skill, role, prompt, theme and workflow, with no added
-executable extension or model provider. Selecting it does not choose its theme
-automatically. Its review rule lives in the role and skill, so it applies only
-when evidence is reviewed.
+It offers a skill, role, instruction, prompt, theme and workflow, with no added
+executable extension or model provider. Selecting it does not install its
+instruction or choose its theme automatically. Its review rule lives in the role
+and skill, so it applies only when evidence is reviewed; the instruction
+selects only files under `docs/`.
 
 Core supplies three chains:
 
@@ -69,7 +70,7 @@ references. Read [workflows](docs/workflows.md) before changing a chain.
 
 The common root holds `package.json` and `settings/`. Core holds the base prompt,
 main persona, four delegated roles and three workflows. The optional capability
-at `capabilities/practice/evidence-review/` keeps its native package and all five
+at `capabilities/practice/evidence-review/` keeps its native package and all six
 resources together. Documentation lives under `docs/`; CODEOWNERS supplies
 review and catalog attribution. The complete input inventory follows.
 
@@ -98,6 +99,7 @@ whenever an artifact is added.
 | --- | --- |
 | [`.github/CODEOWNERS`](.github/CODEOWNERS) | Last-match review and catalog ownership for every path. |
 | [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
+| [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md) | Installable documentation guidance with applyTo frontmatter. |
 | [`capabilities/practice/evidence-review/package.json`](capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
 | [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
 | [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |

@@ -18,12 +18,22 @@ reason to crash an otherwise recoverable session.
 
 ## Example
 
-This release offers no instruction, so it has no installed copy to repair. To
-exercise copy integrity, publish the [format sample](instructions.md#example) as
-`instructions/sample.instructions.md` in a fixture release, select that release
-in a disposable project and run `/manifest install sample -l`. The destination is
-`.maestro/instructions/sample.instructions.md`. Its recorded commit and digest
-identify the fixture source; a matching copy must be byte-for-byte equal.
+This is the actual installable instruction in the evidence-review capability:
+
+From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
+
+```markdown
+---
+applyTo: "docs/**/*.md"
+---
+
+Cite the file and line for each claim about the code.
+```
+
+To exercise copy integrity in a disposable project, select the capability and
+run `/manifest install cite-code-claims -l`. The destination is
+`.maestro/instructions/cite-code-claims.instructions.md`. Its recorded commit
+and digest identify the source above; a matching copy must be byte-for-byte equal.
 
 ## Usage
 
@@ -95,7 +105,7 @@ bytes. Parsing an instruction or policy cannot establish those guarantees.
 Run the [available checks](schemas-and-checks.md#available-checks). In an isolated
 runtime fixture, start once to establish an accepted composition. Test a changed
 file, deleted file, untracked file and moved HEAD separately, confirming the
-restored bytes/commit and notice. Install a fixture instruction and test copy refresh.
+restored bytes/commit and notice. Install an instruction and test copy refresh.
 Simulate failed restoration and acquisition only in that fixture; confirm the
 warning and last accepted composition, then successful repair on the next start.
 Content parsing alone cannot prove these startup behaviors.

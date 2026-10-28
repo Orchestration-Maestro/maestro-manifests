@@ -56,10 +56,11 @@ From [`capabilities/practice/evidence-review/package.json`](../capabilities/prac
 }
 ```
 
-Its conventional `agents/` and `workflows/` files are discovered
+Its conventional `agents/`, `instructions/` and `workflows/` files are discovered
 by their owning consumers, not by an invented ownership descriptor. It ships one
 [evidence-reviewer role](../capabilities/practice/evidence-review/agents/evidence-reviewer.md),
 [skill](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
+[instruction](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md),
 [prompt](../capabilities/practice/evidence-review/prompts/explain-change.md),
 [theme](../capabilities/practice/evidence-review/themes/review-dark.json) and
 [workflow](../capabilities/practice/evidence-review/workflows/review-evidence.yaml).
@@ -84,7 +85,9 @@ Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate 
 `evidence-reviewer`, run the `review-evidence` workflow, or choose `review-dark`.
 Supply the workflow with the answer and cited source passages to check; its
 single role returns its report. The review rule lives in that role and the
-skill, so it applies only when evidence is reviewed; no instruction carries it.
+skill, so it applies only when evidence is reviewed. The instruction still needs
+explicit installation; selecting the capability does not inject it
+automatically.
 
 ## Loading rules
 
@@ -147,7 +150,7 @@ See the full [policy table](policy.md#what-the-organization-can-lock).
 Check group/name spelling, native resource paths, selected-area existence and
 CODEOWNERS principals/order. Schema validation checks structure when available;
 loading the release checks policy combinations and reference closure. A package
-file alone does not prove a workflow can run.
+file alone does not prove an instruction was installed or a workflow can run.
 
 ## Check a change
 

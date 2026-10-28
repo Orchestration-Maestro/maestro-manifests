@@ -45,13 +45,12 @@ this page puts the guides in reading order.
 ## Example coverage and exceptions
 
 The opt-in `capabilities/practice/evidence-review/` supplies a real package, role,
-skill, prompt, theme and workflow. Common supplies settings/policy;
+skill, instruction, prompt, theme and workflow. Common supplies settings/policy;
 core supplies system/persona text and the three implementation/planning workflows.
 No optional area is selected by default.
 
 | Exempt kind or path | Reason | Where to read it |
 | --- | --- | --- |
-| Instructions (`*.instructions.md`) | Not shipped: no `applyTo` pattern selects review work, so the review rule lives in the evidence-reviewer role and skill | [Instructions](instructions.md#example) |
 | Models (`core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
 | Extensions (`*.wasm`) | Not shipped: no executable components are added merely for documentation; quote the real external greeting source | [Extensions](extensions.md#example) |
 | `docs/standards/*` | Generated rule maps owned by rust-gate; do not hand-edit for authored-page formatting | [Engineering](standards/engineering.md), [security](standards/security.md), [quality](standards/northstar.md) |

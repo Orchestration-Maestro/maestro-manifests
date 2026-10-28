@@ -32,12 +32,10 @@ that a rule will match a particular request.
 
 ## Example
 
-This release ships no instruction. No `applyTo` pattern selects review work, so
-the evidence-review rule lives in its role and skill and applies only when
-evidence is reviewed. See the explicit
-[artifact-index exception](index.md#example-coverage-and-exceptions).
+The opt-in evidence-review capability ships this instruction. It selects only
+files under `docs/`:
 
-Not shipped: format sample, for illustration only:
+From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
 
 ```markdown
 ---
@@ -47,16 +45,17 @@ applyTo: "docs/**/*.md"
 Cite the file and line for each claim about the code.
 ```
 
-`applyTo` is the rules consumer's matching input, not permission to execute or a
-declaration that selecting a capability automatically applies the text.
+`applyTo: "docs/**/*.md"` is the rules consumer's matching input, not permission
+to execute or a declaration that selecting the capability automatically applies
+the text.
 
 ## Usage
 
-When a selected area offers an instruction, run `/manifest install <name>` in a
-compatible Maestro session. It copies the file to the user instructions folder.
-Use `/manifest install <name> -l` for a project copy. The basename remains
-`<name>.instructions.md`. This release offers none. See
-[settings](settings.md#usage) for selection.
+Select `capabilities/practice/evidence-review`, then run
+`/manifest install cite-code-claims` in a compatible Maestro session. It copies
+this file to the user instructions folder. Use
+`/manifest install cite-code-claims -l` for a project copy. The basename remains
+`cite-code-claims.instructions.md`. See [settings](settings.md#usage) for selection.
 
 ## Loading rules
 
@@ -90,7 +89,7 @@ startup refresh belong to the manifest consumer, not Markdown validation.
 
 Run the [available checks](schemas-and-checks.md#available-checks) and validate
 frontmatter against generated schemas when they are available. In a compatible
-Maestro build, install an offered instruction into a disposable project and verify the file
+Maestro build, install the example into a disposable project and verify the file
 bytes and recorded provenance. Exercise matching and nonmatching files through
 the rules consumer. Modify only the disposable installed copy, restart, and
 confirm the restore notice and restored bytes. Do not test drift against
