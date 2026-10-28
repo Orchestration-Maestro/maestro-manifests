@@ -3,6 +3,7 @@
 import json
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 CAPABILITY = ROOT / "manifests/capabilities/security/maestro-security"
@@ -73,6 +74,16 @@ class SecurityCapability(unittest.TestCase):
             self.assertIn("SEC-008", text, path)
             self.assertNotIn("| SEC-", text, path)
 
+    def test_specialist_roles_allow_wrapped_responsibilities(self):
+        """Accept equivalent responsibilities split across Markdown lines."""
+        read_text = Path.read_text
+
+        def wrapped_text(path, *args, **kwargs):
+            return read_text(path, *args, **kwargs).replace("entry points", "entry\npoints")
+
+        with patch.object(Path, "read_text", wrapped_text):
+            self.test_specialist_roles_keep_their_responsibilities()
+
     def test_specialist_roles_keep_their_responsibilities(self):
         """Keep reconnaissance separate from proof, repair and reporting."""
         contracts = {
@@ -86,7 +97,8 @@ class SecurityCapability(unittest.TestCase):
                                "ledger"],
         }
         for name, terms in contracts.items():
-            text = (CAPABILITY / f"agents/{name}.md").read_text()
+            body = (CAPABILITY / f"agents/{name}.md").read_text().split("---\n", 2)[2]
+            text = " ".join(body.split())
             for term in terms:
                 self.assertIn(term, text, name)
 
