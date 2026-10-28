@@ -1,7 +1,7 @@
 # System prompt and persona
 
-`core/SYSTEM.md` is the manifest's base system prompt. The body of
-`core/agents/maestro.md` is the main agent's persona, appended to that base.
+`manifests/core/SYSTEM.md` is the manifest's base system prompt. The body of
+`manifests/core/agents/maestro.md` is the main agent's persona, appended to that base.
 Neither file is an instruction selector or a replacement for project context.
 Only core may supply these two artifacts.
 
@@ -20,7 +20,7 @@ Only core may supply these two artifacts.
 The base prompt states the main behavior as checkable rules, one sentence each,
 and ends with documentation pointers:
 
-From [`core/SYSTEM.md`](../core/SYSTEM.md):
+From [`manifests/core/SYSTEM.md`](../manifests/core/SYSTEM.md):
 
 ```markdown
 You are Maestro, a coding assistant working in the user's project.
@@ -67,7 +67,7 @@ not a source-language runtime.
 
 The persona supplies the appended voice and delegation guidance:
 
-From [`core/agents/maestro.md`](../core/agents/maestro.md):
+From [`manifests/core/agents/maestro.md`](../manifests/core/agents/maestro.md):
 
 ```markdown
 ---
@@ -92,9 +92,9 @@ from settings; adding `tools` to the persona role would impose a ceiling.
 ## Loading rules
 
 The base prompt candidates, from highest to lowest priority, are an explicit flag
-or SDK replacement, project `SYSTEM.md`, user `SYSTEM.md`, manifest
-`core/SYSTEM.md`, then the engine default. A custom base replaces the engine's
-default documentation block, so include useful documentation pointers in a custom
+or SDK replacement, project `SYSTEM.md`, user `SYSTEM.md`, the manifest's
+`manifests/core/SYSTEM.md`, then the engine default. A custom base replaces the
+engine's default documentation block, so include useful documentation pointers in a custom
 prompt. Ordinary date, working directory, skill block and tool assembly still
 follow their existing rules.
 
@@ -113,8 +113,8 @@ instructions. Installable instructions have their own [format](instructions.md).
 A `systemPrompt` lock ignores local base files with a diagnostic and refuses an
 explicit replacement, including an extension's per-turn replacement. An
 `appendSystemPrompt` lock likewise ignores local append files and refuses
-explicit appends. Those locks belong in `settings/policy.json`; this release sets
-both, so users cannot replace the core prompt or persona.
+explicit appends. Those locks belong in `manifests/settings/policy.json`; this
+release sets both, so users cannot replace the core prompt or persona.
 
 Without the locks, users can customize those prompts. Prompt text is guidance,
 not a security boundary; locking it does not sandbox extension code or revoke
@@ -122,7 +122,7 @@ filesystem access.
 
 ## Locations
 
-Only manifest `core/SYSTEM.md` and the core `maestro` role supply these inputs.
+Only `manifests/core/SYSTEM.md` and the core `maestro` role supply these inputs.
 Local equivalents are `SYSTEM.md` and `APPEND_SYSTEM.md` under the user
 configuration root or project `.maestro/`. Ancestor context files remain separate.
 

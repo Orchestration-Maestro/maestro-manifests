@@ -37,7 +37,7 @@ Untrusted input enters in three places:
 1. **Pull requests.** Their files become the next release, and `just check` runs
    the `justfile` and hooks they carry. The required job runs them with a
    read-only token and no secret.
-2. **Capability packages.** A package under `capabilities/` declares resource
+2. **Capability packages.** A package under `manifests/capabilities/` declares resource
    paths, and an extension would run with the user's access. No package ships an
    executable component today.
 3. **Fetched content in workflows.** A chain hands the task (`$@`) and the previous
@@ -124,7 +124,7 @@ authority (`actions/create-github-app-token` in
 `.github/workflows/release-please.yml`). Automation borrows no person's
 credentials, no ruleset has a bypass actor, and `.github/CODEOWNERS` names the
 human owner. A release is approved only by merging its own Release Please pull
-request, which carries `version.txt` and `CHANGELOG.md`. A settings, policy or
+request, which carries `version.txt` and `manifests/CHANGELOG.md`. A settings, policy or
 ruleset change goes in a pull request of its own, never inside a content change.
 The ruleset requires no approving review, so the owner's merge is the approval.
 

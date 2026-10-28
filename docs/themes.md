@@ -26,7 +26,7 @@ Local folders are `~/.maestro/agent/themes/` and `.maestro/themes/`. Local
 The evidence-review capability includes a complete dark theme, not a default
 selection:
 
-From [`capabilities/practice/evidence-review/themes/review-dark.json`](../capabilities/practice/evidence-review/themes/review-dark.json):
+From [`manifests/capabilities/practice/evidence-review/themes/review-dark.json`](../manifests/capabilities/practice/evidence-review/themes/review-dark.json):
 
 ```json
 {

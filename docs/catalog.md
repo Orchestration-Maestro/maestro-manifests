@@ -18,7 +18,7 @@ not another copy of the configuration or an agent-session runtime.
 
 A workflow card can be derived from this actual core file:
 
-From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-and-review.yaml):
+From [`manifests/core/workflows/implement-and-review.yaml`](../manifests/core/workflows/implement-and-review.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1

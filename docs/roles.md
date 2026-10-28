@@ -27,7 +27,7 @@ folder, not a project model file or settings descriptor.
 
 The evidence-review capability includes a read-only role with no model override:
 
-From [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](../capabilities/practice/evidence-review/agents/evidence-reviewer.md):
+From [`manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md`](../manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md):
 
 ```markdown
 ---
@@ -79,12 +79,12 @@ resource owner or workflow dependency metadata. Ownership comes from CODEOWNERS.
 
 | Role | Responsibility | Tools |
 | --- | --- | --- |
-| [maestro](../core/agents/maestro.md) | Main-agent persona | No additional ceiling declared |
-| [scout](../core/agents/scout.md) | Gather compressed context with precise source ranges | read, grep, find, ls, bash |
-| [planner](../core/agents/planner.md) | Produce a plan without editing | read, grep, find, ls |
-| [reviewer](../core/agents/reviewer.md) | Review quality, correctness and security | read, grep, find, ls |
-| [worker](../core/agents/worker.md) | Complete the delegated task in isolated context | All available tools within policy |
-| [evidence-reviewer](../capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in factual review with source citations | read, grep, find, ls |
+| [maestro](../manifests/core/agents/maestro.md) | Main-agent persona | No additional ceiling declared |
+| [scout](../manifests/core/agents/scout.md) | Gather compressed context with precise source ranges | read, grep, find, ls, bash |
+| [planner](../manifests/core/agents/planner.md) | Produce a plan without editing | read, grep, find, ls |
+| [reviewer](../manifests/core/agents/reviewer.md) | Review quality, correctness and security | read, grep, find, ls |
+| [worker](../manifests/core/agents/worker.md) | Complete the delegated task in isolated context | All available tools within policy |
+| [evidence-reviewer](../manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in factual review with source citations | read, grep, find, ls |
 
 The reviewer has no shell and no write tool. Its authority comes from the tool
 list, which the host enforces, and not from a request in its prompt. The core

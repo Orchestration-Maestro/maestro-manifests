@@ -27,7 +27,7 @@ commit ID as the ref.
 The release's common settings choose the default model and thinking level, turn
 install telemetry off, block images and leave optional areas unselected:
 
-From [`settings/settings.json`](settings/settings.json):
+From [`manifests/settings/settings.json`](manifests/settings/settings.json):
 
 ```json
 {
@@ -52,7 +52,8 @@ standards and core always load. Development starts at version `0.0.0` and
 [Release Please](docs/releases-and-updates.md) publishes versioned tags.
 
 The policy locks `manifestAreas`, so the organization opts in: add
-`capabilities/practice/evidence-review` to `manifestAreas` in `settings/settings.json`.
+`capabilities/practice/evidence-review` to `manifestAreas` in
+[`manifests/settings/settings.json`](manifests/settings/settings.json).
 It offers a skill, role, instruction, prompt, theme and workflow, with no added
 executable extension or model provider. Selecting it does not install its
 instruction or choose its theme automatically. Its review rule lives in the role
@@ -67,7 +68,7 @@ Core supplies three chains:
 | `implement` | scout, planner, worker | Implemented plan |
 | `scout-and-plan` | scout, planner | Plan only; no implementation |
 
-The opt-in capability adds [review-evidence](capabilities/practice/evidence-review/workflows/review-evidence.yaml),
+The opt-in capability adds [review-evidence](manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml),
 a one-step chain using `evidence-reviewer` to check claims against cited sources.
 
 Ask Maestro to list workflows, show one with its source, or run it with a task.
@@ -77,22 +78,30 @@ references. Read [workflows](docs/workflows.md) before changing a chain.
 
 ## Layout
 
-The common root holds `package.json` and `settings/`. Core holds the base prompt,
-main persona, four delegated roles and three workflows. The optional capability
-at `capabilities/practice/evidence-review/` keeps its native package and all six
-resources together. Documentation lives under `docs/`; CODEOWNERS supplies
-review and catalog attribution. The complete input inventory follows.
+Everything Maestro reads sits under `manifests/`, the manifest root. Maestro reads
+nothing outside it except the catalog's ownership lookup in `.github/CODEOWNERS`.
+Documentation, schemas, catalog blueprints, `.github/` and this README stay
+outside the root. Paths in settings and policy, such as `manifestAreas` and
+`required`, are relative to the manifest root.
+
+The common root, `manifests/` itself, holds `package.json`, `CHANGELOG.md` and
+`settings/`. Core, at `manifests/core/`, holds the base prompt, main persona,
+four delegated roles and three workflows. The optional capability at
+`manifests/capabilities/practice/evidence-review/` keeps its native package and
+all six resources together. Documentation lives under `docs/`; CODEOWNERS
+supplies review and catalog attribution. The complete input inventory follows.
 
 Create an area only when it has real content. Supported additional locations are
-`standards/<domain>/`, `languages/<name>/` and
-`capabilities/<group>/<name>/`. Each capability has its own `package.json` and
-resources. Selection uses its full path, not the last directory name. Group
-folders organize capabilities; they are not settings layers.
+`manifests/standards/<domain>/`, `manifests/languages/<name>/` and
+`manifests/capabilities/<group>/<name>/`. Each capability has its own
+`package.json` and resources. Selection uses its path under the manifest root,
+not the last directory name. Group folders organize capabilities; they are not
+settings layers.
 
 The security capability is maintained separately and is not included in this
 revision. Its integration must use
-`capabilities/security/maestro-security/`, native role files and one package.
-Do not copy another lane's unpublished content into this tree.
+`manifests/capabilities/security/maestro-security/`, native role files and one
+package. Do not copy another lane's unpublished content into this tree.
 
 ## Artifact index
 
@@ -107,25 +116,26 @@ whenever an artifact is added.
 | File | Provides |
 | --- | --- |
 | [`.github/CODEOWNERS`](.github/CODEOWNERS) | Last-match review and catalog ownership for every path. |
-| [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
-| [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md) | Installable documentation guidance with applyTo frontmatter. |
-| [`capabilities/practice/evidence-review/package.json`](capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
-| [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
-| [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
-| [`capabilities/practice/evidence-review/themes/review-dark.json`](capabilities/practice/evidence-review/themes/review-dark.json) | A complete 51-token optional terminal theme. |
-| [`capabilities/practice/evidence-review/workflows/review-evidence.yaml`](capabilities/practice/evidence-review/workflows/review-evidence.yaml) | Opt-in factual review chain using evidence-reviewer. |
-| [`core/SYSTEM.md`](core/SYSTEM.md) | Base system prompt and documentation pointers. |
-| [`core/agents/maestro.md`](core/agents/maestro.md) | Appended main-agent persona. |
-| [`core/agents/planner.md`](core/agents/planner.md) | Read-only implementation planning with a concrete handoff and its verification. |
-| [`core/agents/reviewer.md`](core/agents/reviewer.md) | Shell-free code review: findings with location, cause and fix, and a security pass. |
-| [`core/agents/scout.md`](core/agents/scout.md) | Compressed code context and exact source ranges. |
-| [`core/agents/worker.md`](core/agents/worker.md) | Test-first implementation in an isolated delegated context, with each command and exit code reported. |
-| [`core/workflows/implement-and-review.yaml`](core/workflows/implement-and-review.yaml) | Worker, reviewer, worker chain with previous-output passing. |
-| [`core/workflows/implement.yaml`](core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
-| [`core/workflows/scout-and-plan.yaml`](core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
-| [`package.json`](package.json) | Common native package record; no independent npm version. |
-| [`settings/policy.json`](settings/policy.json) | The baseline: locks, bounds, allowed models, required core resources and the release-check interval. |
-| [`settings/settings.json`](settings/settings.json) | The values the locks fix: default model and thinking level, telemetry off, images blocked, no optional areas and no automatic optional updates. |
+| [`manifests/CHANGELOG.md`](manifests/CHANGELOG.md) | Release Please changelog, which Maestro reads for the entries between releases. |
+| [`manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md`](manifests/capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
+| [`manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](manifests/capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md) | Installable documentation guidance with applyTo frontmatter. |
+| [`manifests/capabilities/practice/evidence-review/package.json`](manifests/capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
+| [`manifests/capabilities/practice/evidence-review/prompts/explain-change.md`](manifests/capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
+| [`manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
+| [`manifests/capabilities/practice/evidence-review/themes/review-dark.json`](manifests/capabilities/practice/evidence-review/themes/review-dark.json) | A complete 51-token optional terminal theme. |
+| [`manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml`](manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml) | Opt-in factual review chain using evidence-reviewer. |
+| [`manifests/core/SYSTEM.md`](manifests/core/SYSTEM.md) | Base system prompt and documentation pointers. |
+| [`manifests/core/agents/maestro.md`](manifests/core/agents/maestro.md) | Appended main-agent persona. |
+| [`manifests/core/agents/planner.md`](manifests/core/agents/planner.md) | Read-only implementation planning with a concrete handoff and its verification. |
+| [`manifests/core/agents/reviewer.md`](manifests/core/agents/reviewer.md) | Shell-free code review: findings with location, cause and fix, and a security pass. |
+| [`manifests/core/agents/scout.md`](manifests/core/agents/scout.md) | Compressed code context and exact source ranges. |
+| [`manifests/core/agents/worker.md`](manifests/core/agents/worker.md) | Test-first implementation in an isolated delegated context, with each command and exit code reported. |
+| [`manifests/core/workflows/implement-and-review.yaml`](manifests/core/workflows/implement-and-review.yaml) | Worker, reviewer, worker chain with previous-output passing. |
+| [`manifests/core/workflows/implement.yaml`](manifests/core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
+| [`manifests/core/workflows/scout-and-plan.yaml`](manifests/core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
+| [`manifests/package.json`](manifests/package.json) | Common native package record; no independent npm version. |
+| [`manifests/settings/policy.json`](manifests/settings/policy.json) | The baseline: locks, bounds, allowed models, required core resources and the release-check interval. |
+| [`manifests/settings/settings.json`](manifests/settings/settings.json) | The values the locks fix: default model and thinking level, telemetry off, images blocked, no optional areas and no automatic optional updates. |
 | [`version.txt`](version.txt) | Release Please version record for the shared Git release. |
 
 ## How composition works

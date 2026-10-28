@@ -2,7 +2,8 @@
 
 Settings choose the manifest, optional areas and defaults. They use ordinary JSON
 keys, not a separate descriptor format. Policy is a different document: values
-belong in `settings/settings.json`, constraints in `settings/policy.json`.
+belong in `manifests/settings/settings.json`, constraints in
+`manifests/settings/policy.json`.
 
 ## Contents
 
@@ -19,14 +20,15 @@ belong in `settings/settings.json`, constraints in `settings/policy.json`.
 The configuration root is `~/.maestro/agent` by default; the existing
 `MAESTRO_CODING_AGENT_DIR` override relocates it. Local settings live at
 `~/.maestro/agent/settings.json` and `.maestro/settings.json` in a project. A
-manifest area contributes `settings/settings.json`.
+manifest area contributes `settings/settings.json`, relative to the area. The
+manifest root is `manifests/`, and every area path in this guide is relative to it.
 
 Resolution order is engine defaults, manifest, user, project, run options and
 runtime changes. The manifest reads its own areas in this order:
 
-| Area | Path | Selection |
+| Area | Path under the manifest root | Selection |
 | --- | --- | --- |
-| Common | Release root | Always |
+| Common | The manifest root itself | Always |
 | Standards | `standards/<domain>/` | All domains, directory-name order |
 | Core | `core/` | Always |
 | Languages | `languages/<name>/` | `manifestAreas`, list order |
@@ -41,7 +43,7 @@ and bounds narrow. See [policy](policy.md).
 The common area supplies the release defaults and the values its locks fix. Its
 settings select no optional capability and do not set a manifest source:
 
-From [`settings/settings.json`](../settings/settings.json):
+From [`manifests/settings/settings.json`](../manifests/settings/settings.json):
 
 ```json
 {

@@ -1,9 +1,10 @@
 # The last matching pattern supplies review and catalog ownership.
 * @FrancoisLDaigneault
 
-# Explicit ownership for the capability group and capability paths.
-/capabilities/security/ @FrancoisLDaigneault
-/capabilities/security/maestro-security/ @FrancoisLDaigneault
+# Explicit ownership for the capability group and capability paths under the
+# manifest root.
+/manifests/capabilities/security/ @FrancoisLDaigneault
+/manifests/capabilities/security/maestro-security/ @FrancoisLDaigneault
 
-/capabilities/practice/ @FrancoisLDaigneault
-/capabilities/practice/evidence-review/ @FrancoisLDaigneault
+/manifests/capabilities/practice/ @FrancoisLDaigneault
+/manifests/capabilities/practice/evidence-review/ @FrancoisLDaigneault

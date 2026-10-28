@@ -20,7 +20,7 @@ explicit steps and an instruction for guidance selected by rule matching.
 
 This skill is part of the opt-in evidence-review capability:
 
-From [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md):
+From [`manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](../manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md):
 
 ```markdown
 ---

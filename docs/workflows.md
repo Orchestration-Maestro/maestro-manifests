@@ -21,7 +21,7 @@ capability supplies the runner; the manifest supplies files, not another engine.
 
 The core chain implements the task, reviews it, then applies the feedback:
 
-From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-and-review.yaml):
+From [`manifests/core/workflows/implement-and-review.yaml`](../manifests/core/workflows/implement-and-review.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1
@@ -47,7 +47,7 @@ The optional evidence-review capability supplies a read-only chain. It is
 available only after selecting `capabilities/practice/evidence-review` in
 `manifestAreas`:
 
-From [`capabilities/practice/evidence-review/workflows/review-evidence.yaml`](../capabilities/practice/evidence-review/workflows/review-evidence.yaml):
+From [`manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml`](../manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1
@@ -106,9 +106,9 @@ the chain; later steps do not run. The diagnostic is
 
 | File | Ordered roles | Passing and final result |
 | --- | --- | --- |
-| [implement-and-review.yaml](../core/workflows/implement-and-review.yaml) | worker, reviewer, worker | Implement arguments; review previous implementation; apply previous feedback |
-| [implement.yaml](../core/workflows/implement.yaml) | scout, planner, worker | Scout arguments; plan for original arguments with previous context; implement previous plan |
-| [scout-and-plan.yaml](../core/workflows/scout-and-plan.yaml) | scout, planner | Scout arguments; plan for original arguments with previous context; return plan without implementation |
+| [implement-and-review.yaml](../manifests/core/workflows/implement-and-review.yaml) | worker, reviewer, worker | Implement arguments; review previous implementation; apply previous feedback |
+| [implement.yaml](../manifests/core/workflows/implement.yaml) | scout, planner, worker | Scout arguments; plan for original arguments with previous context; implement previous plan |
+| [scout-and-plan.yaml](../manifests/core/workflows/scout-and-plan.yaml) | scout, planner | Scout arguments; plan for original arguments with previous context; return plan without implementation |
 
 These chains have no approval, test, commit or release step of their own. The
 planner and reviewer only read; the worker implements and commits its failing

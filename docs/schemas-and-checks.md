@@ -29,7 +29,10 @@ copy of those checks in a workflow. `just test` runs the contributor-command tes
 in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
 contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
-documentation examples. Those are content assertions, not runtime execution.
+documentation examples. It also checks the layout: every manifest artifact sits
+under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
+every documentation link resolves. Those are content assertions, not runtime
+execution.
 There is no Rust crate in this repository, so there are no Cargo tests or Clippy
 invocation here.
 
@@ -44,7 +47,7 @@ The manifest-mode contract requires these schema subjects:
 
 | Artifact | Schema input |
 | --- | --- |
-| Policy | `settings/policy.json` |
+| Policy | `manifests/settings/policy.json` |
 | Workflow | Parsed `maestro.workflow/v1` YAML converted to JSON |
 | Role | Role frontmatter converted to JSON |
 | Instruction | Instruction frontmatter converted to JSON |
@@ -55,7 +58,7 @@ schemas with its pinned `schemars` and validates with its pinned `jsonschema`.
 Published generated files belong under `schemas/`, with valid and invalid
 fixtures for each member, wrong JSON kind and unknown member. Required checks
 must fail if generated schemas are stale, and a pre-commit hook must validate
-artifacts using the same definitions.
+the artifacts under `manifests/` using the same definitions.
 
 Do not handwrite replacement schemas, invent generation commands or create empty
 schema folders while waiting for that consumer. This revision has no generated
@@ -68,7 +71,7 @@ consumer integration before claiming schema enforcement.
 This actual workflow is an input to content parsing, future schema validation
 and the manifest loader's required-reference checks:
 
-From [`core/workflows/implement-and-review.yaml`](../core/workflows/implement-and-review.yaml):
+From [`manifests/core/workflows/implement-and-review.yaml`](../manifests/core/workflows/implement-and-review.yaml):
 
 ```yaml
 apiVersion: maestro.workflow/v1
