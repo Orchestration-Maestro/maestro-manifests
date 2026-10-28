@@ -175,6 +175,21 @@ class ManifestExamples(unittest.TestCase):
         self.assertIn("`Corrected answer`", cite[2])
         self.assertIn(f"```markdown\n{skill}```", (ROOT / "docs/skills.md").read_text())
 
+    def test_evidence_review_rules_compare_gaps_and_results_with_observations(self):
+        """Fail a report that skips a check without a reason or trusts a claimed result."""
+        skill = (CAPABILITY / "skills/review-evidence/SKILL.md").read_text()
+        role = (CAPABILITY / "agents/evidence-reviewer.md").read_text()
+        checked = {row[0]: row[2] for row in skill_rules(skill)[2:]}
+        for rule, cell in checked.items():
+            self.assertNotRegex(cell, r"^The section exists\.?$", rule)
+        for term in ["reason", "`None` appears only when", "claims"]:
+            self.assertIn(term, checked["Report gaps"])
+        for term in ["`Findings`", "`Corrected answer`", "output you observed"]:
+            self.assertIn(term, checked["Source honesty"])
+        compare = "Compare each result the answer reports with the output you observed"
+        self.assertRegex(skill, rf"(?m)^\d+\. {compare}, and mark each mismatch\.$")
+        self.assertIn(f"{compare}, and report a mismatch as a `Verified failure`.", role)
+
     def test_evidence_review_text_uses_maestro_voice(self):
         """Give each instruction its own line and avoid the words Maestro avoids."""
         avoided = (r"\b(blazing|revolutionary|magic|seamless|supercharge|just|simply|leverage|"
