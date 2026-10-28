@@ -25,17 +25,33 @@ From [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](.
 ```markdown
 ---
 name: review-evidence
-description: Review a proposed answer against its cited source passages.
+description: Review a proposed answer against its cited source passages and report the evidence truthfully.
 ---
 
 # Review evidence
 
+Use this procedure only when you review an answer against its sources.
+It holds the organization's truthful-evidence rule (SEC-008) as rules a reviewer can check.
+
 1. Read the proposed answer and each cited passage.
 2. For every factual claim, locate the passage that supports it.
-3. Mark unsupported claims and explain what evidence is missing.
-4. Return a corrected answer with source citations, followed by any uncertainty.
+3. Mark each unsupported claim and say what evidence is missing.
+4. Compare each result the answer reports with the output you observed, and mark each mismatch.
+5. Return the report below, with a corrected answer that cites its sources.
 
-Do not invent sources. Keep private passages out of public review comments.
+## Report
+
+Return four sections: `Corrected answer`, `Findings`, `Checks run` and `Not run`.
+A review passes a rule when its report shows the evidence in the last column.
+
+| Rule | Required | Checked by |
+| --- | --- | --- |
+| Cite | Each finding opens with `path:line`, or `no source` when no passage supports the claim. Each claim in `Corrected answer` ends with the `path:line` of its supporting passage. | Every entry in `Findings` opens with one of the two, and every claim in `Corrected answer` ends with a `path:line`. |
+| Classify | Each finding is a `Verified failure` or a `Hypothesis`. A `Verified failure` quotes the passage or output that shows it. | Every entry carries one label, and each `Verified failure` carries a quote. |
+| Report runs | `Checks run` lists each file you read and each other check, with its result. | The section exists and every entry names a result. |
+| Report gaps | `Not run` reads exactly `None` when every check ran. Otherwise it lists each check you could not run, with the reason. | The section holds exactly `None`, or a nonempty list in which every skipped check appears with its reason. `None` appears only when every check the answer claims appears in `Checks run`. A heading with no entries fails. |
+| Source honesty | You cite only sources you read, and claim no result you did not observe. You compare each result the answer claims with the output you observed. | Every `path:line` in `Findings` and `Corrected answer` names a file listed in `Checks run`. Every result the answer claims appears in `Checks run` or `Findings` beside the output you observed. |
+| Private evidence | Credentials and private evidence stay out of the report. | The reviewer reads the report for credentials and private evidence before sharing it. |
 ```
 
 No script or private checkout is needed. The caller supplies the proposed answer
@@ -114,6 +130,7 @@ so review its body and any executable helper, not just the frontmatter.
 Run the [available checks](schemas-and-checks.md#available-checks), inspect the
 frontmatter and open every relative reference. Load the pinned revision, confirm
 the description appears in skill discovery and invoke the example with an answer
-and a real source passage. Check both a supported claim and an unsupported one.
+and a real source passage. Check both a supported claim and an unsupported one, then check the report
+against each row of the rule table.
 If policy requires the skill, confirm a local same-name skill and discovery flags
 cannot remove the release's definition.

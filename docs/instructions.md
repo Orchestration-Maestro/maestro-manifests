@@ -32,31 +32,30 @@ that a rule will match a particular request.
 
 ## Example
 
-The opt-in evidence-review capability ships this broad review instruction:
+The opt-in evidence-review capability ships this instruction. It selects only
+files under `docs/`:
 
-From [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md):
+From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
 
 ```markdown
 ---
-applyTo: "**"
+applyTo: "docs/**/*.md"
 ---
 
-When reviewing a change, cite the affected file and line for each finding.
-Distinguish a verified failure from a hypothesis. List the checks you ran and
-name any check you could not run. Do not include credentials or private evidence
-in public review comments.
+Cite the file and line for each claim about the code.
 ```
 
-`applyTo: "**"` is the rules consumer's matching input, not permission to execute
-or a declaration that selecting the capability automatically applies the text.
+`applyTo: "docs/**/*.md"` is the rules consumer's matching input, not permission
+to execute or a declaration that selecting the capability automatically applies
+the text.
 
 ## Usage
 
 Select `capabilities/practice/evidence-review`, then run
-`/manifest install review-evidence` in a compatible Maestro session. It copies
+`/manifest install cite-code-claims` in a compatible Maestro session. It copies
 this file to the user instructions folder. Use
-`/manifest install review-evidence -l` for a project copy. The basename remains
-`review-evidence.instructions.md`. See [settings](settings.md#usage) for selection.
+`/manifest install cite-code-claims -l` for a project copy. The basename remains
+`cite-code-claims.instructions.md`. See [settings](settings.md#usage) for selection.
 
 ## Loading rules
 

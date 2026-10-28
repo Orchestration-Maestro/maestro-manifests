@@ -46,7 +46,9 @@ standards and core always load. Development starts at version `0.0.0` and
 To opt in, add `capabilities/practice/evidence-review` to your own `manifestAreas`.
 It offers a skill, role, instruction, prompt, theme and workflow, with no added
 executable extension or model provider. Selecting it does not install its
-instruction or choose its theme automatically.
+instruction or choose its theme automatically. Its review rule lives in the role
+and skill, so it applies only when evidence is reviewed; the instruction
+selects only files under `docs/`.
 
 Core supplies three chains:
 
@@ -97,7 +99,7 @@ whenever an artifact is added.
 | --- | --- |
 | [`.github/CODEOWNERS`](.github/CODEOWNERS) | Last-match review and catalog ownership for every path. |
 | [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
-| [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](capabilities/practice/evidence-review/instructions/review-evidence.instructions.md) | Installable review guidance with applyTo frontmatter. |
+| [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md) | Installable documentation guidance with applyTo frontmatter. |
 | [`capabilities/practice/evidence-review/package.json`](capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
 | [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
 | [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
