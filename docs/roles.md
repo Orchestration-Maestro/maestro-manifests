@@ -88,8 +88,8 @@ Each core role reports in sections a reader can check:
 | --- | --- | --- |
 | scout | Files retrieved with exact line ranges, Key code, Architecture, Start here | The planner reads the ranges; the heading list is tested |
 | planner | Verification: one `Done when` command and each test to add first | The worker runs the command and reports its exit code |
-| reviewer | Each finding gives `path:line`, the cause and the smallest fix; one line per security rule | The tool list gives read access only; the next worker step applies each finding |
-| worker | A failing test committed before the change; each command run with its exit code; line ranges changed | Git history shows the test commit first; the reviewer reads the ranges |
+| reviewer | Each finding gives `path:line`, the cause and the smallest fix; one line per security rule, all eleven | The tool list gives read access only; the next worker step applies each finding |
+| worker | A failing test committed before the change; each command run with its exit code; line ranges changed; the unified diff with its deleted lines | Git history shows the test commit first; the reviewer reads the ranges and the diff |
 
 ## Loading rules
 
