@@ -58,9 +58,9 @@ class CoreRoles(unittest.TestCase):
         _, body = read_role("reviewer")
         for required in ["path:line", "cause", "smallest fix"]:
             self.assertIn(required, body)
-        security_map = (ROOT / "docs/standards/security.md").read_text()
-        mapped = set(re.findall(r"^\| (SEC-\d{3}) ", security_map, re.M))
-        self.assertEqual(set(re.findall(r"SEC-\d{3}", body)), mapped)
+        security_page = (ROOT / "docs/standards/security.md").read_text()
+        named = set(re.findall(r"\bSEC-\d{3}\b", security_page))
+        self.assertEqual(set(re.findall(r"SEC-\d{3}", body)), named)
         self.assertIn("not applicable", body)
 
     def test_planner_states_how_done_is_checked(self):
