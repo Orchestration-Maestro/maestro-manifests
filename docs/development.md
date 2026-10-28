@@ -71,7 +71,7 @@ run the tests again. Tests do not change your index.
 ## Required CI
 
 The organization's `hygiene-central` ruleset requires the shared
-`content.yml@v0.16.0` workflow on pull requests and merge groups targeting the
+`content.yml@v0.16.1` workflow on pull requests and merge groups targeting the
 default branch. Its job is `Required content checks`; this repository needs no
 caller workflow. The repository's `merge-queue` ruleset uses Maestro's queue
 settings: squash merges, all checks green, up to seven entries building and
@@ -106,8 +106,8 @@ trigger required checks. Keep those credentials in GitHub, never in this catalog
 
 Repository rulesets require checks, signed changes and protected review. These
 are contributor controls, not entries in manifest policy. A runtime policy lock
-does not replace repository review, and a maintainer must not hand-edit generated
-rust-gate files to bypass their owner.
+does not replace repository review, and a maintainer must not edit a file to
+bypass the check or the owner it names.
 
 ## Check a change
 
