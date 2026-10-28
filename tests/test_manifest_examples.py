@@ -127,13 +127,14 @@ class ManifestExamples(unittest.TestCase):
 
     def test_evidence_review_rule_applies_only_to_review_work(self):
         """Keep the review rule out of sessions that do not review evidence."""
-        for path in ROOT.rglob("*.instructions.md"):
+        for path in CAPABILITY.rglob("*.instructions.md"):
             self.assertNotRegex(path.read_text(), r'(?m)^applyTo: "?\*\*"?$', path)
 
     def test_shipped_instruction_is_a_real_example_scoped_to_docs(self):
         """Keep one installable instruction, indexed and quoted, with no exception."""
         path = CAPABILITY / "instructions/cite-code-claims.instructions.md"
-        self.assertEqual(list(ROOT.rglob("*.instructions.md")), [path])
+        security = MANIFEST / "capabilities/security/maestro-security/instructions/security-assessment.instructions.md"
+        self.assertEqual(set(ROOT.rglob("*.instructions.md")), {path, security})
         text = path.read_text()
         self.assertTrue(text.startswith('---\napplyTo: "docs/**/*.md"\n---\n'), text)
         relative = path.relative_to(ROOT).as_posix()

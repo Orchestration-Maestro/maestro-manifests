@@ -109,10 +109,14 @@ Create an area only when it has real content. Supported additional locations are
 not the last directory name. Group folders organize capabilities; they are not
 settings layers.
 
-The security capability is maintained separately and is not included in this
-revision. Its integration must use
-`manifests/capabilities/security/maestro-security/`, native role files and one
-package. Do not copy another lane's unpublished content into this tree.
+The opt-in security capability lives at
+`manifests/capabilities/security/maestro-security/`. It supplies five roles, an
+installable instruction and a skill; it contains no executable components.
+The [maestro-security package](https://github.com/Orchestration-Maestro/maestro-packages/tree/main/crates/maestro-security)
+owns the assessment runner, tools and transports. Install that package separately
+before using these resources. The organization selects
+`capabilities/security/maestro-security` in its locked `manifestAreas` setting;
+selection alone neither installs the instruction nor starts an assessment.
 
 ## Artifact index
 
@@ -135,6 +139,14 @@ whenever an artifact is added.
 | [`manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](manifests/capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
 | [`manifests/capabilities/practice/evidence-review/themes/review-dark.json`](manifests/capabilities/practice/evidence-review/themes/review-dark.json) | A complete 51-token optional terminal theme. |
 | [`manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml`](manifests/capabilities/practice/evidence-review/workflows/review-evidence.yaml) | Opt-in factual review chain using evidence-reviewer. |
+| [`manifests/capabilities/security/maestro-security/agents/security-cyber.md`](manifests/capabilities/security/maestro-security/agents/security-cyber.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/agents/security-probe.md`](manifests/capabilities/security/maestro-security/agents/security-probe.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/agents/security-proof.md`](manifests/capabilities/security/maestro-security/agents/security-proof.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/agents/security-rebuild.md`](manifests/capabilities/security/maestro-security/agents/security-rebuild.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/agents/security.md`](manifests/capabilities/security/maestro-security/agents/security.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/instructions/security-assessment.instructions.md`](manifests/capabilities/security/maestro-security/instructions/security-assessment.instructions.md) | Native security assessment content. |
+| [`manifests/capabilities/security/maestro-security/package.json`](manifests/capabilities/security/maestro-security/package.json) | Native security content package; no runner or extension bundled. |
+| [`manifests/capabilities/security/maestro-security/skills/security-assessment/SKILL.md`](manifests/capabilities/security/maestro-security/skills/security-assessment/SKILL.md) | Native security assessment content. |
 | [`manifests/core/SYSTEM.md`](manifests/core/SYSTEM.md) | Base system prompt and documentation pointers. |
 | [`manifests/core/agents/maestro.md`](manifests/core/agents/maestro.md) | Appended main-agent persona. |
 | [`manifests/core/agents/planner.md`](manifests/core/agents/planner.md) | Read-only implementation planning with a concrete handoff and its verification. |
