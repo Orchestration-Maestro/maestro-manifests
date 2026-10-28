@@ -89,7 +89,7 @@ class ManifestRoot(unittest.TestCase):
                     self.assertTrue(resolved.exists())
                     relative = resolved.relative_to(ROOT).as_posix()
                     self.assertNotIn(relative.split("/")[0], [*AREAS, *COMMON_FILES])
-            for caption, target in re.findall(r"(?m)^From \[`([^`]+)`\]\(([^)]+)\):$", text):
+            for caption, target in re.findall(r"(?m)^From \[`([^`]+)`\]\(([^):]+)\):$", text):
                 with self.subTest(guide=guide, caption=caption):
                     self.assertEqual((path.parent / target).resolve(), ROOT / caption)
 
