@@ -60,7 +60,7 @@ Its conventional `agents/`, `instructions/` and `workflows/` files are discovere
 by their owning consumers, not by an invented ownership descriptor. It ships one
 [evidence-reviewer role](../capabilities/practice/evidence-review/agents/evidence-reviewer.md),
 [skill](../capabilities/practice/evidence-review/skills/review-evidence/SKILL.md),
-[instruction](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md),
+[instruction](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md),
 [prompt](../capabilities/practice/evidence-review/prompts/explain-change.md),
 [theme](../capabilities/practice/evidence-review/themes/review-dark.json) and
 [workflow](../capabilities/practice/evidence-review/workflows/review-evidence.yaml).
@@ -75,17 +75,19 @@ components.
 
 ## Usage
 
-In your own user/project settings, select this pinned manifest and add
-`capabilities/practice/evidence-review` to `manifestAreas`. See
-[settings usage](settings.md#usage). The common file leaves the list empty, so
-this capability is not active merely because its files exist in the checkout.
-An absent area or the short name `evidence-review` is not a valid selection.
+In your own user/project settings, select this pinned manifest. The policy locks
+`manifestAreas`, so the organization adds `capabilities/practice/evidence-review`
+to it in `settings/settings.json`. See [settings usage](settings.md#usage). The
+common file leaves the list empty, so this capability is not active merely because
+its files exist in the checkout. An absent area or the short name
+`evidence-review` is not a valid selection.
 
 Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate to
 `evidence-reviewer`, run the `review-evidence` workflow, or choose `review-dark`.
 Supply the workflow with the answer and cited source passages to check; its
-single role returns a corrected answer and evidence gaps. Instructions still
-need explicit installation; selecting the capability does not inject them
+single role returns its report. The review rule lives in that role and the
+skill, so it applies only when evidence is reviewed. The instruction still needs
+explicit installation; selecting the capability does not inject it
 automatically.
 
 ## Loading rules

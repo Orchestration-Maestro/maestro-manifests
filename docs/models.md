@@ -70,10 +70,14 @@ repository. No connection to that service is needed for content checks.
 
 ## Usage
 
+This release allows only three Claude models and locks `defaultProvider` and
+`defaultModel`, so choosing `ollama/llama3.1:8b` and making it a local default
+both need a manifest without those limits.
+
 Set `OLLAMA_API_KEY` locally and start Maestro with the service running. Open
 `/model` and choose `ollama/llama3.1:8b`. To make it a local default, set
 `defaultProvider` to `ollama` and `defaultModel` to `llama3.1:8b` in your user
-settings. No common setting in this release selects or requires that endpoint.
+settings.
 
 ## Format
 

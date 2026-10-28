@@ -1,3 +1,34 @@
 {
+  "locked": [
+    "enableInstallTelemetry",
+    "images.blockImages",
+    "defaultProvider",
+    "defaultModel",
+    "systemPrompt",
+    "appendSystemPrompt",
+    "manifest",
+    "manifestAreas",
+    "manifestAutoUpdate",
+    "packages",
+    "extensions",
+    "skills",
+    "prompts"
+  ],
+  "bounds": {
+    "defaultThinkingLevel": { "max": "high" },
+    "thinkingBudgets.minimal": { "max": 1024 },
+    "thinkingBudgets.low": { "max": 2048 },
+    "thinkingBudgets.medium": { "max": 8192 },
+    "thinkingBudgets.high": { "max": 16384 }
+  },
+  "models": ["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"],
+  "required": ["core/agents", "core/workflows"],
+  "roles": {
+    "maestro": { "locked": ["model", "thinking", "tools"] },
+    "planner": { "locked": ["model", "thinking", "tools"] },
+    "reviewer": { "locked": ["model", "thinking", "tools"] },
+    "scout": { "locked": ["model", "thinking", "tools"] },
+    "worker": { "locked": ["model", "thinking", "tools"] }
+  },
   "updateCheckMinutes": 30
 }

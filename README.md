@@ -24,12 +24,20 @@ commit** in `.maestro/settings.json`; do not use an unpinned branch or install
 this repository as a local manifest. To try a proposed revision, use its full
 commit ID as the ref.
 
-The release's common settings leave optional areas unselected:
+The release's common settings choose the default model and thinking level, turn
+install telemetry off, block images and leave optional areas unselected:
 
 From [`settings/settings.json`](settings/settings.json):
 
 ```json
 {
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-5-5",
+  "defaultThinkingLevel": "medium",
+  "enableInstallTelemetry": false,
+  "images": {
+    "blockImages": true
+  },
   "manifestAreas": [],
   "manifestAutoUpdate": false
 }
@@ -43,10 +51,13 @@ The source installs in the scope of the settings file that names it; common,
 standards and core always load. Development starts at version `0.0.0` and
 [Release Please](docs/releases-and-updates.md) publishes versioned tags.
 
-To opt in, add `capabilities/practice/evidence-review` to your own `manifestAreas`.
+The policy locks `manifestAreas`, so the organization opts in: add
+`capabilities/practice/evidence-review` to `manifestAreas` in `settings/settings.json`.
 It offers a skill, role, instruction, prompt, theme and workflow, with no added
 executable extension or model provider. Selecting it does not install its
-instruction or choose its theme automatically.
+instruction or choose its theme automatically. Its review rule lives in the role
+and skill, so it applies only when evidence is reviewed; the instruction
+selects only files under `docs/`.
 
 Core supplies three chains:
 
@@ -97,7 +108,7 @@ whenever an artifact is added.
 | --- | --- |
 | [`.github/CODEOWNERS`](.github/CODEOWNERS) | Last-match review and catalog ownership for every path. |
 | [`capabilities/practice/evidence-review/agents/evidence-reviewer.md`](capabilities/practice/evidence-review/agents/evidence-reviewer.md) | Opt-in read-only role for checking factual claims against sources. |
-| [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](capabilities/practice/evidence-review/instructions/review-evidence.instructions.md) | Installable review guidance with applyTo frontmatter. |
+| [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md) | Installable documentation guidance with applyTo frontmatter. |
 | [`capabilities/practice/evidence-review/package.json`](capabilities/practice/evidence-review/package.json) | One opt-in capability package with explicit native resource paths. |
 | [`capabilities/practice/evidence-review/prompts/explain-change.md`](capabilities/practice/evidence-review/prompts/explain-change.md) | A file/audience explanation template with positional arguments. |
 | [`capabilities/practice/evidence-review/skills/review-evidence/SKILL.md`](capabilities/practice/evidence-review/skills/review-evidence/SKILL.md) | A source-grounded answer-review procedure. |
@@ -113,8 +124,8 @@ whenever an artifact is added.
 | [`core/workflows/implement.yaml`](core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
 | [`core/workflows/scout-and-plan.yaml`](core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
 | [`package.json`](package.json) | Common native package record; no independent npm version. |
-| [`settings/policy.json`](settings/policy.json) | Common release-check interval, with no locks or minimum release. |
-| [`settings/settings.json`](settings/settings.json) | Common defaults: no optional areas and no automatic optional updates. |
+| [`settings/policy.json`](settings/policy.json) | The baseline: locks, bounds, allowed models, required core resources and the release-check interval. |
+| [`settings/settings.json`](settings/settings.json) | The values the locks fix: default model and thinking level, telemetry off, images blocked, no optional areas and no automatic optional updates. |
 | [`version.txt`](version.txt) | Release Please version record for the shared Git release. |
 
 ## How composition works
@@ -127,10 +138,11 @@ whenever an artifact is added.
 
 A later area can narrow a bound or add a lock, but cannot loosen an earlier one.
 Stored conflicting preferences resolve with diagnostics without rewriting the
-file. Explicit forbidden changes fail before changing state. The initial policy
-here sets no locks, bounds or required resources; it checks for newer releases at
-session start and every 30 minutes, subject to `update.versionCheck` and offline
-mode. Choosing a theme, credentials and machine-local state remains local.
+file. Explicit forbidden changes fail before changing state. The policy here
+locks broadly, as [policy](docs/policy.md#the-baseline) lists; it checks for newer
+releases at session start and every 30 minutes, subject to `update.versionCheck`
+and offline mode. Choosing a theme, credentials and machine-local state remains
+local.
 
 Instructions are offered for installation, not automatically appended by area
 selection. System prompt, persona and installed instructions are different
@@ -152,12 +164,13 @@ runtime `standards/<domain>/` resources.
 
 ## Check a contribution
 
-Run `mise trust`, `mise exec -- just setup`, `mise exec -- just check` and
-`mise exec -- just test`. The real [justfile](justfile) owns these recipes; see
-[development](docs/development.md#local-checks) for the complete file and hooks.
+Run `mise trust`, `mise exec -- just setup` and `mise exec -- just check`, which
+runs the content checks and the tests. The real [justfile](justfile) owns these
+recipes; see [development](docs/development.md#local-checks) for the complete file
+and hooks.
 
 Start with an issue, keep changes within its scope and follow
-[AGENTS.md](AGENTS.md). Managed files remain generated by `rust-gate`.
+[AGENTS.md](AGENTS.md), which this repository maintains by hand.
 Public content only: no private collections, vendor material, credentials or
 private review evidence. Configuration governance is not a sandbox; extensions
 retain the user's access.

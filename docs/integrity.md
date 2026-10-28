@@ -20,22 +20,19 @@ reason to crash an otherwise recoverable session.
 
 This is the actual installable instruction in the evidence-review capability:
 
-From [`capabilities/practice/evidence-review/instructions/review-evidence.instructions.md`](../capabilities/practice/evidence-review/instructions/review-evidence.instructions.md):
+From [`capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md`](../capabilities/practice/evidence-review/instructions/cite-code-claims.instructions.md):
 
 ```markdown
 ---
-applyTo: "**"
+applyTo: "docs/**/*.md"
 ---
 
-When reviewing a change, cite the affected file and line for each finding.
-Distinguish a verified failure from a hypothesis. List the checks you ran and
-name any check you could not run. Do not include credentials or private evidence
-in public review comments.
+Cite the file and line for each claim about the code.
 ```
 
 To exercise copy integrity in a disposable project, select the capability and
-run `/manifest install review-evidence -l`. The destination is
-`.maestro/instructions/review-evidence.instructions.md`. Its recorded commit
+run `/manifest install cite-code-claims -l`. The destination is
+`.maestro/instructions/cite-code-claims.instructions.md`. Its recorded commit
 and digest identify the source above; a matching copy must be byte-for-byte equal.
 
 ## Usage

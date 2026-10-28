@@ -18,8 +18,8 @@ claim that runtime manifest loading is already a required check.
 ## Local checks
 
 Install [mise](https://mise.jdx.dev/), trust the checkout with `mise trust` and
-run `mise exec -- just setup` once. Then run `mise exec -- just check` and
-`mise exec -- just test` before proposing a change.
+run `mise exec -- just setup` once. Then run `mise exec -- just check`, which
+runs the content checks and the tests, before proposing a change.
 
 ## Example
 
@@ -33,15 +33,18 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the repository-owned content checks used by CI.
-check:
+# Run the content checks and the tests, as CI does.
+check: content test
+
+# Run the repository-owned content checks.
+content:
     prek run --all-files --stage manual
 
 # Use the same checks on the staged files without calling the Git hook again.
 pre-commit:
     prek run --stage manual
 
-# Exercise contributor commands in disposable Git indexes.
+# Run the tests, which exercise contributor commands in disposable Git indexes.
 test:
     python3 -m unittest discover -s tests
 ```
@@ -49,8 +52,10 @@ test:
 `mise.toml` pins the tools; `mise.lock` records their download checksums. Prek
 installs the pre-commit, pre-merge-commit and commit-msg hooks. The content checks
 live in `.pre-commit-config.yaml`: spelling, EditorConfig, Markdown structure,
-YAML/JSON/TOML parsing and basic file hygiene. `just check` runs them on every
-tracked file. The shared content workflow invokes that same command through mise.
+YAML/JSON/TOML parsing and basic file hygiene. `just content` runs them on every
+tracked file, and `just check` runs `just content` and then `just test`. The shared
+content workflow invokes `just check` through mise, so a pull request that breaks a
+test fails the required job.
 
 `just pre-commit` runs the content checks on staged files. It uses prek's `manual`
 stage, so the hook can call it without recursion. The Git hook also scans staged
@@ -60,12 +65,13 @@ that fix before retrying.
 
 `just test` exercises these commands in disposable Git indexes: valid content
 passes, malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
-untracked files. Tests do not change your index.
+untracked files. Those tests run `just content`, not `just check`, which would
+run the tests again. Tests do not change your index.
 
 ## Required CI
 
 The organization's `hygiene-central` ruleset requires the shared
-`content.yml@v0.16.0` workflow on pull requests and merge groups targeting the
+`content.yml@v0.16.1` workflow on pull requests and merge groups targeting the
 default branch. Its job is `Required content checks`; this repository needs no
 caller workflow. The repository's `merge-queue` ruleset uses Maestro's queue
 settings: squash merges, all checks green, up to seven entries building and
@@ -100,8 +106,8 @@ trigger required checks. Keep those credentials in GitHub, never in this catalog
 
 Repository rulesets require checks, signed changes and protected review. These
 are contributor controls, not entries in manifest policy. A runtime policy lock
-does not replace repository review, and a maintainer must not hand-edit generated
-rust-gate files to bypass their owner.
+does not replace repository review, and a maintainer must not edit a file to
+bypass the check or the owner it names.
 
 ## Check a change
 

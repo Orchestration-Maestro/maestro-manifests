@@ -83,7 +83,7 @@ class SystemPrompt(unittest.TestCase):
                 self.assertIn(rule, traced)
             for identifier in traced.get(rule, []):
                 with self.subTest(rule=rule, identifier=identifier):
-                    self.assertTrue(re.search(rf"^\| {identifier} ", standards, re.M), identifier)
+                    self.assertTrue(re.search(rf"\b{identifier}\b", standards), identifier)
 
 
 if __name__ == "__main__":

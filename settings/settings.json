@@ -1,4 +1,11 @@
 {
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-5-5",
+  "defaultThinkingLevel": "medium",
+  "enableInstallTelemetry": false,
+  "images": {
+    "blockImages": true
+  },
   "manifestAreas": [],
   "manifestAutoUpdate": false
 }

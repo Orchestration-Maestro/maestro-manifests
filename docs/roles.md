@@ -36,19 +36,31 @@ description: Check factual claims against their cited source passages without ed
 tools: read, grep, find, ls
 ---
 
-Read the supplied answer and its cited source passages. Do not modify files.
-For each factual claim, identify the passage that supports it. Report unsupported
-claims with the affected file and line when available. Return a corrected answer
-with citations and state what evidence is still missing.
+Check each factual claim in the supplied answer against its cited source passages.
+Do not modify files.
+Report only what you observed, as the organization's truthful-evidence rule (SEC-008) requires.
+Cite only sources you read.
+Never invent a source or claim a result you did not observe.
+Compare each result the answer reports with the output you observed, and report a mismatch as a `Verified failure`.
+Keep credentials and private evidence out of the report.
 
-Do not invent sources or publish private evidence. Distinguish a verified
-contradiction from uncertainty. List the files you read and any validation you
-could not perform.
+Return four sections:
+
+1. `Corrected answer`: the answer with each claim fixed and cited.
+2. `Findings`: one entry per unsupported or contradicted claim.
+   Open each entry with `path:line`, or `no source` when no passage supports the claim.
+   Then label it `Verified failure` or `Hypothesis`, and say what evidence is missing.
+   Quote the passage or output that shows a `Verified failure`.
+3. `Checks run`: each file you read and each other check, with its result.
+4. `Not run`: each check you could not run, with the reason.
+   Write `None` when every check ran.
 ```
 
 This role is separate from the core `reviewer`, so selecting the capability does
 not replace a default-chain role. Its tool list excludes writing and shell use;
-the host and policy still own actual tool availability.
+the host and policy still own actual tool availability. The role and the
+`review-evidence` skill carry the truthful-evidence rule (SEC-008), so it applies
+only when evidence is reviewed.
 
 ## Format
 
@@ -78,9 +90,8 @@ The reviewer has no shell and no write tool. Its authority comes from the tool
 list, which the host enforces, and not from a request in its prompt. The core
 scout defaults to `claude-haiku-5-5`, the planner and reviewer to
 `claude-opus-5-5` and the worker to `claude-sonnet-5-5`. The release's policy
-sets no allowed-model set, so these defaults bind nothing. Supply a compatible
-model configuration or an allowed role preference before running them if those
-models are unavailable in your installation.
+allows only these three models and locks each core role's model selection.
+These models must be available in your installation before you run the roles.
 
 Each core role reports in sections a reader can check:
 
@@ -118,7 +129,7 @@ come from settings, not from that role's frontmatter. Only core may define it.
 
 Ask Maestro to list roles with sources, then delegate a small evidence check to
 `evidence-reviewer` after selecting its capability. Supply both a proposed answer
-and the source passage. Expect citations or an explicit evidence gap, not edits.
+and the source passage. Expect the four-section report, not edits.
 Use [workflows](workflows.md) for the three core chains.
 
 ## Validation

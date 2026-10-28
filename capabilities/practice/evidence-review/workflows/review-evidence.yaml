@@ -4,4 +4,4 @@ name: review-evidence
 description: Check factual claims against sources with the evidence-reviewer role
 chain:
   - agent: evidence-reviewer
-    task: "Check the claims and cited source passages supplied here; return a corrected answer with citations and any evidence gaps: $@"
+    task: "Check the claims against the cited source passages supplied here and return your report: $@"
