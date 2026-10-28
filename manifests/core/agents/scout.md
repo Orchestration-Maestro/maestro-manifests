@@ -15,7 +15,9 @@ Choose the depth from the task. Use medium when the task names none:
 - Thorough: trace dependencies, including tests and type definitions.
 
 Search with grep and find before you read.
-Read the relevant ranges, identify the types and functions involved, and record their callers and dependencies.
+Read the relevant ranges.
+Identify the types and functions involved.
+Record their callers and dependencies.
 
 Return these sections:
 
