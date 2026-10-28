@@ -117,5 +117,53 @@ class ManifestExamples(unittest.TestCase):
                          .split("tools: ")[1].splitlines()[0], "read, grep, find, ls")
 
 
+    def test_evidence_review_rule_applies_only_to_review_work(self):
+        """Keep the review rule out of sessions that do not review evidence."""
+        for path in ROOT.rglob("*.instructions.md"):
+            self.assertNotRegex(path.read_text(), r'(?m)^applyTo: "?\*\*"?$', path)
+        self.assertFalse((CAPABILITY / "instructions").exists())
+
+    def test_evidence_review_rules_are_checkable_and_map_to_truthful_evidence(self):
+        """Hold the role and skill to one report whose parts a reviewer can check."""
+        files = [("agents/evidence-reviewer.md", "roles"),
+                 ("skills/review-evidence/SKILL.md", "skills")]
+        for name, guide in files:
+            with self.subTest(file=name):
+                text = (CAPABILITY / name).read_text()
+                self.assertIn("SEC-008", text)
+                for term in ["Corrected answer", "Findings", "Checks run", "Not run",
+                             "path:line", "no source", "Verified failure", "Hypothesis"]:
+                    self.assertIn(f"`{term}`", text)
+                self.assertIn(f"```markdown\n{text}```", (ROOT / f"docs/{guide}.md").read_text())
+        skill = (CAPABILITY / files[1][0]).read_text()
+        rows = [[cell.strip() for cell in row.strip("|").split("|")]
+                for row in re.findall(r"^\|.+\|$", skill, re.M)]
+        self.assertEqual(rows[:1], [["Rule", "Required", "Checked by"]])
+        self.assertEqual([row[0] for row in rows[2:]],
+                         ["Cite", "Classify", "Report runs", "Report gaps",
+                          "Source honesty", "Private evidence"])
+        for row in rows[2:]:
+            self.assertTrue(all(row), row)
+        task = re.search(r"^    task: (.+)$",
+                         (CAPABILITY / "workflows/review-evidence.yaml").read_text(), re.M)[1]
+        self.assertIn("report", task)
+
+    def test_evidence_review_text_uses_maestro_voice(self):
+        """Give each instruction its own line and avoid the words Maestro avoids."""
+        avoided = (r"\b(blazing|revolutionary|magic|seamless|supercharge|just|simply|leverage|"
+                   r"utilize|oops|awesome|robust|please note)\b")
+        for name in ["agents/evidence-reviewer.md", "skills/review-evidence/SKILL.md",
+                     "prompts/explain-change.md", "workflows/review-evidence.yaml"]:
+            with self.subTest(file=name):
+                text = (CAPABILITY / name).read_text()
+                self.assertNotRegex(text.lower(), avoided)
+                lines = (re.findall(r"^    task: (.+)$", text, re.M) if name.endswith(".yaml")
+                         else text.split("---\n")[2].splitlines())
+                for line in lines:
+                    if not line.startswith("|"):
+                        sentences = re.findall(r"[.!?](?:\s|$)", re.sub(r"^\d+\. ", "", line))
+                        self.assertLessEqual(len(sentences), 1, line)
+
+
 if __name__ == "__main__":
     unittest.main()
