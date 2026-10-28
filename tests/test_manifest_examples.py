@@ -121,7 +121,20 @@ class ManifestExamples(unittest.TestCase):
         """Keep the review rule out of sessions that do not review evidence."""
         for path in ROOT.rglob("*.instructions.md"):
             self.assertNotRegex(path.read_text(), r'(?m)^applyTo: "?\*\*"?$', path)
-        self.assertFalse((CAPABILITY / "instructions").exists())
+
+    def test_shipped_instruction_is_a_real_example_scoped_to_docs(self):
+        """Keep one installable instruction, indexed and quoted, with no exception."""
+        path = CAPABILITY / "instructions/cite-code-claims.instructions.md"
+        self.assertEqual(list(ROOT.rglob("*.instructions.md")), [path])
+        text = path.read_text()
+        self.assertTrue(text.startswith('---\napplyTo: "docs/**/*.md"\n---\n'), text)
+        relative = path.relative_to(ROOT).as_posix()
+        self.assertIn(f"[`{relative}`]({relative})", (ROOT / "README.md").read_text())
+        for guide in ["instructions", "integrity"]:
+            self.assertIn(f"```markdown\n{text}```", (ROOT / f"docs/{guide}.md").read_text())
+        index = (ROOT / "docs/index.md").read_text()
+        self.assertNotIn("*.instructions.md", index)
+        self.assertIn("skill, instruction, prompt, theme and workflow", index)
 
     def test_evidence_review_rules_are_checkable_and_map_to_truthful_evidence(self):
         """Hold the role and skill to one report whose parts a reviewer can check."""
@@ -144,8 +157,8 @@ class ManifestExamples(unittest.TestCase):
                           "Source honesty", "Private evidence"])
         for row in rows[2:]:
             self.assertTrue(all(row), row)
-        task = re.search(r"^    task: (.+)$",
-                         (CAPABILITY / "workflows/review-evidence.yaml").read_text(), re.M)[1]
+        task = re.findall(r"^    task: (.+)$",
+                          (CAPABILITY / "workflows/review-evidence.yaml").read_text(), re.M)[0]
         self.assertIn("report", task)
 
     def test_evidence_review_text_uses_maestro_voice(self):
