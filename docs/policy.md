@@ -71,6 +71,9 @@ From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
     "credentials.anthropic",
     "shellCommandPrefix",
     "warnings.anthropicExtraUsage",
+    "multiplexer.remote.manageSshConfig",
+    "multiplexer.allowNested",
+    "multiplexer.tabBarRight",
     "daemon.paneShell",
     "daemon.paneShellMode",
     "daemon.newPaneCwd",
@@ -203,6 +206,7 @@ approved this baseline on 2026-10-28: lock behaviour, leave personal UI.
 | `shellPath`, `sessionDir`, `daemon.paneShell`, `daemon.worktreesDirectory` | Locked; unset (engine default) | Use the engine location resolver; do not hard-code one host's paths |
 | `daemon.paneShellMode`, `daemon.newPaneCwd`, `daemon.resumeAgentsOnRestore` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
 | `daemon.paneHistory`, `daemon.detectionCatalogCheck` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
+| `multiplexer.remote.manageSshConfig`, `multiplexer.allowNested`, `multiplexer.tabBarRight` | Locked; unset (engine default) | Keep SSH configuration, nested sessions and status commands at engine defaults |
 | `npmCommand` | Locked; unset (engine default) | Git installs keep `install --omit=dev`; explicit `["npm"]` changes this to `install` |
 | `showChangelog` | Locked to `true` | Keep release changes visible at startup |
 | `credentials.anthropic` | Locked to `["environment", "signIn"]` | Allow environment credentials and sign-in; refuse command-produced and literal stored keys |
@@ -215,10 +219,12 @@ capability; the organization selects it in `manifests/settings/settings.json`.
 Personal UI is not locked: `theme`, `hideThinkingBlock`, `quietStartup`,
 `collapseChangelog`, `terminal.*`, `doubleEscapeAction`, `treeFilterMode`,
 `editorPaddingX`, `autocompleteMaxVisible`, `showHardwareCursor`, `markdown.*`,
-`multiplexer.*`, `daemon.headlessCols`, `daemon.headlessRows`,
+workspace presentation settings, `daemon.headlessCols`, `daemon.headlessRows`,
 `daemon.scrollbackLimitBytes` and all 72 named `keybindings.*` actions remain
 editable. The `actions` lock forbids local action additions; it does not lock
-those keybindings. `holdUncheckedText` is absent from the baseline; guards lock
+those keybindings. Workspace behavior remains locked: SSH configuration, nested
+sessions and `multiplexer.tabBarRight`, which can run periodic commands.
+`holdUncheckedText` is absent from the baseline; guards lock
 it on when they ship.
 
 Guard files in `required` wait for #27. Core skills and instructions also wait
