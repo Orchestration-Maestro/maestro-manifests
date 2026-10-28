@@ -17,8 +17,9 @@ manifest resources; private collections plug in from outside it.
 
 - Run `just setup` once to install the pinned tools and prek hooks. Run commands
   through `mise exec --` when mise is not active in your shell.
-- Run `just check` for the content checks CI uses, and `just test` for the
-  contributor-command regression tests. Report the checks actually run.
+- Run `just check`, which CI uses: it runs the content checks, then the tests.
+  `just content` and `just test` run each half alone. Report the checks actually
+  run.
 - `.pre-commit-config.yaml` owns the checks. The Git hook calls `just pre-commit`,
   which runs those checks on staged files through prek's `manual` stage to avoid
   calling the Git hook again. Do not duplicate checks in CI.
