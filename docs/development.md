@@ -108,5 +108,5 @@ rust-gate files to bypass their owner.
 Run the check and test recipes above, review any automatic formatting and restage
 it. Commit through the installed hooks with a signed conventional header. Report
 which commands actually passed and which runtime/schema checks remain unavailable.
-Do not duplicate `.pre-commit-config.yaml` in CI. The generated rule maps under
-`docs/standards/` stay generated and are exempt from authored-guide formatting.
+Do not duplicate `.pre-commit-config.yaml` in CI. The pages under
+`docs/standards/` are written by hand and follow the authored-guide format.
