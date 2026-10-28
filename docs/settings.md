@@ -38,21 +38,29 @@ and bounds narrow. See [policy](policy.md).
 
 ## Example
 
-The common area supplies the release defaults. Its settings select no optional
-capability and do not set a manifest source:
+The common area supplies the release defaults and the values its locks fix. Its
+settings select no optional capability and do not set a manifest source:
 
 From [`settings/settings.json`](../settings/settings.json):
 
 ```json
 {
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-sonnet-5-5",
+  "defaultThinkingLevel": "medium",
+  "enableInstallTelemetry": false,
+  "images": {
+    "blockImages": true
+  },
   "manifestAreas": [],
   "manifestAutoUpdate": false
 }
 ```
 
-`manifestAreas: []` leaves only common, standards and core selected. To try the
-evidence-review capability, add its full path,
-`capabilities/practice/evidence-review`, to `manifestAreas` in your own settings.
+`manifestAreas: []` leaves only common, standards and core selected. The policy
+locks `manifestAreas`, so a user cannot add the evidence-review capability; the
+organization selects it by adding its full path,
+`capabilities/practice/evidence-review`, to `manifestAreas` in this document.
 Do not edit the installed common document to make a personal selection.
 
 ## Usage

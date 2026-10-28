@@ -28,6 +28,9 @@ repository validate files; they do not execute policy or approve a publisher.
 - **Required resource:** A release-relative resource that local discovery,
   shadowing or filters cannot remove. Required workflows resolve references from
   their own release.
+- **Baseline:** The locks, bounds, allowed models and required resources in the
+  common policy, with the settings values that the locks fix. [Policy](docs/policy.md#the-baseline)
+  lists it.
 - **Manifest release:** A versioned Git snapshot, normally published under a
   `v`-prefixed tag. Capabilities in this repository share its release version.
 - **Pin:** The explicit ref selecting a versioned container. Individual files

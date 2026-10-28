@@ -75,11 +75,12 @@ components.
 
 ## Usage
 
-In your own user/project settings, select this pinned manifest and add
-`capabilities/practice/evidence-review` to `manifestAreas`. See
-[settings usage](settings.md#usage). The common file leaves the list empty, so
-this capability is not active merely because its files exist in the checkout.
-An absent area or the short name `evidence-review` is not a valid selection.
+In your own user/project settings, select this pinned manifest. The policy locks
+`manifestAreas`, so the organization adds `capabilities/practice/evidence-review`
+to it in `settings/settings.json`. See [settings usage](settings.md#usage). The
+common file leaves the list empty, so this capability is not active merely because
+its files exist in the checkout. An absent area or the short name
+`evidence-review` is not a valid selection.
 
 Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate to
 `evidence-reviewer`, run the `review-evidence` workflow, or choose `review-dark`.
