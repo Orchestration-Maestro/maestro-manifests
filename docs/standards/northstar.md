@@ -10,14 +10,17 @@ measured`, never estimated; a value read by hand carries the date it was read.
 
 ## The point
 
-Not mapped yet: whose problem this repository solves, and what changes for them
-when it works.
+An organization that runs Maestro gets its settings, policy, system prompt, roles
+and workflows from one pinned, reviewed Git release, so no developer assembles
+them alone. When it works, every developer's agent starts from the same reviewed
+configuration, a change reaches them as a release they adopt, and nothing outside
+the pinned release alters it.
 
 ## KPIs
 
 | Pillar | KPI | Current | Target | Measured by |
 | --- | --- | --- | --- | --- |
-| Speed | Not mapped yet | not measured | set from the first baseline | none yet |
-| Quality | Not mapped yet | not measured | set from the first baseline | none yet |
-| Maintainability | Not mapped yet | not measured | set from the first baseline | none yet |
-| Security | Not mapped yet | not measured | set from the first baseline | none yet |
+| Speed | Duration of the required content job | 7 s, median of the last 8 runs, read by hand on 2026-10-28 | under 30 s | The duration of the `Required content checks` job on each pull request and merge group |
+| Quality | Failing tests in `just test` | 0, read by hand on 2026-10-28 | 0 | `just test`, which runs `tests/`; no required job runs it yet |
+| Maintainability | Findings from the content checks on the default branch | 0 | 0 | `Required content checks`, which runs `just check` on every pull request and merge group |
+| Security | Open code-scanning, secret-scanning and Dependabot alerts | 0, read by hand on 2026-10-28 | 0 | Code scanning (default setup), secret scanning and Dependabot alerts on the repository's Security tab |
