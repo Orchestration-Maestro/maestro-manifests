@@ -46,6 +46,50 @@ class SecurityCapability(unittest.TestCase):
         settings = json.loads((ROOT / "manifests/settings/settings.json").read_text())
         self.assertEqual(settings["manifestAreas"], [])
 
+    def test_assessment_procedure_keeps_lifecycle_and_evidence_gates(self):
+        """Keep explicit initiation, all seven phases and evidence-led delivery."""
+        skill = (CAPABILITY / "skills/security-assessment/SKILL.md").read_text()
+        for requirement in ["/assess", "wasm extension", "MCP stdio", "one target",
+                            "recon, target-model, hypotheses, verify, deepen, threat, report",
+                            "Confirmed", "NeedsValidation", "Rejected", "SARIF",
+                            "immutable", "counterevidence", "blockers", "validation plan",
+                            "SEC-002", "SEC-005", "SEC-008", "SEC-009"]:
+            self.assertIn(requirement, skill)
+        for tool in ["security_doctor", "security_route", "security_assess",
+                     "security_validate", "security_evidence", "security_report_page",
+                     "security_disclose"]:
+            self.assertIn(f"`{tool}`", skill)
+        self.assertIn("unhealthy", skill)
+        self.assertIn("priorities and guidance only", skill)
+        self.assertIn("target, evidence and verdict rules stay fixed", skill)
+        instruction = (CAPABILITY / "instructions/security-assessment.instructions.md").read_text()
+        for term in ["SEC-002", "SEC-005", "SEC-008", "Check:", "/assess",
+                     "Confirmed", "NeedsValidation", "Rejected"]:
+            self.assertIn(term, instruction)
+        for path in CAPABILITY.rglob("*.md"):
+            text = path.read_text()
+            self.assertNotIn("/maestro-security", text)
+            self.assertIn("Check:", text, path)
+            self.assertIn("SEC-008", text, path)
+            self.assertNotIn("| SEC-", text, path)
+
+    def test_specialist_roles_keep_their_responsibilities(self):
+        """Keep reconnaissance separate from proof, repair and reporting."""
+        contracts = {
+            "security": ["one target", "/assess", "doctor", "route", "user"],
+            "security-probe": ["technologies", "entry points", "trust boundaries",
+                               "Do not test hypotheses", "router"],
+            "security-proof": ["counterevidence", "gate", "ledger", "NeedsValidation",
+                               "Rejected"],
+            "security-rebuild": ["fix", "verification", "disclosure", "Do not weaken"],
+            "security-cyber": ["threat", "NeedsValidation", "Rejected", "coverage",
+                               "ledger"],
+        }
+        for name, terms in contracts.items():
+            text = (CAPABILITY / f"agents/{name}.md").read_text()
+            for term in terms:
+                self.assertIn(term, text, name)
+
 
 if __name__ == "__main__":
     unittest.main()
