@@ -184,6 +184,10 @@ class ManifestExamples(unittest.TestCase):
             self.assertNotRegex(cell, r"^The section exists\.?$", rule)
         for term in ["reason", "`None` appears only when", "claims"]:
             self.assertIn(term, checked["Report gaps"])
+        required = {row[0]: row[1] for row in skill_rules(skill)[2:]}["Report gaps"]
+        self.assertIn("exactly `None`", required)
+        self.assertIn("exactly `None`, or a nonempty list", checked["Report gaps"])
+        self.assertIn("A heading with no entries fails", checked["Report gaps"])
         for term in ["`Findings`", "`Corrected answer`", "output you observed"]:
             self.assertIn(term, checked["Source honesty"])
         compare = "Compare each result the answer reports with the output you observed"
