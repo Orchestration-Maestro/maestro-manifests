@@ -142,11 +142,12 @@ custom theme supports hot reload for local color edits.
 
 ## What the organization can lock
 
-The manifest can offer themes and default `theme`; it cannot lock or bound either
-`theme` or `themes`. User and project resources can replace optional same-name
+The manifest can offer themes and default or lock `theme`. The
+[baseline](policy.md#the-baseline) leaves personal theme selection and display
+editable, but locks `themes` to forbid local theme additions. Where policy allows
+local additions, user and project resources can replace optional same-name
 manifest definitions. A required resource cannot be removed by discovery flags
-or filters, but offering a theme does not force its selection. Machine-specific
-terminal presentation stays local.
+or filters, but offering a theme does not force its selection.
 
 ## Validation
 
