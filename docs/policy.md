@@ -46,7 +46,6 @@ From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
     "followUpMode",
     "enableSkillCommands",
     "images.autoResize",
-    "holdUncheckedText",
     "compaction.enabled",
     "compaction.reserveTokens",
     "compaction.keepRecentTokens",
@@ -70,162 +69,17 @@ From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
     "npmCommand",
     "showChangelog",
     "credentials.anthropic",
-    "theme",
     "shellCommandPrefix",
-    "hideThinkingBlock",
-    "quietStartup",
-    "collapseChangelog",
-    "terminal.showImages",
-    "terminal.imageWidthCells",
-    "terminal.clearOnShrink",
-    "terminal.showTerminalProgress",
-    "doubleEscapeAction",
-    "treeFilterMode",
-    "editorPaddingX",
-    "autocompleteMaxVisible",
-    "showHardwareCursor",
-    "markdown.codeBlockIndent",
     "warnings.anthropicExtraUsage",
-    "multiplexer.theme.autoSwitch",
-    "multiplexer.sidebarWidth",
-    "multiplexer.sidebarMinWidth",
-    "multiplexer.sidebarMaxWidth",
-    "multiplexer.sidebarStartCollapsed",
-    "multiplexer.sidebarCollapsedMode",
-    "multiplexer.mobileWidthThreshold",
-    "multiplexer.mouseCapture",
-    "multiplexer.copyOnSelect",
-    "multiplexer.hostCursor",
-    "multiplexer.rightClickPassthroughModifier",
-    "multiplexer.redrawOnFocusGained",
-    "multiplexer.confirmClose",
-    "multiplexer.promptNewTabName",
-    "multiplexer.promptNewWorkspaceName",
-    "multiplexer.paneBorders",
-    "multiplexer.paneOuterBorders",
-    "multiplexer.paneScrollbars",
-    "multiplexer.paneGaps",
-    "multiplexer.showAgentLabelsOnPaneBorders",
-    "multiplexer.hideTabBarWhenSingleTab",
-    "multiplexer.tabBarPosition",
-    "multiplexer.tabBarRight",
-    "multiplexer.tabBarRightSeparator",
-    "multiplexer.windowTitle",
-    "multiplexer.agentPanelSort",
-    "multiplexer.statusIndicators",
-    "multiplexer.sidebar.agents.rowGap",
-    "multiplexer.sidebar.agents.rows",
-    "multiplexer.sidebar.agents.rowsByAgent",
-    "multiplexer.sidebar.spaces.rowGap",
-    "multiplexer.sidebar.spaces.rows",
-    "multiplexer.accent",
-    "multiplexer.toast.delivery",
-    "multiplexer.toast.delaySeconds",
-    "multiplexer.toast.workspace.position",
-    "multiplexer.toast.clipboard.enabled",
-    "multiplexer.toast.clipboard.position",
-    "multiplexer.sound.enabled",
-    "multiplexer.sound.agents",
-    "multiplexer.remote.manageSshConfig",
-    "multiplexer.allowNested",
-    "multiplexer.kittyGraphics",
-    "multiplexer.revealHiddenCursorForCjkIme",
-    "multiplexer.cjkImeAgents",
-    "multiplexer.cjkImeCursorShape",
-    "multiplexer.switchAsciiInputSourceInPrefix",
     "daemon.paneShell",
     "daemon.paneShellMode",
     "daemon.newPaneCwd",
     "daemon.resumeAgentsOnRestore",
-    "daemon.headlessCols",
-    "daemon.headlessRows",
     "daemon.worktreesDirectory",
-    "daemon.scrollbackLimitBytes",
     "daemon.paneHistory",
     "daemon.detectionCatalogCheck",
     "update.versionCheck",
-    "update.channel",
-    "multiplexer.onboarding",
-    "multiplexer.theme.name",
-    "multiplexer.theme.darkName",
-    "multiplexer.theme.lightName",
-    "multiplexer.theme.custom",
-    "multiplexer.mouseScrollLines",
-    "multiplexer.sound.path",
-    "multiplexer.sound.donePath",
-    "multiplexer.sound.requestPath",
-    "keybindings.app.interrupt",
-    "keybindings.app.clear",
-    "keybindings.app.exit",
-    "keybindings.app.suspend",
-    "keybindings.app.thinking.cycle",
-    "keybindings.app.model.cycleForward",
-    "keybindings.app.model.cycleBackward",
-    "keybindings.app.model.select",
-    "keybindings.app.tools.expand",
-    "keybindings.app.thinking.toggle",
-    "keybindings.app.session.toggleNamedFilter",
-    "keybindings.app.editor.external",
-    "keybindings.app.message.followUp",
-    "keybindings.app.message.dequeue",
-    "keybindings.app.clipboard.pasteImage",
-    "keybindings.app.session.new",
-    "keybindings.app.session.tree",
-    "keybindings.app.session.fork",
-    "keybindings.app.session.resume",
-    "keybindings.app.tree.foldOrUp",
-    "keybindings.app.tree.unfoldOrDown",
-    "keybindings.app.tree.editLabel",
-    "keybindings.app.tree.toggleLabelTimestamp",
-    "keybindings.app.session.togglePath",
-    "keybindings.app.session.toggleSort",
-    "keybindings.app.session.rename",
-    "keybindings.app.session.delete",
-    "keybindings.app.session.deleteNoninvasive",
-    "keybindings.app.models.save",
-    "keybindings.app.models.enableAll",
-    "keybindings.app.models.clearAll",
-    "keybindings.app.models.toggleProvider",
-    "keybindings.app.models.reorderUp",
-    "keybindings.app.models.reorderDown",
-    "keybindings.app.tree.filter.default",
-    "keybindings.app.tree.filter.noTools",
-    "keybindings.app.tree.filter.userOnly",
-    "keybindings.app.tree.filter.labeledOnly",
-    "keybindings.app.tree.filter.all",
-    "keybindings.app.tree.filter.cycleForward",
-    "keybindings.app.tree.filter.cycleBackward",
-    "keybindings.tui.editor.cursorUp",
-    "keybindings.tui.editor.cursorDown",
-    "keybindings.tui.editor.cursorLeft",
-    "keybindings.tui.editor.cursorRight",
-    "keybindings.tui.editor.cursorWordLeft",
-    "keybindings.tui.editor.cursorWordRight",
-    "keybindings.tui.editor.cursorLineStart",
-    "keybindings.tui.editor.cursorLineEnd",
-    "keybindings.tui.editor.jumpForward",
-    "keybindings.tui.editor.jumpBackward",
-    "keybindings.tui.editor.pageUp",
-    "keybindings.tui.editor.pageDown",
-    "keybindings.tui.editor.deleteCharBackward",
-    "keybindings.tui.editor.deleteCharForward",
-    "keybindings.tui.editor.deleteWordBackward",
-    "keybindings.tui.editor.deleteWordForward",
-    "keybindings.tui.editor.deleteToLineStart",
-    "keybindings.tui.editor.deleteToLineEnd",
-    "keybindings.tui.editor.yank",
-    "keybindings.tui.editor.yankPop",
-    "keybindings.tui.editor.undo",
-    "keybindings.tui.input.newLine",
-    "keybindings.tui.input.submit",
-    "keybindings.tui.input.tab",
-    "keybindings.tui.input.copy",
-    "keybindings.tui.select.up",
-    "keybindings.tui.select.down",
-    "keybindings.tui.select.pageUp",
-    "keybindings.tui.select.pageDown",
-    "keybindings.tui.select.confirm",
-    "keybindings.tui.select.cancel"
+    "update.channel"
   ],
   "bounds": {
     "defaultThinkingLevel": { "max": "high" },
@@ -315,12 +169,12 @@ they come only from the manifest.
 
 ## The baseline
 
-The organization locks broadly. Every row is in `manifests/settings/policy.json`;
+The organization locks behavior and local additions, leaving personal UI editable.
+Every locked row is in `manifests/settings/policy.json`;
 an explicit value is in `manifests/settings/settings.json`. When a value is unset,
 the lock fixes the engine default, not a user or project preference. This keeps
-platform-specific defaults portable without allowing local overrides. The new
-rows below are candidates pending owner sign-off before merge; the earlier
-approved values remain unchanged.
+platform-specific defaults portable without allowing local overrides. The owner
+approved this baseline on 2026-10-28: lock behaviour, leave personal UI.
 
 | Keys | Policy | Reason |
 | --- | --- | --- |
@@ -342,44 +196,14 @@ approved values remain unchanged.
 | `enabledModels`, `transport`, `steeringMode`, `followUpMode`, `enableSkillCommands` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
 | `images.autoResize`, `compaction.enabled`, `compaction.reserveTokens`, `compaction.keepRecentTokens`, `branchSummary.reserveTokens` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
 | `branchSummary.skipPrompt`, `retry.enabled`, `retry.maxRetries`, `retry.baseDelayMs`, `retry.provider.timeoutMs` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
-| `retry.provider.maxRetries`, `retry.provider.maxRetryDelayMs`, `theme`, `shellCommandPrefix`, `hideThinkingBlock` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
-| `quietStartup`, `collapseChangelog`, `terminal.showImages`, `terminal.imageWidthCells`, `terminal.clearOnShrink` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
-| `terminal.showTerminalProgress`, `doubleEscapeAction`, `treeFilterMode`, `editorPaddingX`, `autocompleteMaxVisible` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
-| `showHardwareCursor`, `markdown.codeBlockIndent`, `warnings.anthropicExtraUsage`, `update.versionCheck`, `update.channel` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `retry.provider.maxRetries`, `retry.provider.maxRetryDelayMs`, `shellCommandPrefix` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
+| `warnings.anthropicExtraUsage`, `update.versionCheck`, `update.channel` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
 | `themes`, `actions`, `contributions`, `workflows`, `agents` | Locked; unset (engine default) | No local additions; area folders supply resources |
 | `instructions`, `mcpServers` | Locked; unset (engine default) | No local additions; area folders supply resources |
 | `shellPath`, `sessionDir`, `daemon.paneShell`, `daemon.worktreesDirectory` | Locked; unset (engine default) | Use the engine location resolver; do not hard-code one host's paths |
-| `multiplexer.theme.autoSwitch`, `multiplexer.sidebarWidth`, `multiplexer.sidebarMinWidth`, `multiplexer.sidebarMaxWidth`, `multiplexer.sidebarStartCollapsed` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.sidebarCollapsedMode`, `multiplexer.mobileWidthThreshold`, `multiplexer.mouseCapture`, `multiplexer.copyOnSelect`, `multiplexer.hostCursor` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.rightClickPassthroughModifier`, `multiplexer.redrawOnFocusGained`, `multiplexer.confirmClose`, `multiplexer.promptNewTabName`, `multiplexer.promptNewWorkspaceName` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.paneBorders`, `multiplexer.paneOuterBorders`, `multiplexer.paneScrollbars`, `multiplexer.paneGaps`, `multiplexer.showAgentLabelsOnPaneBorders` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.hideTabBarWhenSingleTab`, `multiplexer.tabBarPosition`, `multiplexer.tabBarRight`, `multiplexer.tabBarRightSeparator`, `multiplexer.windowTitle` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.agentPanelSort`, `multiplexer.statusIndicators`, `multiplexer.sidebar.agents.rowGap`, `multiplexer.sidebar.agents.rows`, `multiplexer.sidebar.agents.rowsByAgent` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.sidebar.spaces.rowGap`, `multiplexer.sidebar.spaces.rows`, `multiplexer.accent`, `multiplexer.toast.delivery`, `multiplexer.toast.delaySeconds` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.toast.workspace.position`, `multiplexer.toast.clipboard.enabled`, `multiplexer.toast.clipboard.position`, `multiplexer.sound.enabled`, `multiplexer.sound.agents` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.remote.manageSshConfig`, `multiplexer.allowNested`, `multiplexer.kittyGraphics`, `multiplexer.revealHiddenCursorForCjkIme`, `multiplexer.cjkImeAgents` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.cjkImeCursorShape`, `multiplexer.switchAsciiInputSourceInPrefix`, `multiplexer.onboarding`, `multiplexer.theme.name`, `multiplexer.theme.darkName` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.theme.lightName`, `multiplexer.theme.custom`, `multiplexer.mouseScrollLines`, `multiplexer.sound.path`, `multiplexer.sound.donePath` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `multiplexer.sound.requestPath` | Locked; unset (engine default) | Keep the workspace presentation and remote settings at engine defaults |
-| `daemon.paneShellMode`, `daemon.newPaneCwd`, `daemon.resumeAgentsOnRestore`, `daemon.headlessCols`, `daemon.headlessRows` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
-| `daemon.scrollbackLimitBytes`, `daemon.paneHistory`, `daemon.detectionCatalogCheck` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
-| `keybindings.app.interrupt`, `keybindings.app.clear`, `keybindings.app.exit`, `keybindings.app.suspend`, `keybindings.app.thinking.cycle` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.model.cycleForward`, `keybindings.app.model.cycleBackward`, `keybindings.app.model.select`, `keybindings.app.tools.expand`, `keybindings.app.thinking.toggle` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.session.toggleNamedFilter`, `keybindings.app.editor.external`, `keybindings.app.message.followUp`, `keybindings.app.message.dequeue`, `keybindings.app.clipboard.pasteImage` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.session.new`, `keybindings.app.session.tree`, `keybindings.app.session.fork`, `keybindings.app.session.resume`, `keybindings.app.tree.foldOrUp` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.tree.unfoldOrDown`, `keybindings.app.tree.editLabel`, `keybindings.app.tree.toggleLabelTimestamp`, `keybindings.app.session.togglePath`, `keybindings.app.session.toggleSort` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.session.rename`, `keybindings.app.session.delete`, `keybindings.app.session.deleteNoninvasive`, `keybindings.app.models.save`, `keybindings.app.models.enableAll` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.models.clearAll`, `keybindings.app.models.toggleProvider`, `keybindings.app.models.reorderUp`, `keybindings.app.models.reorderDown`, `keybindings.app.tree.filter.default` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.tree.filter.noTools`, `keybindings.app.tree.filter.userOnly`, `keybindings.app.tree.filter.labeledOnly`, `keybindings.app.tree.filter.all`, `keybindings.app.tree.filter.cycleForward` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.app.tree.filter.cycleBackward`, `keybindings.tui.editor.cursorUp`, `keybindings.tui.editor.cursorDown`, `keybindings.tui.editor.cursorLeft`, `keybindings.tui.editor.cursorRight` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.editor.cursorWordLeft`, `keybindings.tui.editor.cursorWordRight`, `keybindings.tui.editor.cursorLineStart`, `keybindings.tui.editor.cursorLineEnd`, `keybindings.tui.editor.jumpForward` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.editor.jumpBackward`, `keybindings.tui.editor.pageUp`, `keybindings.tui.editor.pageDown`, `keybindings.tui.editor.deleteCharBackward`, `keybindings.tui.editor.deleteCharForward` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.editor.deleteWordBackward`, `keybindings.tui.editor.deleteWordForward`, `keybindings.tui.editor.deleteToLineStart`, `keybindings.tui.editor.deleteToLineEnd`, `keybindings.tui.editor.yank` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.editor.yankPop`, `keybindings.tui.editor.undo`, `keybindings.tui.input.newLine`, `keybindings.tui.input.submit`, `keybindings.tui.input.tab` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.input.copy`, `keybindings.tui.select.up`, `keybindings.tui.select.down`, `keybindings.tui.select.pageUp`, `keybindings.tui.select.pageDown` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `keybindings.tui.select.confirm`, `keybindings.tui.select.cancel` | Locked; unset (engine default) | Keep the shipped action binding, including platform-specific defaults |
-| `npmCommand` | Locked to `["npm"]` | Fix the whole program-and-arguments vector; no local wrappers or extra arguments |
-| `holdUncheckedText` | Locked to `true` | Hold output until checks finish; guard files wait for #27 |
+| `daemon.paneShellMode`, `daemon.newPaneCwd`, `daemon.resumeAgentsOnRestore` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
+| `daemon.paneHistory`, `daemon.detectionCatalogCheck` | Locked; unset (engine default) | Keep daemon behavior at engine defaults |
+| `npmCommand` | Locked; unset (engine default) | Git installs keep `install --omit=dev`; explicit `["npm"]` changes this to `install` |
 | `showChangelog` | Locked to `true` | Keep release changes visible at startup |
 | `credentials.anthropic` | Locked to `["environment", "signIn"]` | Allow environment credentials and sign-in; refuse command-produced and literal stored keys |
 
@@ -387,6 +211,15 @@ The `maestro` role takes no model or thinking level; the main agent's come from
 settings, so the `model` and `thinking` locks on that role do not select them.
 The `manifestAreas` lock means a user cannot select the evidence-review
 capability; the organization selects it in `manifests/settings/settings.json`.
+
+Personal UI is not locked: `theme`, `hideThinkingBlock`, `quietStartup`,
+`collapseChangelog`, `terminal.*`, `doubleEscapeAction`, `treeFilterMode`,
+`editorPaddingX`, `autocompleteMaxVisible`, `showHardwareCursor`, `markdown.*`,
+`multiplexer.*`, `daemon.headlessCols`, `daemon.headlessRows`,
+`daemon.scrollbackLimitBytes` and all 72 named `keybindings.*` actions remain
+editable. The `actions` lock forbids local action additions; it does not lock
+those keybindings. `holdUncheckedText` is absent from the baseline; guards lock
+it on when they ship.
 
 Guard files in `required` wait for #27. Core skills and instructions also wait
 until the core ships them; then add their release-relative paths to `required`.

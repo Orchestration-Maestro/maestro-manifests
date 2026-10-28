@@ -8,10 +8,6 @@
   },
   "manifestAreas": [],
   "manifestAutoUpdate": false,
-  "npmCommand": [
-    "npm"
-  ],
-  "holdUncheckedText": true,
   "showChangelog": true,
   "credentials": {
     "anthropic": [
