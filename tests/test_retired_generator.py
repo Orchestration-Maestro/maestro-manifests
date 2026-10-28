@@ -3,6 +3,7 @@
 import subprocess
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -20,7 +21,14 @@ class RetiredGenerator(unittest.TestCase):
             capture_output=True,
             timeout=60,
         )
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertEqual(result.stdout, "")
+
+    def test_failed_scan_is_rejected(self):
+        """Reject a Git failure even when it produces no stdout."""
+        result = subprocess.CompletedProcess([], 128, stdout="", stderr="scan failed")
+        with patch("subprocess.run", return_value=result), self.assertRaises(AssertionError):
+            self.test_no_tracked_file_names_the_generator()
 
 
 if __name__ == "__main__":
