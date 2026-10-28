@@ -11,7 +11,7 @@ It holds the organization's truthful-evidence rule (SEC-008) as rules a reviewer
 1. Read the proposed answer and each cited passage.
 2. For every factual claim, locate the passage that supports it.
 3. Mark each unsupported claim and say what evidence is missing.
-4. Return the report below.
+4. Return the report below, with a corrected answer that cites its sources.
 
 ## Report
 
@@ -20,7 +20,7 @@ A review passes a rule when its report shows the evidence in the last column.
 
 | Rule | Required | Checked by |
 | --- | --- | --- |
-| Cite | Each finding opens with `path:line`, or `no source` when no passage supports the claim. | Every entry in `Findings` opens with one of the two. |
+| Cite | Each finding opens with `path:line`, or `no source` when no passage supports the claim. Each claim in `Corrected answer` ends with the `path:line` of its supporting passage. | Every entry in `Findings` opens with one of the two, and every claim in `Corrected answer` ends with a `path:line`. |
 | Classify | Each finding is a `Verified failure` or a `Hypothesis`. A `Verified failure` quotes the passage or output that shows it. | Every entry carries one label, and each `Verified failure` carries a quote. |
 | Report runs | `Checks run` lists each file you read and each other check, with its result. | The section exists and every entry names a result. |
 | Report gaps | `Not run` names each check you could not run, with the reason. It reads `None` when every check ran. | The section exists. |
