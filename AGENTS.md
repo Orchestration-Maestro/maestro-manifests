@@ -15,8 +15,8 @@ in `mise.toml` and the prek hooks for pre-commit, pre-merge-commit and
 commit-msg. Run later commands through `mise exec --` when mise is not active in
 your shell.
 
-Checked by: the hooks run at each commit; a skipped setup surfaces in the
-required workflow, which runs `just check`.
+Checked by: the pull request reports that setup ran. No check verifies that the
+hooks are installed.
 
 ## Before editing
 
