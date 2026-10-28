@@ -1,8 +1,5 @@
 # Northstar
 
-> Automate the guardrails to deliver faster, with higher quality, and more
-> securely.
-
 `maestro-manifests` steers by the organization's
 [Northstar](https://github.com/Orchestration-Maestro/.github/blob/864d85597a833864cd8506c3925830503b3c2163/golden-rules/northstar.md).
 Speed, quality, maintainability and security are not a trade-off: automation is
@@ -20,8 +17,13 @@ standards](security.md) are how the repository holds this course.
 3. [Quality](#quality)
 4. [Maintainability](#maintainability)
 5. [Security](#security)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Check a change](#check-a-change)
 
 ## The point
+
+> Automate the guardrails to deliver faster, with higher quality, and more
+> securely.
 
 An organization that runs Maestro gets its settings, policy, system prompt, roles
 and workflows from one pinned, reviewed Git release, so no developer assembles
@@ -164,3 +166,15 @@ alerts.
 - **Target:** 0.
 - **Measured by:** code scanning (default setup), secret scanning and Dependabot
   alerts on the repository's Security tab.
+
+## What the organization can lock
+
+[Engineering standards](engineering.md#what-the-organization-can-lock) explains
+the contribution controls, runtime policy limits and extension access boundary.
+
+## Check a change
+
+Run `mise exec -- just check`. The standards-page tests require a current value,
+target and measuring job for each KPI. Review a changed value against the named
+job or dated observation, and report unavailable measurements as `not measured`.
+A content-test pass does not establish that a target was met.

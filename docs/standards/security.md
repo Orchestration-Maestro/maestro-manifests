@@ -22,6 +22,8 @@ the engineering page.
 6. [Stop, escalate and report vulnerabilities](#stop-escalate-and-report-vulnerabilities)
 7. [Keep evidence truthful](#keep-evidence-truthful)
 8. [Sign every release](#sign-every-release)
+9. [What the organization can lock](#what-the-organization-can-lock)
+10. [Check a change](#check-a-change)
 
 ## What this repository protects
 
@@ -229,3 +231,15 @@ signature, attestation, checksum list or bill of materials, and
 `.github/workflows/release-please.yml` has no step that adds one. No release has
 been published yet. Until a workflow step adds those assets, the pinned commit and
 its signature are the only verification a consumer has.
+
+## What the organization can lock
+
+[Engineering standards](engineering.md#what-the-organization-can-lock) explains
+the contribution controls, runtime policy limits and extension access boundary.
+
+## Check a change
+
+Run `mise exec -- just check`. Review each changed security claim against the
+linked security rules, tool permissions and release workflow. Report the checks
+run and any missing control; content tests do not establish safe execution or
+release attestation.

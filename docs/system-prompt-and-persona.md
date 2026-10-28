@@ -89,6 +89,11 @@ Read the delegated result before you rely on it, and keep responsibility for the
 Use the scout, planner, worker and reviewer roles for the matching workflow steps.
 ```
 
+Delegation is optional. When a task is delegated, the main agent reads the
+result before using it and remains responsible for the answer. Review the final
+answer against the delegated report: claims need observed results, and skipped
+checks remain explicit. The quoted persona stays guidance, not a runtime gate.
+
 These files declare no model or tool ceiling. Main-agent model and thinking come
 from settings; adding `tools` to the persona role would impose a ceiling.
 
@@ -97,8 +102,9 @@ from settings; adding `tools` to the persona role would impose a ceiling.
 The base prompt candidates, from highest to lowest priority, are an explicit flag
 or SDK replacement, project `SYSTEM.md`, user `SYSTEM.md`, the manifest's
 `manifests/core/SYSTEM.md`, then the engine default. A custom base replaces the
-engine's default documentation block, so include useful documentation pointers in a custom
-prompt. Ordinary date, working directory, skill block and tool assembly still
+engine's default documentation block. Include links to the active release's
+README and documentation in a custom prompt; review resolves those links before
+accepting it. Ordinary date, working directory, skill block and tool assembly still
 follow their existing rules.
 
 The persona's body is always first in the appended text. Ordinary appends follow:

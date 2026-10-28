@@ -35,7 +35,8 @@ chain:
 ```
 
 It uses the worker and reviewer roles. The worker runs twice but is one role
-entity; the catalog should not create a second role card for the last step.
+entity. Check that its card appears once and both worker steps refer to it;
+a second worker card fails the check.
 With this release's CODEOWNERS, the owner is `@FrancoisLDaigneault`. The common
 policy does not require the workflow, so its card is optional. The selected Git
 pin supplies its release property; no workflow-level version is needed.
