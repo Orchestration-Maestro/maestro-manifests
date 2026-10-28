@@ -78,9 +78,8 @@ The reviewer has no shell and no write tool. Its authority comes from the tool
 list, which the host enforces, and not from a request in its prompt. The core
 scout defaults to `claude-haiku-5-5`, the planner and reviewer to
 `claude-opus-5-5` and the worker to `claude-sonnet-5-5`. The release's policy
-sets no allowed-model set, so these defaults bind nothing. Supply a compatible
-model configuration or an allowed role preference before running them if those
-models are unavailable in your installation.
+allows only these three models and locks each core role's model selection.
+These models must be available in your installation before you run the roles.
 
 Each core role reports in sections a reader can check:
 
