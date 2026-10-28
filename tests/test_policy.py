@@ -99,7 +99,9 @@ NEW_LOCKS = {
     "daemon.newPaneCwd", "daemon.paneHistory", "daemon.paneShell",
     "daemon.paneShellMode", "daemon.resumeAgentsOnRestore", "daemon.worktreesDirectory",
     "enableSkillCommands", "enabledModels", "followUpMode", "images.autoResize",
-    "instructions", "mcpServers", "npmCommand", "providers", "retry.baseDelayMs",
+    "instructions", "mcpServers", "multiplexer.remote.manageSshConfig",
+    "multiplexer.allowNested", "multiplexer.tabBarRight", "npmCommand", "providers",
+    "retry.baseDelayMs",
     "retry.enabled", "retry.maxRetries", "retry.provider.maxRetries",
     "retry.provider.maxRetryDelayMs", "retry.provider.timeoutMs", "sessionDir",
     "shellCommandPrefix", "shellPath", "showChangelog", "steeringMode", "themes",
@@ -184,7 +186,7 @@ class BaselinePolicy(unittest.TestCase):
             "autocompleteMaxVisible", "showHardwareCursor", "daemon.headlessCols",
             "daemon.headlessRows", "daemon.scrollbackLimitBytes",
         } | {key for key in LOCKABLE if key.startswith(
-            ("terminal.", "markdown.", "multiplexer.", "keybindings."))}
+            ("terminal.", "markdown.", "multiplexer.", "keybindings."))} - NEW_LOCKS
         self.assertEqual(sum(key.startswith("keybindings.") for key in personal), 72)
         self.assertFalse(personal & set(POLICY.get("locked", [])))
         for key in personal:
