@@ -101,3 +101,11 @@ an H1, purpose paragraph and ordered Contents links, and that every quoted file
 matches its linked source. Check both directions of the README artifact index:
 every row points to a file and every authored artifact has one row. Keep this
 reading list and the explicit exceptions in sync with any new artifact kind.
+
+For each changed requirement, report its enforcing check or the review evidence:
+the input exercised, expected result and observed result. The artifact guides'
+Validation and Check a change sections name those checks. Content tests do not
+stand in for runtime checks. If a consumer is unavailable, name the check not run
+and keep the release claim unverified. For a wording change, compare limits,
+defaults, conditions and local customization routes before and after; review
+rejects a lost capability even when the new wording passes content checks.

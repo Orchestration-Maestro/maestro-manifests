@@ -129,10 +129,8 @@ wins. The catch-all covers all other files, including documentation and tooling.
 A later broad rule can override a specific rule, so review ordering explicitly.
 
 An organization with real teams can map a group folder to its workspace team and
-a capability folder to its workzone team. For example, an authorized
-`@example-org/practice` team could own the practice group and
-`@example-org/evidence-review` its capability, with the specific rule last.
-Those example teams are not configured here. Confirm repository access before
+a capability folder to its workzone team. The shipped rules above show the
+group-before-capability ordering with the approved principal. Confirm repository access before
 assigning any real principal. Ownership is review attribution, not runtime
 permission or folder-level confidentiality.
 
@@ -158,6 +156,9 @@ file alone does not prove an instruction was installed or a workflow can run.
 
 Run the [available checks](schemas-and-checks.md#available-checks). Confirm every
 new artifact appears in the README index and every quoted example matches its
-file. Load the pin once without optional areas and once with evidence-review;
+file. Review rejects empty artifact folders, unsupported formats and ownership
+sidecars; independently versioned capabilities need their own pinned package.
+Confirm any new CODEOWNERS principal has repository access before approval.
+Load the pin once without optional areas and once with evidence-review;
 verify the resources appear only in the selected case and the theme is not
 chosen automatically. Check catalog ownership against the last matching rule.

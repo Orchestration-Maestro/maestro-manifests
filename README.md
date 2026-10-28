@@ -11,13 +11,24 @@ developers use locally. Without a manifest,
 Maestro runs in internal mode; selecting one adds an organization layer below
 user and project configuration.
 
+## Contents
+
+1. [Try the configuration](#try-the-configuration)
+2. [Layout](#layout)
+3. [Artifact index](#artifact-index)
+4. [How composition works](#how-composition-works)
+5. [Documentation](#documentation)
+6. [What the organization can lock](#what-the-organization-can-lock)
+7. [Check a change](#check-a-change)
+8. [License](#license)
+
+## Try the configuration
+
 This tree follows the [manifest-mode v0.1 contract](https://github.com/Orchestration-Maestro/maestro/blob/main/docs/specs/manifest-mode.md).
 The contract also describes runtime features delivered by Maestro's manifest,
 subagent, rules and catalog consumers. Content checks here do not prove those
 consumers are implemented. See [schemas and checks](docs/schemas-and-checks.md)
 for the checks available now and the integration checks required for a release.
-
-## Try the configuration
 
 Use a Maestro build with the manifest consumer. Select a **published Git tag or
 commit** in `.maestro/settings.json`; do not use an unpinned branch or install
@@ -172,7 +183,18 @@ The [engineering](docs/standards/engineering.md),
 pages explain how contributors follow the organization's rules here. They are not
 runtime `standards/<domain>/` resources.
 
-## Check a contribution
+## What the organization can lock
+
+The [policy guide](docs/policy.md#what-the-organization-can-lock) names the
+settings and resources an organization can constrain. This release's
+[baseline](docs/policy.md#the-baseline) fixes the prompt, model defaults and area
+selection, and requires core roles and workflows. Themes and credentials stay
+local. Repository rulesets govern contributions separately: required checks,
+signed commits and owner review do not sandbox runtime code.
+
+<a id="check-a-contribution"></a>
+
+## Check a change
 
 Run `mise trust`, `mise exec -- just setup` and `mise exec -- just check`, which
 runs the content checks and the tests. The real [justfile](justfile) owns these

@@ -40,8 +40,10 @@ chain:
 The run's arguments become the first task. The reviewer's task receives the
 worker's final output; the last worker receives the reviewer's final output.
 Each role runs in its own context. The result is the last step's output, not a
-merged transcript. A handoff should therefore include paths and enough context
-for the next role.
+merged transcript. Include paths and the context the next role needs in a
+handoff. Check each next-step input against the preceding role's output contract
+in [roles](roles.md#roles-supplied-here); missing paths or required report sections
+fail review. This is an author review check, not a runner validation rule.
 
 The optional evidence-review capability supplies a read-only chain. It is
 available only after selecting `capabilities/practice/evidence-review` in

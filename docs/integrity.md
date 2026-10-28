@@ -39,8 +39,9 @@ and digest identify the source above; a matching copy must be byte-for-byte equa
 
 Use `/manifest status` to identify the selected source, pin and settings file.
 Inspect the installed Git checkout, not your development clone. Read-only
-`git status --porcelain --untracked-files=all` should be empty, and
-`git rev-parse HEAD` should equal the commit resolved from that pin. A clean
+`git status --porcelain --untracked-files=all` passes only with empty output;
+`git rev-parse HEAD` passes only when it equals the commit resolved from that pin.
+Report both outputs when checking a release. A clean
 checkout at a different commit is still drift. These inspection commands do not
 replace the consumer's startup verification.
 

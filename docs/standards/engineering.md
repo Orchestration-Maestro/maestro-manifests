@@ -26,6 +26,8 @@ text. The [security standards](security.md) and the
 10. [Pin inputs and keep secrets out](#pin-inputs-and-keep-secrets-out)
 11. [Write portable plain text](#write-portable-plain-text)
 12. [Adopt the rules and prove it](#adopt-the-rules-and-prove-it)
+13. [What the organization can lock](#what-the-organization-can-lock)
+14. [Check a change](#check-a-change)
 
 ## The checks and reviews in this repository
 
@@ -393,3 +395,17 @@ so the description carries the command output that matters. An exception is
 recorded in the pull request that makes it, with its decision, scope, rationale
 and expiry. The organization approves it, never the author or an agent, and a
 non-negotiable rule accepts none.
+
+## What the organization can lock
+
+These standards govern contributions; they add no runtime policy keys. Protected
+review and required checks hold repository changes. The [policy guide](../policy.md#what-the-organization-can-lock)
+names the settings and resources an organization can lock at runtime. Neither
+kind of control grants an extension less operating-system access.
+
+## Check a change
+
+Run `mise exec -- just check`. The standards-page tests check the rule families,
+explanations, named checks and Contents. Review each changed practice against the
+linked engineering rules and the repository configuration. Report command exit
+codes and any unavailable control in the pull request.

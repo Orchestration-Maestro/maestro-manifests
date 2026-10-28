@@ -19,7 +19,9 @@ with filters; do not invent a per-file pin.
 ## Example
 
 The common policy sets `updateCheckMinutes` to 30 and imposes no minimum release
-floor; its other members are in [policy](policy.md#example). The common settings
+floor in the shipped
+[`manifests/settings/policy.json`](../manifests/settings/policy.json);
+its full contents are in [policy](policy.md#example). The common settings
 leave optional automatic updates off, and the policy locks that choice. An update
 target must exist as a release of the selected Git source.
 
@@ -132,7 +134,8 @@ with the manifest consumer before a release.
 ## Check a change
 
 Run the [available checks](schemas-and-checks.md#available-checks). In a disposable
-setup with published test tags, verify an optional notice, a required floor,
+setup with published test tags, compare any proposed minimum against the release
+version and reject a higher floor. Verify an optional notice, a required floor,
 rollback above the floor, rejection below it and growth refusal without a
 terminal. Inspect the selecting settings file after acceptance and compare it
 byte-for-byte after cancellation. Confirm a running session keeps its accepted
