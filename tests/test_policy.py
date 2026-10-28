@@ -110,6 +110,16 @@ class BaselinePolicy(unittest.TestCase):
             with self.subTest(role=name):
                 self.assertEqual(sorted(role["locked"]), ["model", "thinking", "tools"])
 
+    def test_every_model_a_core_role_declares_is_allowed(self):
+        """Allow each model a core role declares, since its model lock fixes that choice."""
+        for name in CORE_ROLES:
+            frontmatter = (ROOT / f"core/agents/{name}.md").read_text().split("---\n")[1]
+            declared = [line.split(": ", 1)[1] for line in frontmatter.splitlines()
+                        if line.startswith("model: ")]
+            for model in declared:
+                with self.subTest(role=name):
+                    self.assertIn(model, POLICY.get("models", []))
+
     def test_policy_uses_only_the_lockable_surface(self):
         """Refuse a lock or bound the specification does not allow."""
         self.assertFalse(set(POLICY.get("locked", [])) - LOCKABLE)
