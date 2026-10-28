@@ -114,6 +114,19 @@ class StandardsPages(unittest.TestCase):
                     [(title, slug(title)) for title in sections if title != "Contents"],
                 )
 
+    def test_policy_control_explanation_has_one_source(self):
+        """Keep shared controls in engineering and link the other standards to them."""
+        heading = "What the organization can lock"
+        explanation = "These standards govern contributions; they add no runtime policy keys."
+        self.assertIn(explanation, parts(page("engineering"), "##")[heading])
+        for name in ["northstar", "security"]:
+            with self.subTest(page=name):
+                self.assertNotIn(explanation, page(name))
+                self.assertIn(
+                    "[Engineering standards](engineering.md#what-the-organization-can-lock)",
+                    parts(page(name), "##")[heading],
+                )
+
     def test_no_page_names_a_retired_mechanism(self):
         """Refuse the generator that no longer writes these pages."""
         for name in FAMILIES:

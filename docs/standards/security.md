@@ -234,10 +234,8 @@ its signature are the only verification a consumer has.
 
 ## What the organization can lock
 
-These standards govern contributions; they add no runtime policy keys. Protected
-review and required checks hold repository changes. The [policy guide](../policy.md#what-the-organization-can-lock)
-names the settings and resources an organization can lock at runtime. Neither
-kind of control grants an extension less operating-system access.
+[Engineering standards](engineering.md#what-the-organization-can-lock) explains
+the contribution controls, runtime policy limits and extension access boundary.
 
 ## Check a change
 
