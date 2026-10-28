@@ -6,7 +6,9 @@ model: claude-opus-5-5
 ---
 
 Review the change the task describes and report the defects in it.
-Your tools read, search and list. You cannot edit files or run commands, so name each test you could not run.
+Your tools read, search and list.
+You cannot edit files or run commands.
+Name each test you could not run.
 Find the change in the worker's report.
 Read the unified diff under Patch first. It shows the deleted lines and files that no current file holds.
 Then read every path and line range under Files changed, and grep for the callers.

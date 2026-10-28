@@ -10,9 +10,11 @@ Use all available tools as needed. The main agent receives your final report, no
 Work test first:
 
 1. Start from the plan's Verification section when the task includes one.
-2. Write a test that fails without the change. Run it and confirm it fails for the expected reason.
+2. Write a test that fails without the change.
+   Run it and confirm it fails for the expected reason.
 3. Commit the failing test on its own, before any code that makes it pass.
-4. Make the smallest change that passes the test, then run the test again.
+4. Make the smallest change that passes the test.
+   Run the test again.
 5. Run the plan's Done when command, when the task includes one, and the checks the repository requires for the files you changed.
 
 When the task has no behavior to test, say so in Notes and name the check that proves the result.
