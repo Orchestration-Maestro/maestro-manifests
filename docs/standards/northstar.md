@@ -84,16 +84,18 @@ fixes the contracts of the core roles, the chains and the review theme, and chec
 that each guide quotes its source file. The test `tests/test_quality.py` runs the
 contributor commands in disposable Git indexes, and `tests/test_standards_pages.py`
 keeps the standards pages explanatory and accurate. A behaviour change starts
-with a test seen failing. No required job runs `just test` yet, so a contributor
-runs it before proposing a change.
+with a test seen failing. `just check` runs `just test`, so a pull request that
+breaks a test fails `Required content checks` and cannot merge.
 
 ### KPI
 
 The KPI is the number of failing tests in `just test`.
 
-- **Current:** 0, read by hand on 2026-10-28.
+- **Current:** 0. The required job runs the tests on every pull request and merge
+  group, so it cannot drift without turning red.
 - **Target:** 0.
-- **Measured by:** `just test`, which runs `tests/`. No required job runs it yet.
+- **Measured by:** `Required content checks`, which runs `just test` through
+  `just check`.
 
 ## Maintainability
 

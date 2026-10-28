@@ -19,13 +19,14 @@ enforcement.
 ## Available checks
 
 From a clean clone, trust the mise configuration and run `mise exec -- just setup`,
-then `mise exec -- just check` and `mise exec -- just test`. The commands are
-defined in the real [justfile](../justfile), not a separate CI implementation.
+then `mise exec -- just check`. The commands are defined in the real
+[justfile](../justfile), not a separate CI implementation.
 
 `just setup` installs pinned tools and prek hooks. `.pre-commit-config.yaml`
-owns the checks; the shared required CI invokes the same `just check`. Do not
-create a second copy of those checks in a workflow. `just test` runs the
-contributor-command tests in disposable indexes and covers malformed YAML, JSON,
+owns the checks; the shared required CI invokes the same `just check`, which
+runs the hooks through `just content` and then `just test`. Do not create a second
+copy of those checks in a workflow. `just test` runs the contributor-command tests
+in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
 contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
 documentation examples. Those are content assertions, not runtime execution.

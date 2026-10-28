@@ -105,10 +105,10 @@ whenever an artifact is added.
 | [`capabilities/practice/evidence-review/workflows/review-evidence.yaml`](capabilities/practice/evidence-review/workflows/review-evidence.yaml) | Opt-in factual review chain using evidence-reviewer. |
 | [`core/SYSTEM.md`](core/SYSTEM.md) | Base system prompt and documentation pointers. |
 | [`core/agents/maestro.md`](core/agents/maestro.md) | Appended main-agent persona. |
-| [`core/agents/planner.md`](core/agents/planner.md) | Read-only implementation planning with a concrete handoff. |
-| [`core/agents/reviewer.md`](core/agents/reviewer.md) | Code review findings with source locations and severity. |
+| [`core/agents/planner.md`](core/agents/planner.md) | Read-only implementation planning with a concrete handoff and its verification. |
+| [`core/agents/reviewer.md`](core/agents/reviewer.md) | Shell-free code review: findings with location, cause and fix, and a security pass. |
 | [`core/agents/scout.md`](core/agents/scout.md) | Compressed code context and exact source ranges. |
-| [`core/agents/worker.md`](core/agents/worker.md) | Implementation in an isolated delegated context. |
+| [`core/agents/worker.md`](core/agents/worker.md) | Test-first implementation in an isolated delegated context, with each command and exit code reported. |
 | [`core/workflows/implement-and-review.yaml`](core/workflows/implement-and-review.yaml) | Worker, reviewer, worker chain with previous-output passing. |
 | [`core/workflows/implement.yaml`](core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
 | [`core/workflows/scout-and-plan.yaml`](core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
@@ -152,9 +152,10 @@ runtime `standards/<domain>/` resources.
 
 ## Check a contribution
 
-Run `mise trust`, `mise exec -- just setup`, `mise exec -- just check` and
-`mise exec -- just test`. The real [justfile](justfile) owns these recipes; see
-[development](docs/development.md#local-checks) for the complete file and hooks.
+Run `mise trust`, `mise exec -- just setup` and `mise exec -- just check`, which
+runs the content checks and the tests. The real [justfile](justfile) owns these
+recipes; see [development](docs/development.md#local-checks) for the complete file
+and hooks.
 
 Start with an issue, keep changes within its scope and follow
 [AGENTS.md](AGENTS.md), which this repository maintains by hand.

@@ -32,7 +32,8 @@ hooks are installed.
 
 ## Checks
 
-- `just check` runs `prek run --all-files --stage manual`. It checks merge
+- `just check` runs `just content` and `just test`, as CI does.
+  `just content` runs `prek run --all-files --stage manual`. It checks merge
   markers, YAML, JSON and TOML syntax, final newlines, trailing whitespace, line
   endings, files over 500 KB, case conflicts, shebangs, spelling (`typos`), every
   file against `.editorconfig` (`editorconfig-checker`) and Markdown structure
@@ -41,8 +42,8 @@ hooks are installed.
   queue waits for it.
 - `just test` runs `python3 -m unittest discover -s tests`: the contributor
   commands in disposable Git indexes, the manifest examples and the retired
-  generator check. CI does not run it. Checked by: report its result in the pull
-  request.
+  generator check. Checked by: the required workflow runs it through
+  `just check`; report its result in the pull request.
 - Report the checks you actually ran, with exit codes. Do not claim a schema or
   runtime check; this repository has none yet.
 - `.pre-commit-config.yaml` owns the checks. The Git hooks call `just pre-commit`,
