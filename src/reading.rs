@@ -1,6 +1,6 @@
 //! Reading the files under a root: the one owner of listing a folder, reading
-//! a file, parsing JSON and YAML, splitting frontmatter and collapsing whitespace, for
-//! the scorecard and for the checks in `tests`.
+//! a file, parsing JSON and YAML, splitting frontmatter and collapsing
+//! whitespace, for the scorecard and for the checks in `tests`.
 
 use std::fmt;
 use std::fs;

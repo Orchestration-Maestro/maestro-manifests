@@ -254,8 +254,11 @@ fn a_non_string_regex_names_its_file_and_rule() -> Check {
 /// Text that is not YAML is reported as a parse error, not as a missing member.
 #[test]
 fn rule_text_that_is_not_yaml_reports_the_parse_error() {
-    let report = parsed("id: [unclosed\n");
-    assert!(report.is_err(), "the broken text parsed");
+    let report = parsed("id: [unclosed\n")
+        .err()
+        .map(|report| report.message().to_owned())
+        .unwrap_or_default();
+    assert!(report.starts_with("rule.yaml: "), "{report}");
 }
 
 /// A guard file that cannot be read is reported by name.

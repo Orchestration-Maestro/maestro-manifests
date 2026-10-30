@@ -104,7 +104,8 @@ impl Conflict {
 /// Why a release could not be read.
 #[derive(Debug)]
 pub enum Error {
-    /// A file or folder could not be read, or a JSON or YAML file is not valid.
+    /// A file or folder could not be read, or a JSON file, YAML file or frontmatter block is not
+    /// valid.
     Reading(reading::Error),
     /// A file that must carry a `name`, or a guard rule that must carry an `id`, has none.
     MissingName {
