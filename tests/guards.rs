@@ -1,10 +1,11 @@
 //! Checks that every rule in the guard files compiles and that its examples behave as listed.
 
-use std::path::Path;
-
-use maestro_manifests_tests::MANIFEST_ROOT;
-use regex::Regex;
 use yaml_rust2::{Yaml, YamlLoader};
+
+use crate::support::{Report, files, re, read};
+
+/// The directory of the guard files, relative to the repository root.
+const GUARDS: &str = "manifests/core/guards";
 
 /// The guard files the core area ships, in file-name order.
 const GUARD_FILES: [&str; 4] = [
@@ -28,39 +29,30 @@ struct Rule {
     must_not_match: Vec<String>,
 }
 
+/// Shows a failed support check as one message.
+fn message(report: &Report) -> String {
+    format!("{report:?}").trim().to_owned()
+}
+
 /// Reads every rule of every guard file under `core/guards/` in the manifest root.
 ///
 /// # Errors
 /// Returns a message naming the file when it cannot be read or parsed, or when a member the
 /// example checks need is missing or has the wrong kind.
 fn load_rules() -> Result<Vec<Rule>, String> {
-    let directory = format!("{MANIFEST_ROOT}/core/guards");
-    let entries = std::fs::read_dir(&directory).map_err(|error| format!("{directory}: {error}"))?;
-    let mut names = Vec::new();
-    for entry in entries {
-        let name = entry
-            .map_err(|error| format!("{directory}: {error}"))?
-            .file_name();
-        if Path::new(&name)
-            .extension()
-            .is_some_and(|extension| extension == "yaml")
-        {
-            names.push(name.to_string_lossy().into_owned());
-        }
-    }
-    names.sort();
     let mut rules = Vec::new();
-    for name in &names {
-        rules.extend(read_file(&directory, name)?);
+    for path in files(GUARDS, ".yaml").map_err(|report| message(&report))? {
+        rules.extend(read_file(&path)?);
     }
     Ok(rules)
 }
 
-/// Reads the rules of one guard file, taking the members the example checks need from the
-/// untyped YAML value; the file's shape is checked by Maestro's schema, not here.
-fn read_file(directory: &str, name: &str) -> Result<Vec<Rule>, String> {
-    let text = std::fs::read_to_string(format!("{directory}/{name}"))
-        .map_err(|error| format!("{name}: {error}"))?;
+/// Reads the rules of the guard file at the repository-relative `path`, taking the members the
+/// example checks need from the untyped YAML value; the file's shape is checked by Maestro's
+/// schema, not here.
+fn read_file(path: &str) -> Result<Vec<Rule>, String> {
+    let name = path.rsplit('/').next().unwrap_or(path);
+    let text = read(path).map_err(|report| message(&report))?;
     let documents = YamlLoader::load_from_str(&text).map_err(|error| format!("{name}: {error}"))?;
     let [document] = documents.as_slice() else {
         return Err(format!("{name}: expected one YAML document"));
@@ -117,11 +109,12 @@ fn problems(rule: &Rule) -> Vec<String> {
             found.push(format!("{file}: rule {id}: examples.{member} is empty"));
         }
     }
-    let expression = match Regex::new(regex) {
+    let expression = match re(regex) {
         Ok(expression) => expression,
-        Err(error) => {
+        Err(report) => {
             found.push(format!(
-                "{file}: rule {id}: the expression does not compile: {error}"
+                "{file}: rule {id}: the expression does not compile: {}",
+                message(&report)
             ));
             return found;
         }
@@ -258,10 +251,13 @@ fn a_missing_example_list_names_its_file_rule_and_list() {
 /// A guard file that cannot be read is reported by name.
 #[test]
 fn a_missing_guard_file_is_reported_by_name() {
-    let error = read_file(MANIFEST_ROOT, "absent.yaml")
+    let error = read_file("manifests/core/guards/absent.yaml")
         .err()
         .unwrap_or_default();
-    assert!(error.starts_with("absent.yaml: "), "{error}");
+    assert!(
+        error.starts_with("manifests/core/guards/absent.yaml: "),
+        "{error}"
+    );
 }
 
 /// Every shipped guard file holds at least one rule.
