@@ -5,7 +5,7 @@ use std::collections::BTreeSet;
 use serde_json::json;
 
 use crate::support::{
-    Check, Failures, collapse_whitespace, files, json, owned, read, split_frontmatter,
+    Check, Failures, collapse_whitespace, files, owned, read, read_json, split_frontmatter,
 };
 
 /// The security capability folder.
@@ -123,8 +123,8 @@ fn native_layout_and_role_tool_ceilings() -> Check {
                 .map(str::to_owned)
         })
         .collect();
-    let package = json(&format!("{CAPABILITY}/package.json"))?;
-    let settings = json("manifests/settings/settings.json")?;
+    let package = read_json(&format!("{CAPABILITY}/package.json"))?;
+    let settings = read_json("manifests/settings/settings.json")?;
 
     failures.require_eq("capability files", &found, &expected);
     failures.require_eq(

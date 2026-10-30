@@ -157,7 +157,7 @@ pub fn read(path: &str) -> Result<String, Report> {
 }
 
 /// Reads and parses the JSON file at the repository-relative `path`.
-pub fn json(path: &str) -> Result<serde_json::Value, Report> {
+pub fn read_json(path: &str) -> Result<serde_json::Value, Report> {
     serde_json::from_str(&read(path)?).map_err(|error| Report(format!("{path}: {error}")))
 }
 

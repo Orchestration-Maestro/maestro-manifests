@@ -3,8 +3,8 @@
 use std::collections::BTreeSet;
 
 use crate::support::{
-    Check, Failures, Report, captures, entries, exists, files, json, pairs, re, read, strip_fences,
-    tracked_files,
+    Check, Failures, Report, captures, entries, exists, files, owned, pairs, re, read, read_json,
+    strip_fences, tracked_files,
 };
 
 /// The area folders that live under the manifest root.
@@ -144,7 +144,7 @@ fn codeowners_names_each_group_and_capability_under_the_manifest_root() -> Check
 fn release_please_writes_the_changelog_in_the_manifest_root() -> Check {
     let mut failures = Failures::default();
     let path = ".github/release-please/config.json";
-    let config = json(path)?;
+    let config = read_json(path)?;
     let changelog = config["packages"]["."]["changelog-path"]
         .as_str()
         .unwrap_or_default();
@@ -236,14 +236,12 @@ fn check_links(failures: &mut Failures, guide: &str) -> Check {
 #[test]
 fn documentation_links_resolve_into_the_manifest_root() -> Check {
     let mut failures = Failures::default();
-    let mut guides: Vec<String> = [
+    let mut guides = owned(&[
         "README.md",
         "CONTEXT.md",
         "AGENTS.md",
         ".github/copilot-instructions.md",
-    ]
-    .map(str::to_owned)
-    .into();
+    ]);
     guides.extend(files("docs", ".md")?);
 
     for guide in &guides {

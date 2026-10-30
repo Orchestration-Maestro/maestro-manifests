@@ -6,8 +6,8 @@ use std::path::Path;
 use serde_json::{Value, json};
 
 use crate::support::{
-    AVOIDED_WORDS, Check, Failures, Report, agents, files, json, owned, re, read, sentence_count,
-    split_frontmatter, tasks,
+    AVOIDED_WORDS, Check, Failures, Report, agents, files, owned, re, read, read_json,
+    sentence_count, split_frontmatter, tasks,
 };
 
 /// The evidence-review capability folder.
@@ -66,7 +66,7 @@ fn evidence_review_workflow_is_opt_in_and_indexed() -> Check {
     let text = read(WORKFLOW)?;
     let tasks = tasks(&text)?;
     let link = format!("[`{WORKFLOW}`]({WORKFLOW})");
-    let settings = json("manifests/settings/settings.json")?;
+    let settings = read_json("manifests/settings/settings.json")?;
     let role = read(ROLE)?;
 
     failures.contains(WORKFLOW, &text, "apiVersion: maestro.workflow/v1\n");
@@ -368,7 +368,7 @@ fn resolved_colors(theme: &Value) -> BTreeMap<String, Value> {
 fn review_dark_uses_forge_roles_for_all_tokens() -> Check {
     let mut failures = Failures::default();
     let path = format!("{CAPABILITY}/themes/review-dark.json");
-    let theme = json(&path)?;
+    let theme = read_json(&path)?;
     let expected: BTreeMap<String, Value> = FORGE_ROLES
         .iter()
         .flat_map(|(color, tokens)| {

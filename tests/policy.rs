@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde_json::{Map, Value, json};
 
-use crate::support::{Check, Failures, Report, json, strings};
+use crate::support::{Check, Failures, Report, read_json, strings};
 
 /// The thinking levels, lowest first.
 const THINKING: [&str; 6] = ["off", "minimal", "low", "medium", "high", "xhigh"];
@@ -135,8 +135,8 @@ impl Baseline {
     /// Reads both files from the manifest root.
     pub fn load() -> Result<Self, Report> {
         Ok(Self {
-            policy: json("manifests/settings/policy.json")?,
-            settings: json("manifests/settings/settings.json")?,
+            policy: read_json("manifests/settings/policy.json")?,
+            settings: read_json("manifests/settings/settings.json")?,
         })
     }
 
