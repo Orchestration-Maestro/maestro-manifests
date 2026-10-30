@@ -126,10 +126,12 @@ pub enum Error {
         /// The parser's failure.
         source: serde_json::Error,
     },
-    /// A file that must carry a `name` has none.
+    /// A file that must carry a `name`, or a guard rule that must carry an `id`, has none.
     MissingName {
         /// The path from the root.
         path: String,
+        /// The key that is missing or empty: `name` or `id`.
+        key: &'static str,
     },
 }
 
@@ -139,7 +141,7 @@ impl fmt::Display for Error {
             Self::Read { path, .. } => write!(formatter, "cannot read {path}"),
             Self::Yaml { path, .. } => write!(formatter, "{path} is not valid YAML"),
             Self::Json { path, .. } => write!(formatter, "{path} is not valid JSON"),
-            Self::MissingName { path } => write!(formatter, "{path} has no name"),
+            Self::MissingName { path, key } => write!(formatter, "{path} has no {key}"),
         }
     }
 }
@@ -392,6 +394,7 @@ fn capability_name(root: &str, path: &str) -> Result<String, Error> {
         .map(str::to_owned)
         .ok_or_else(|| Error::MissingName {
             path: path.to_owned(),
+            key: "name",
         })
 }
 
@@ -460,6 +463,7 @@ fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, E
         kind: located.kind,
         name: name.ok_or_else(|| Error::MissingName {
             path: path.to_owned(),
+            key: "name",
         })?,
         path: path.to_owned(),
         content,
@@ -481,6 +485,7 @@ fn guard_rules(path: &str, text: &str) -> Result<Vec<Artifact>, Error> {
             let (id, head) = take_key(rule.clone(), "id");
             let id = id.ok_or_else(|| Error::MissingName {
                 path: path.to_owned(),
+                key: "id",
             })?;
             Ok(Artifact {
                 kind: ArtifactKind::GuardRule,
@@ -520,13 +525,15 @@ fn first_document(text: &str) -> Result<Yaml, ScanError> {
         .unwrap_or(Yaml::Null))
 }
 
-/// Removes the string `key` from a YAML mapping and returns it with the rest.
+/// Removes the string `key` from a YAML mapping and returns it with the rest;
+/// a missing, non-string or empty value comes back as `None`.
 fn take_key(document: Yaml, key: &str) -> (Option<String>, Yaml) {
     match document {
         Yaml::Hash(mut fields) => {
             let value = fields
                 .remove(&Yaml::String(key.to_owned()))
-                .and_then(|value| value.as_str().map(str::to_owned));
+                .and_then(|value| value.as_str().map(str::to_owned))
+                .filter(|value| !value.is_empty());
             (value, Yaml::Hash(fields))
         }
         other => (None, other),

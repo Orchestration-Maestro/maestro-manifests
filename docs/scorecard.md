@@ -45,16 +45,17 @@ Each kind is found where the loaders find it, at the root of an area: `agents/`,
 under `core/` or under `capabilities/<group>/<name>/`. A file below a skill's
 folder, such as `skills/audit/agents/grader.md`, belongs to the skill and is
 not another artifact. A skill is a `SKILL.md` that no outer `SKILL.md` encloses,
-or a Markdown file directly in `skills/`; it is named by its `name`, or by its
-folder when it has none. A file extension must match in case: `explain.MD` is
-not a prompt. A guard rule is named by its `id` and reported as
-`<file>#<id>`.
+or a Markdown file directly in `skills/` when `skills/` has no `SKILL.md`. Hidden
+folders and files, and `node_modules`, are skipped. A skill is named by its
+`name`, or by its folder when it has none or an empty one. A file extension must
+match in case: `explain.MD` is not a prompt. A guard rule is named by its `id` and
+reported as `<file>#<id>`.
 
 | Rule | Fails when | Example |
 | --- | --- | --- |
 | `same-name` | One kind and name appears at two places of the release, in one area or in two, whether or not either is required | A capability role named `reviewer` beside the core `reviewer` |
 | `same-capability-name` | Two capabilities have one `package.json` name | Two groups each holding a package named `maestro-review` |
-| `same-content` | Two artifacts of one kind are equal after the name is removed; Markdown bodies also have whitespace collapsed | Two roles with the same prompt under two names, or two guard rules with the same expression under two ids |
+| `same-content` | Two artifacts of one kind are equal after the name is removed; Markdown bodies also have whitespace collapsed | Two roles with the same prompt under two names, or two guard rules that differ only in their `id` |
 
 One organization authors the whole release, and selection uses unique names.
 Run-time shadowing, where a later definition replaces an earlier one, applies to
