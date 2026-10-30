@@ -1,0 +1,13 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-capability-name",
+      "name": "maestro-review",
+      "artifacts": [
+        "manifests/capabilities/practice/review/package.json",
+        "manifests/capabilities/security/scan/package.json"
+      ]
+    }
+  ]
+}

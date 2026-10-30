@@ -1,0 +1,13 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-content",
+      "artifactKind": "instruction",
+      "artifacts": [
+        "manifests/capabilities/practice/review/instructions/cite.instructions.md",
+        "manifests/capabilities/security/scan/instructions/sources.instructions.md"
+      ]
+    }
+  ]
+}

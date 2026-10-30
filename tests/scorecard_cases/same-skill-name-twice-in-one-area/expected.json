@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-name",
+      "artifactKind": "skill",
+      "name": "audit",
+      "artifacts": [
+        "manifests/capabilities/practice/review/skills/audit-again/SKILL.md",
+        "manifests/capabilities/practice/review/skills/audit/SKILL.md"
+      ]
+    }
+  ]
+}

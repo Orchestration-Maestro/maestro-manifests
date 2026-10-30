@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-name",
+      "artifactKind": "role",
+      "name": "reviewer",
+      "artifacts": [
+        "manifests/capabilities/practice/review/agents/reviewer.md",
+        "manifests/core/agents/reviewer.md"
+      ]
+    }
+  ]
+}
