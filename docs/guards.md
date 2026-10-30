@@ -32,7 +32,7 @@ apiVersion: maestro.guards/v1
 rules:
   - id: environment-files
     description: Environment files hold credentials and are never edited by the agent
-    regex: '(?:^|[/\\])\.env(?:\.[^/\\]+)?$'
+    regex: '\.env(?:rc|[.-][^/\\]*)?$'
     action: block
     appliesTo: [path]
     examples:
@@ -41,13 +41,15 @@ rules:
         - 'api/.env.local'
         - '/srv/app/.env.production'
         - 'C:\work\app\.env'
+        - '.envrc'
+        - 'config/prod.env'
+        - '.env-backup'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
-        - '.envrc'
   - id: git-folder
     description: The Git folder holds history and hooks and is never edited by the agent
-    regex: '(?:^|[/\\])\.git(?:[/\\]|$)'
+    regex: '\.git(?:[/\\]|$)'
     action: block
     appliesTo: [path]
     examples:
@@ -55,22 +57,22 @@ rules:
         - '.git/config'
         - 'repo/.git/hooks/pre-commit'
         - 'repo\.git\HEAD'
+        - 'src/widget.git/readme.md'
       noMatch:
         - '.github/workflows/ci.yml'
         - '.gitignore'
-        - 'src/widget.git/readme.md'
   - id: installed-dependencies
     description: Installed dependencies are generated and are never edited by the agent
-    regex: '(?:^|[/\\])node_modules(?:[/\\]|$)'
+    regex: 'node_modules[/\\]'
     action: block
     appliesTo: [path]
     examples:
       match:
         - 'node_modules/left-pad/index.js'
         - 'web/node_modules/react/package.json'
+        - 'my_node_modules/x.js'
       noMatch:
         - 'src/node_modules_notes.md'
-        - 'my_node_modules/x.js'
 ```
 
 Redaction rules replace each match with a marker. This rule from the `pii`
@@ -161,19 +163,22 @@ matched again.
 | [`prompt-injection.yaml`](../manifests/core/guards/prompt-injection.yaml) | `block` | `tool-output` | `ignore-previous-instructions`, `reveal-system-prompt`, `address-to-the-agent`, `send-secrets-to-url`, `chat-template-markers` |
 
 **Destructive commands** start from the three patterns of Maestro's shipped
-permission-gate example: recursive `rm`, `sudo` and mode 777 with `chmod` or
-`chown`. The rules read the command text and do not parse the shell, so
-`echo "rm -rf x"` asks too. A `confirm` rule asks; it does not forbid. The
-recursive-removal rule also catches flag clusters such as `-fr` and `-R`, and
-flags that come before the recursive one.
+permission-gate example: recursive `rm`, `sudo` and a mode ending in 777, such
+as 1777 or 4777, with `chmod` or `chown`. The rules read the command text and do
+not parse the shell, so `echo "rm -rf x"` asks too. A `confirm` rule asks; it
+does not forbid. The recursive-removal rule also catches flag clusters such as
+`-fr` and `-R`, and flags that come before the recursive one.
 
 **Protected paths** start from the paths of Maestro's shipped protected-paths
 example: environment files, the Git folder and the installed-dependencies
-folder. A rule matches a whole path segment, so `.github/` and `.gitignore` pass.
-The environment rule blocks `.env` and every `.env.<name>` file, including a
-template such as `.env.example`, because the expression cannot look ahead to
-exempt it. Path rules check the `path` argument of `write` and `edit` only; they
-do not see a path inside a `bash` command, which only the `command` rules read.
+folder. A rule matches the same paths as the example, plus backslash separators:
+`.git/` and `node_modules/` anywhere in a path, and `.env` at the end of a path
+or followed by `rc`, or by a suffix that starts with `.` or `-`. So `.envrc`, `prod.env`, `.env-backup`
+and a bare `widget.git/` folder are blocked, while `.github/` and `.gitignore`
+pass. The environment rule also blocks a template such as `.env.example`,
+because the expression cannot look ahead to exempt it. Path rules check the
+`path` argument of `write` and `edit` only; they do not see a path inside a
+`bash` command, which only the `command` rules read.
 
 **Personal data** is redacted in tool output, assistant text and prompts. The
 rules cover Canadian social insurance numbers, payment card numbers, email

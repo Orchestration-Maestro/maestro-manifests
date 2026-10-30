@@ -2,7 +2,7 @@ apiVersion: maestro.guards/v1
 rules:
   - id: environment-files
     description: Environment files hold credentials and are never edited by the agent
-    regex: '(?:^|[/\\])\.env(?:\.[^/\\]+)?$'
+    regex: '\.env(?:rc|[.-][^/\\]*)?$'
     action: block
     appliesTo: [path]
     examples:
@@ -19,7 +19,7 @@ rules:
         - 'docs/env-guide.md'
   - id: git-folder
     description: The Git folder holds history and hooks and is never edited by the agent
-    regex: '(?:^|[/\\])\.git(?:[/\\]|$)'
+    regex: '\.git(?:[/\\]|$)'
     action: block
     appliesTo: [path]
     examples:
@@ -33,7 +33,7 @@ rules:
         - '.gitignore'
   - id: installed-dependencies
     description: Installed dependencies are generated and are never edited by the agent
-    regex: '(?:^|[/\\])node_modules(?:[/\\]|$)'
+    regex: 'node_modules[/\\]'
     action: block
     appliesTo: [path]
     examples:
