@@ -23,6 +23,11 @@ impl Report {
     pub fn new(message: String) -> Self {
         Self(message)
     }
+
+    /// Returns the lines of the report as written, without the leading newline `Debug` adds.
+    pub fn message(&self) -> &str {
+        &self.0
+    }
 }
 
 impl From<reading::Error> for Report {

@@ -66,7 +66,7 @@
     "thinkingBudgets.high": { "max": 16384 }
   },
   "models": ["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"],
-  "required": ["core/agents", "core/workflows"],
+  "required": ["core/agents", "core/guards", "core/workflows"],
   "roles": {
     "maestro": { "locked": ["model", "thinking", "tools"] },
     "planner": { "locked": ["model", "thinking", "tools"] },

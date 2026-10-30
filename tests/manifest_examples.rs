@@ -1,6 +1,6 @@
 //! Checks the core role and workflow examples without running agents.
 
-use crate::support::{Check, Failures, Sections, agents, owned, read, read_role, tasks};
+use crate::support::{Check, Failures, Sections, agents, owned, re, read, read_role, tasks};
 
 /// What a core role's file must keep through prose edits.
 struct Contract {
@@ -176,6 +176,29 @@ fn core_workflows_keep_steps_and_handoffs_with_maestro_tasks() -> Check {
         &["scout", "planner"],
         &[0, 1],
     )?;
+
+    failures.finish()
+}
+
+/// Keeps the guards page's protected-paths quote and pii excerpt equal to their sources.
+#[test]
+fn guards_page_quotes_match_the_guard_files() -> Check {
+    let mut failures = Failures::default();
+    let pii = read("manifests/core/guards/pii.yaml")?;
+    let second_rule = re(r"(?m)^  - id: ")?.find_iter(&pii).nth(1);
+
+    failures.quoted(
+        "protected-paths.yaml",
+        "docs/guards.md",
+        "yaml",
+        &read("manifests/core/guards/protected-paths.yaml")?,
+    )?;
+    match second_rule {
+        Some(next) => {
+            failures.quoted("pii.yaml", "docs/guards.md", "yaml", &pii[..next.start()])?;
+        }
+        None => failures.require(false, "pii.yaml", "holds fewer than two rules"),
+    }
 
     failures.finish()
 }

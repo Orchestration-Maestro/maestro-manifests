@@ -77,3 +77,9 @@ fn patterns_are_compiled_only_in_support() -> Check {
 fn repository_root_is_defined_once() -> Check {
     only_in("src/lib.rs", "CARGO_MANIFEST_DIR")
 }
+
+/// Copies a list of string literals into owned strings in one place.
+#[test]
+fn string_literal_lists_are_copied_only_in_support() -> Check {
+    only_in(SUPPORT, r"\|\w+\| \(\*\w+\)\.to_owned\(\)")
+}

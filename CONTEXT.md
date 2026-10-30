@@ -28,6 +28,10 @@ repository validate files; they do not execute policy or approve a publisher.
   The main `maestro` role supplies persona and a tool ceiling, not model defaults.
 - **Instruction:** An offered `*.instructions.md` file copied into a local
   instructions folder by choice. Matching and loading belong to the rules system.
+- **Guard rule:** One entry in a `manifests/core/guards/<family>.yaml` file: an
+  expression, an action (`block`, `confirm`, `redact` or `warn`), its targets and
+  the examples it must and must not match. A family is one guard file. Rules come
+  only from the manifest; nothing local adds or removes one.
 - **Lock:** A policy entry fixing a governed value or forbidding local resource
   additions. A `manifest` lock fixes identity; its update route may change the pin.
 - **Bound:** A policy minimum, maximum or allowed model set that limits choices.

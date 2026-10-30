@@ -13,13 +13,14 @@ fn core_roles() -> Result<Vec<String>, Report> {
         .collect())
 }
 
-/// Requires every core role and workflow, and only paths the release holds.
+/// Requires every core role, guard file and workflow, and only paths the release holds.
 #[test]
-fn core_roles_and_workflows_are_required() -> Check {
+fn core_roles_guards_and_workflows_are_required() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
     let required = strings(&baseline.policy, "required")?;
     let mut resources = files("manifests/core/agents", ".md")?;
+    resources.extend(files("manifests/core/guards", ".yaml")?);
     resources.extend(files("manifests/core/workflows", ".yaml")?);
 
     failures.require(!required.is_empty(), "required", "is empty");

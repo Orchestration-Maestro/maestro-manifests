@@ -1,0 +1,72 @@
+apiVersion: maestro.guards/v1
+rules:
+  - id: canada-sin
+    description: Canadian social insurance number
+    regex: '\b(?:\d{3}-\d{3}-\d{3}|\d{3} \d{3} \d{3}|\d{9})\b'
+    action: redact
+    appliesTo: [tool-output, agent-output, prompt]
+    examples:
+      match:
+        - 'SIN 046-454-286'
+        - 'SIN 046 454 286'
+        - 'SIN 046454286'
+      noMatch:
+        - 'order 12345'
+        - 'call 416-555-0199'
+        - 'date 2026-10-30'
+  - id: payment-card
+    description: Payment card number
+    regex: '\b[2-6](?:[ -]?\d){12,18}\b'
+    action: redact
+    appliesTo: [tool-output, agent-output, prompt]
+    examples:
+      match:
+        - 'card 4111 1111 1111 1111'
+        - 'card 5500-0000-0000-0004'
+        - 'card 378282246310005'
+      noMatch:
+        - 'order 12345'
+        - 'timestamp 1698765432123'
+        - 'call 416-555-0199'
+  - id: email-address
+    description: Email address
+    regex: '[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'
+    action: redact
+    appliesTo: [tool-output, agent-output, prompt]
+    examples:
+      match:
+        - 'write to jane.doe@example.com today'
+        - 'a+tag@mail.example.co.uk'
+      noMatch:
+        - 'mention @maestro in the thread'
+        - 'user at example dot com'
+        - 'version 1.2.3'
+  - id: phone-number
+    description: Telephone number
+    regex: '(?:\+\d{1,3}[ .-]?)?(?:\(\d{3}\)[ .-]?|\b\d{3}[ .-]?)\d{3}[ .-]?\d{4}\b|\+\d{1,3}(?:[ .-]?\d){7,12}\b'
+    action: redact
+    appliesTo: [tool-output, agent-output, prompt]
+    examples:
+      match:
+        - 'call 416-555-0199'
+        - 'call (514) 555 0100'
+        - 'call +1 613 555 0123'
+        - 'call +33 1 23 45 67 89'
+      noMatch:
+        - 'order 12345'
+        - 'build 2026-10-30'
+        - 'SIN 046 454 286'
+        - 'version 3.10.2'
+  - id: iban
+    description: International bank account number
+    regex: '\b[A-Z]{2}\d{2}(?: ?[A-Z0-9]){11,30}\b'
+    action: redact
+    appliesTo: [tool-output, agent-output, prompt]
+    examples:
+      match:
+        - 'IBAN GB82 WEST 1234 5698 7654 32'
+        - 'IBAN DE89370400440532013000'
+      noMatch:
+        - 'region GB82'
+        - 'file README2024 notes'
+        - 'order 12345'
