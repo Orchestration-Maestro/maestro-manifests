@@ -17,9 +17,10 @@ claim that runtime manifest loading is already a required check.
 
 ## Local checks
 
-Install [mise](https://mise.jdx.dev/), trust the checkout with `mise trust` and
+Install [mise](https://mise.jdx.dev/) and [rustup](https://rustup.rs/), trust the checkout with `mise trust` and
 run `mise exec -- just setup` once. Then run `mise exec -- just check`, which
-runs the content checks and the tests, before proposing a change.
+runs the content checks, the Rust checks and the tests, before proposing a
+change.
 
 ## Example
 
@@ -33,8 +34,8 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the content checks and the tests, as CI does.
-check: content test
+# Run the content checks, the Rust checks and the tests, as CI does.
+check: content rust test
 
 # Run the repository-owned content checks.
 content:
@@ -44,18 +45,28 @@ content:
 pre-commit:
     prek run --stage manual
 
-# Run the tests, which exercise contributor commands in disposable Git indexes.
+# Check Rust formatting and lints, with warnings denied.
+rust:
+    cargo fmt --check
+    cargo clippy --all-targets --locked -- -D warnings
+
+# Run the Rust tests, then the Python tests that exercise contributor commands in
+# disposable Git indexes.
 test:
+    cargo test --locked
     python3 -m unittest discover -s tests
 ```
 
-`mise.toml` pins the tools; `mise.lock` records their download checksums. Prek
+`mise.toml` pins the tools; `mise.lock` records their download checksums.
+`rust-toolchain.toml` pins Rust with Clippy and rustfmt, which rustup installs on
+first use, and `Cargo.lock` pins the crates of the test crate. Prek
 installs the pre-commit, pre-merge-commit and commit-msg hooks. The content checks
 live in `.pre-commit-config.yaml`: spelling, EditorConfig, Markdown structure,
 YAML/JSON/TOML parsing and basic file hygiene. `just content` runs them on every
-tracked file, and `just check` runs `just content` and then `just test`. The shared
+tracked file. `just rust` fails on an unformatted file or a Clippy warning, and
+`just check` runs `just content`, `just rust` and then `just test`. The shared
 content workflow invokes `just check` through mise, so a pull request that breaks a
-test fails the required job.
+test, a lint or a format fails the required job.
 
 `just pre-commit` runs the content checks on staged files. It uses prek's `manual`
 stage, so the hook can call it without recursion. The Git hook also scans staged
@@ -66,7 +77,8 @@ that fix before retrying.
 `just test` exercises these commands in disposable Git indexes: valid content
 passes, malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
 untracked files. Those tests run `just content`, not `just check`, which would
-run the tests again. Tests do not change your index.
+run the tests again, and they read `just check` only as a dry run. Tests do not
+change your index.
 
 ## Required CI
 
