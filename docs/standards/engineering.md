@@ -37,12 +37,13 @@ review is all that holds a practice. Where neither exists, the rule is
 unsupported here and the page says that too.
 
 - **Content check.** `just check` runs `just content`, which runs the hooks of
-  `.pre-commit-config.yaml` on every tracked file, then `just rust` and `just test`. The job
-  `Required content checks` runs it on each pull request and merge group, on a
+  `.pre-commit-config.yaml` on every tracked file, then `just rust` and
+  `just test`. The job `Required content checks` runs it on each pull request and merge group, on a
   hosted `ubuntu-24.04` runner with `contents: read` and no secret. The
   `hygiene-central` ruleset requires that job.
-- **Rust gate.** `just rust` runs `cargo fmt --check` and Clippy with warnings
-  denied. A pull request with an unformatted file or a warning fails the required job.
+- **Rust checks.** `just rust` runs `cargo fmt --check` and Clippy with warnings
+  denied. A pull request with an unformatted file or a warning fails the
+  required job.
 - **Tests.** `just test` runs the Rust test crate with `cargo test --locked`, then
   the standard-library tests under `tests/`. Because `just check` runs them, a
   pull request that breaks one fails the required job.
@@ -262,9 +263,10 @@ of its own.
 
 The tiers are the hook `workspace-check`, which runs `just pre-commit` on the
 staged files at commit, and `just check`, which runs the hooks on every file in
-the merge-blocking job and then Clippy and the Rust and Python tests, which the
-commit tier does not run. Code scanning's weekly scan is the heavy tier. No
-pre-push tier exists: `just check` is the heavier tier before merge.
+the merge-blocking job and then `cargo fmt --check`, Clippy and the Rust and
+Python tests, which the commit tier does not run. Code scanning's weekly scan is
+the heavy tier. No pre-push tier exists: `just check` is the heavier tier before
+merge.
 Rulesets and organization settings live as code in the `.github` repository, and
 the Organization drift workflow compares them with GitHub every week. A pull
 request that renames a required check updates the ruleset that requires it in the

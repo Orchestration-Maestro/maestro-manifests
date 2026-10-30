@@ -35,7 +35,7 @@ class QualityCommands(unittest.TestCase):
             env={**os.environ, "PREK_ALLOW_NO_CONFIG": "0"},
         )
 
-    def test_check_runs_the_content_checks_the_rust_gate_and_the_tests_without_recursion(self):
+    def test_check_runs_the_content_checks_the_rust_checks_and_the_tests_without_recursion(self):
         """Run Rust formatting, lints and tests in `check`, which CI runs, but not in `content`."""
         check = self.run_command("just", "--dry-run", "check")
         self.assertEqual(check.returncode, 0, check.stderr)

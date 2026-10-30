@@ -211,9 +211,9 @@ runtime code.
 ## Check a change
 
 Run `mise trust`, `mise exec -- just setup` and `mise exec -- just check`, which
-runs the content checks and the tests. The real [justfile](justfile) owns these
-recipes; see [development](docs/development.md#local-checks) for the complete file
-and hooks.
+runs the content checks, the Rust checks and the tests. The real
+[justfile](justfile) owns these recipes; see
+[development](docs/development.md#local-checks) for the complete file and hooks.
 
 Start with an issue, keep changes within its scope and follow
 [AGENTS.md](AGENTS.md), which this repository maintains by hand.

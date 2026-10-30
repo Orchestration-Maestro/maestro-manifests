@@ -3,7 +3,7 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the content checks, the Rust gate and the tests, as CI does.
+# Run the content checks, the Rust checks and the tests, as CI does.
 check: content rust test
 
 # Run the repository-owned content checks.

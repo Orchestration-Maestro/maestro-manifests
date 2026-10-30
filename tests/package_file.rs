@@ -21,9 +21,9 @@ fn organization_package_name(text: &str) -> Result<String, String> {
         .ok_or_else(|| "package.json names no @orchestration-maestro package".to_owned())
 }
 
-/// The package file under the manifest root names a package in the organization scope.
+/// The package file under the manifest root names `@orchestration-maestro/maestro-manifests`.
 #[test]
-fn package_file_names_a_package_in_the_organization_scope() -> Result<(), String> {
+fn package_file_names_maestro_manifests() -> Result<(), String> {
     let path = Path::new(MANIFEST_ROOT).join("package.json");
     let text = fs::read_to_string(&path).map_err(|error| format!("{}: {error}", path.display()))?;
 
