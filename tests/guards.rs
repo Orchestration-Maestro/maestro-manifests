@@ -2,7 +2,7 @@
 
 use yaml_rust2::{Yaml, YamlLoader};
 
-use crate::support::{Report, files, re, read};
+use crate::support::{Report, files, owned, re, read};
 
 /// The directory of the guard files, relative to the repository root.
 const GUARDS: &str = "manifests/core/guards";
@@ -136,12 +136,6 @@ fn problems(rule: &Rule) -> Vec<String> {
 
 /// Builds a rule from a file name, an id, an expression and its two example lists.
 fn rule(file: &str, id: &str, regex: &str, must_match: &[&str], must_not_match: &[&str]) -> Rule {
-    let owned = |examples: &[&str]| {
-        examples
-            .iter()
-            .map(|example| (*example).to_owned())
-            .collect()
-    };
     Rule {
         file: file.to_owned(),
         id: id.to_owned(),
