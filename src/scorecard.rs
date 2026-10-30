@@ -482,7 +482,7 @@ fn first_document(text: &str) -> Result<Yaml, ScanError> {
 }
 
 /// The name `value` gives an artifact; an empty value gives none, for every
-/// kind and every reader.
+/// `name` or `id` field.
 fn name_of(value: &str) -> Option<String> {
     (!value.is_empty()).then(|| value.to_owned())
 }

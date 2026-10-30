@@ -47,9 +47,11 @@ folder, such as `skills/audit/agents/grader.md`, belongs to the skill and is
 not another artifact. A skill is a `SKILL.md` that no outer `SKILL.md` encloses,
 or a Markdown file directly in `skills/` when `skills/` has no `SKILL.md`. Hidden
 folders and files, and `node_modules`, are skipped. A skill is named by its
-`name`, or by its folder when it has none or an empty one. A file extension must
-match in case: `explain.MD` is not a prompt. A guard rule is named by its `id` and
-reported as `<file>#<id>`.
+`name`, or by its folder when it has none or an empty one. A role, workflow,
+theme or capability package with no `name`, or an empty one, fails with "has no
+name". A guard rule is named by its `id` and reported as `<file>#<id>`; a rule
+with no `id`, or an empty one, fails the same way. A file extension must match
+in case: `explain.MD` is not a prompt.
 
 | Rule | Fails when | Example |
 | --- | --- | --- |
