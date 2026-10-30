@@ -48,7 +48,11 @@ fn this_release_has_no_conflicts() -> Check {
     let actual = report(ROOT).map_err(|error| Report::new(error.to_string()))?;
     let mut failures = Failures::default();
 
-    failures.require_eq("scorecard status", &actual["status"], &json!("pass"));
+    failures.require_eq(
+        "scorecard",
+        &actual,
+        &json!({"status": "pass", "conflicts": []}),
+    );
 
     failures.finish()
 }
