@@ -30,7 +30,9 @@ second copy of those checks in a workflow. `just test` runs the
 contributor-command tests in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
 contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
-documentation examples. It also checks the layout: every manifest artifact sits
+documentation examples. It also runs every example of every guard rule and
+checks that the guards page quotes the guard files as written. It also checks
+the layout: every manifest artifact sits
 under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
 every documentation link resolves. Those are content assertions, not runtime
 execution.

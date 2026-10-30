@@ -32,6 +32,7 @@ outside it.
 - [Skills](skills.md) - discover and invoke reusable procedures.
 - [Prompt templates](prompt-templates.md) - expand slash-command text and positional arguments.
 - [Workflows](workflows.md) - run the three core chains and understand step contracts.
+- [Guards](guards.md) - block, confirm, redact or warn on commands, paths and text, with the examples that prove each rule.
 - [Themes](themes.md) - offer a complete color file without choosing it for users.
 - [Models](models.md) - configure providers locally and keep credentials out of releases.
 - [Extensions](extensions.md) - package built components using Maestro's real greeting example.
@@ -51,7 +52,8 @@ outside it.
 
 The opt-in `manifests/capabilities/practice/evidence-review/` supplies a real package, role,
 skill, instruction, prompt, theme and workflow. Common supplies settings/policy;
-core supplies system/persona text and the three implementation/planning workflows.
+core supplies system/persona text, the three implementation/planning workflows
+and the four guard rule files.
 No optional area is selected by default.
 
 | Exempt kind or path | Reason | Where to read it |

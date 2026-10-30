@@ -92,7 +92,7 @@ From [`manifests/settings/policy.json`](../manifests/settings/policy.json):
     "thinkingBudgets.high": { "max": 16384 }
   },
   "models": ["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"],
-  "required": ["core/agents", "core/workflows"],
+  "required": ["core/agents", "core/guards", "core/workflows"],
   "roles": {
     "maestro": { "locked": ["model", "thinking", "tools"] },
     "planner": { "locked": ["model", "thinking", "tools"] },
@@ -193,7 +193,7 @@ approved this baseline on 2026-10-28: lock behaviour, leave personal UI.
 | `systemPrompt`, `appendSystemPrompt` | Locked | Local files and flags cannot replace the core prompt or persona |
 | `manifest`, `manifestAreas`, `manifestAutoUpdate` | Locked; no optional area, no automatic optional update | Users cannot change the source, areas or update mode |
 | `packages`, `extensions`, `skills`, `prompts` | Locked | No local additions |
-| `core/agents`, `core/workflows` | Required | Core roles and workflows cannot be replaced or removed |
+| `core/agents`, `core/guards`, `core/workflows` | Required | Core roles, guard files and workflows cannot be replaced or removed |
 | `maestro`, `planner`, `reviewer`, `scout`, `worker` | `model`, `thinking` and `tools` locked per role | A role runs on the model, thinking level and tools its file declares |
 | `providers` | Locked; unset (engine default) | No local provider definitions |
 | `enabledModels`, `transport`, `steeringMode`, `followUpMode`, `enableSkillCommands` | Locked; unset (engine default) | Keep the existing engine behavior; refuse local overrides |
@@ -227,14 +227,13 @@ sessions and `multiplexer.tabBarRight`, which can run periodic commands.
 `holdUncheckedText` is absent from the baseline; guards lock
 it on when they ship.
 
-Guard files in `required` wait for #27. Core skills and instructions also wait
-until the core ships them; then add their release-relative paths to `required`.
-The local-addition locks do not substitute for those required entries. Existing
-core roles and workflows remain required. Locations left unset use engine
-resolution, including host and environment fallbacks; they are not a portable
-fixed executable or a filesystem sandbox. Credential restrictions apply to
-`anthropic`; no secret is shipped. Thinking remains bounded rather than locked,
-as previously approved.
+Core skills and instructions wait until the core ships them; then add their
+release-relative paths to `required`. The local-addition locks do not substitute
+for those required entries. Core roles, guard files and workflows are required.
+Locations left unset use engine resolution, including host and environment
+fallbacks; they are not a portable fixed executable or a filesystem sandbox.
+Credential restrictions apply to `anthropic`; no secret is shipped. Thinking
+remains bounded rather than locked, as previously approved.
 
 ## Combining areas and local values
 

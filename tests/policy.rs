@@ -362,7 +362,7 @@ fn remaining_governed_surfaces_are_locked() -> Check {
     failures.require_eq(
         "required",
         &strings(&baseline.policy, "required")?,
-        &vec!["core/agents", "core/workflows"],
+        &vec!["core/agents", "core/guards", "core/workflows"],
     );
 
     failures.finish()

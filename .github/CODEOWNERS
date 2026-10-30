@@ -8,3 +8,6 @@
 
 /manifests/capabilities/practice/ @FrancoisLDaigneault
 /manifests/capabilities/practice/evidence-review/ @FrancoisLDaigneault
+
+# Guard rule files: security review for every change to a rule.
+/manifests/core/guards/ @FrancoisLDaigneault
