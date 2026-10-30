@@ -37,13 +37,24 @@ value and the next action that raises it.
 The check reads the whole manifest root, so a pull request that adds one side of
 a conflict fails and the message names both artifacts. A name is unique per kind:
 a role `review` and a workflow `review` do not conflict. It reads roles, skills,
-instructions, prompts, workflows, themes and each capability's `package.json`.
+instructions, prompts, workflows, themes, guard rules and each capability's
+`package.json`.
+
+Each kind is found where the loaders find it, at the root of an area: `agents/`,
+`instructions/`, `prompts/`, `workflows/`, `themes/`, `guards/` and `skills/`
+under `core/` or under `capabilities/<group>/<name>/`. A file below a skill's
+folder, such as `skills/audit/agents/grader.md`, belongs to the skill and is
+not another artifact. A skill is a `SKILL.md` that no outer `SKILL.md` encloses,
+or a Markdown file directly in `skills/`; it is named by its `name`, or by its
+folder when it has none. A file extension must match in case: `explain.MD` is
+not a prompt. A guard rule is named by its `id` and reported as
+`<file>#<id>`.
 
 | Rule | Fails when | Example |
 | --- | --- | --- |
 | `same-name` | One kind and name appears at two places of the release, in one area or in two, whether or not either is required | A capability role named `reviewer` beside the core `reviewer` |
 | `same-capability-name` | Two capabilities have one `package.json` name | Two groups each holding a package named `maestro-review` |
-| `same-content` | Two artifacts of one kind are equal after the frontmatter `name` is removed and whitespace is collapsed | Two roles with the same prompt under two names |
+| `same-content` | Two artifacts of one kind are equal after the name is removed; Markdown bodies also have whitespace collapsed | Two roles with the same prompt under two names, or two guard rules with the same expression under two ids |
 
 One organization authors the whole release, and selection uses unique names.
 Run-time shadowing, where a later definition replaces an earlier one, applies to

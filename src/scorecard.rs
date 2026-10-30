@@ -5,11 +5,10 @@
 //! release, so a change that adds one side of a conflict fails and the report
 //! names both artifacts.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 use std::fs;
 use std::io;
-use std::path::Path;
 
 use serde_json::{Map, Value, json};
 use yaml_rust2::scanner::ScanError;
@@ -17,10 +16,11 @@ use yaml_rust2::{Yaml, YamlLoader};
 
 /// The kind of an authored artifact; a name is unique per kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum ArtifactKind {
+pub(crate) enum ArtifactKind {
     /// A role, `agents/<file>.md`, named by its frontmatter `name`.
     Role,
-    /// A skill, `skills/<folder>/SKILL.md`, named by its frontmatter `name`.
+    /// A skill found as the skill loader finds it under `skills/`, named by its
+    /// frontmatter `name` or else by its folder.
     Skill,
     /// An instruction, `instructions/<name>.instructions.md`, named by its file.
     Instruction,
@@ -30,6 +30,8 @@ pub enum ArtifactKind {
     Workflow,
     /// A theme, `themes/<file>.json`, named by its `name`.
     Theme,
+    /// A guard rule in `guards/<file>.yaml`, named by its `id`.
+    GuardRule,
 }
 
 impl ArtifactKind {
@@ -43,19 +45,20 @@ impl ArtifactKind {
             Self::Prompt => "prompt",
             Self::Workflow => "workflow",
             Self::Theme => "theme",
+            Self::GuardRule => "guard-rule",
         }
     }
 }
 
 /// The rule a conflict breaks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub enum Rule {
+pub(crate) enum Rule {
     /// One kind and name at two places of the release.
-    SameName,
+    Name,
     /// Two capabilities with one `package.json` name.
-    SameCapabilityName,
+    CapabilityName,
     /// Two artifacts of one kind with equal content once the name is removed.
-    SameContent,
+    Content,
 }
 
 impl Rule {
@@ -63,16 +66,16 @@ impl Rule {
     #[must_use]
     pub const fn as_str(self) -> &'static str {
         match self {
-            Self::SameName => "same-name",
-            Self::SameCapabilityName => "same-capability-name",
-            Self::SameContent => "same-content",
+            Self::Name => "same-name",
+            Self::CapabilityName => "same-capability-name",
+            Self::Content => "same-content",
         }
     }
 }
 
 /// Artifacts that cannot stay together in one release.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Conflict {
+pub(crate) struct Conflict {
     /// The rule the artifacts break.
     pub rule: Rule,
     /// The kind of the artifacts; absent for capabilities.
@@ -101,7 +104,7 @@ impl Conflict {
 
 /// Why a release could not be read.
 #[derive(Debug)]
-pub enum ScorecardError {
+pub enum Error {
     /// A file or folder could not be read.
     Read {
         /// The path from the root.
@@ -130,7 +133,7 @@ pub enum ScorecardError {
     },
 }
 
-impl fmt::Display for ScorecardError {
+impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Read { path, .. } => write!(formatter, "cannot read {path}"),
@@ -141,7 +144,7 @@ impl fmt::Display for ScorecardError {
     }
 }
 
-impl std::error::Error for ScorecardError {
+impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Read { source, .. } => Some(source),
@@ -153,12 +156,13 @@ impl std::error::Error for ScorecardError {
 }
 
 /// What makes two artifacts of one kind duplicates: the frontmatter or document
-/// without its `name`, and the body with whitespace collapsed.
+/// without its name, and the body with whitespace collapsed.
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 struct Content {
-    /// The structured part without `name`; a theme keeps its JSON text here.
+    /// The structured part without its name; null for a theme.
     head: Yaml,
-    /// The Markdown body with whitespace collapsed; empty for YAML and JSON files.
+    /// The Markdown body with whitespace collapsed, or a theme's JSON text; empty
+    /// for YAML files.
     body: String,
 }
 
@@ -168,10 +172,19 @@ struct Artifact {
     kind: ArtifactKind,
     /// The artifact's name, unique per kind.
     name: String,
-    /// The path from the root.
+    /// The path from the root; a guard rule adds `#` and its id.
     path: String,
     /// The part compared for duplicates.
     content: Content,
+}
+
+/// The kind of artifact a release path holds, with the name its path gives it.
+struct Located {
+    /// The artifact's kind.
+    kind: ArtifactKind,
+    /// The file stem for an instruction or a prompt, which the file name names;
+    /// the folder for a skill, which names it when its frontmatter does not.
+    path_name: Option<String>,
 }
 
 /// Describes the conflicts of the release under `root` as a JSON report with a
@@ -179,8 +192,8 @@ struct Artifact {
 ///
 /// # Errors
 ///
-/// Returns [`ScorecardError`] when a file of the release cannot be read or parsed.
-pub fn report(root: &str) -> Result<Value, ScorecardError> {
+/// Returns [`Error`] when a file of the release cannot be read or parsed.
+pub fn report(root: &str) -> Result<Value, Error> {
     let found = conflicts(root)?;
     let status = if found.is_empty() { "pass" } else { "fail" };
 
@@ -194,65 +207,77 @@ pub fn report(root: &str) -> Result<Value, ScorecardError> {
 ///
 /// # Errors
 ///
-/// Returns [`ScorecardError`] when a file of the release cannot be read or parsed.
-pub fn conflicts(root: &str) -> Result<Vec<Conflict>, ScorecardError> {
+/// Returns [`Error`] when a file of the release cannot be read or parsed.
+pub(crate) fn conflicts(root: &str) -> Result<Vec<Conflict>, Error> {
     let mut files = Vec::new();
     collect_files(root, "manifests", &mut files)?;
     files.sort();
+    let known: BTreeSet<&str> = files.iter().map(String::as_str).collect();
 
     let mut artifacts = Vec::new();
     let mut capabilities = Vec::new();
-    for path in files {
-        if let Some(kind) = classify(&path) {
-            artifacts.push(load_artifact(root, &path, kind)?);
-        } else if is_capability_package(&path) {
-            capabilities.push((capability_name(root, &path)?, path));
+    for path in &files {
+        let parts: Vec<&str> = path.split('/').collect();
+        if let Some(located) = classify(&parts, &known) {
+            artifacts.extend(load_artifacts(root, path, located)?);
+        } else if let ["manifests", "capabilities", _, _, "package.json"] = parts.as_slice() {
+            capabilities.push((capability_name(root, path)?, path.as_str()));
         }
     }
 
-    let mut found = Vec::new();
-    for ((kind, name), paths) in duplicates(
-        artifacts
-            .iter()
-            .map(|a| ((a.kind, a.name.as_str()), a.path.as_str())),
-    ) {
-        found.push(Conflict {
-            rule: Rule::SameName,
-            artifact_kind: Some(kind),
-            name: Some(name.to_owned()),
-            artifacts: paths,
-        });
-    }
-    for ((kind, _), paths) in duplicates(
-        artifacts
-            .iter()
-            .map(|a| ((a.kind, &a.content), a.path.as_str())),
-    ) {
-        found.push(Conflict {
-            rule: Rule::SameContent,
-            artifact_kind: Some(kind),
-            name: None,
-            artifacts: paths,
-        });
-    }
-    for (name, paths) in duplicates(
-        capabilities
-            .iter()
-            .map(|(name, path)| (name.as_str(), path.as_str())),
-    ) {
-        found.push(Conflict {
-            rule: Rule::SameCapabilityName,
+    let mut found = artifact_conflicts(&artifacts);
+    found.extend(
+        duplicates(
+            capabilities
+                .iter()
+                .map(|(name, path)| (name.as_str(), *path)),
+        )
+        .into_iter()
+        .map(|(name, paths)| Conflict {
+            rule: Rule::CapabilityName,
             artifact_kind: None,
             name: Some(name.to_owned()),
             artifacts: paths,
-        });
-    }
+        }),
+    );
     found.sort();
 
     Ok(found)
 }
 
-/// Groups `(key, path)` pairs by key and keeps the keys that two or more paths share.
+/// Finds the artifacts that share a kind and name, and those that share a kind
+/// and content.
+fn artifact_conflicts(artifacts: &[Artifact]) -> Vec<Conflict> {
+    let same_name = duplicates(
+        artifacts
+            .iter()
+            .map(|a| ((a.kind, a.name.as_str()), a.path.as_str())),
+    )
+    .into_iter()
+    .map(|((kind, name), paths)| Conflict {
+        rule: Rule::Name,
+        artifact_kind: Some(kind),
+        name: Some(name.to_owned()),
+        artifacts: paths,
+    });
+    let same_content = duplicates(
+        artifacts
+            .iter()
+            .map(|a| ((a.kind, &a.content), a.path.as_str())),
+    )
+    .into_iter()
+    .map(|((kind, _), paths)| Conflict {
+        rule: Rule::Content,
+        artifact_kind: Some(kind),
+        name: None,
+        artifacts: paths,
+    });
+
+    same_name.chain(same_content).collect()
+}
+
+/// Groups `(key, path)` pairs by key and keeps the keys that two or more paths
+/// share, with each key's paths sorted.
 fn duplicates<'a, K: Ord>(items: impl Iterator<Item = (K, &'a str)>) -> Vec<(K, Vec<String>)> {
     let mut groups: BTreeMap<K, Vec<String>> = BTreeMap::new();
     for (key, path) in items {
@@ -262,16 +287,16 @@ fn duplicates<'a, K: Ord>(items: impl Iterator<Item = (K, &'a str)>) -> Vec<(K, 
     groups
         .into_iter()
         .filter(|(_, paths)| paths.len() > 1)
+        .map(|(key, mut paths)| {
+            paths.sort();
+            (key, paths)
+        })
         .collect()
 }
 
 /// Lists every file under `relative` in `root`, as `/`-separated paths from the root.
-fn collect_files(
-    root: &str,
-    relative: &str,
-    files: &mut Vec<String>,
-) -> Result<(), ScorecardError> {
-    let read_failure = |source| ScorecardError::Read {
+fn collect_files(root: &str, relative: &str, files: &mut Vec<String>) -> Result<(), Error> {
+    let read_failure = |source| Error::Read {
         path: relative.to_owned(),
         source,
     };
@@ -288,73 +313,124 @@ fn collect_files(
     Ok(())
 }
 
-/// The kind of artifact a release path holds, if it holds one.
-fn classify(path: &str) -> Option<ArtifactKind> {
-    let parts: Vec<&str> = path.split('/').collect();
-    match parts.as_slice() {
-        [.., "skills", _, "SKILL.md"] => Some(ArtifactKind::Skill),
-        [.., "agents", file] if has_extension(file, "md") => Some(ArtifactKind::Role),
-        [.., "instructions", file] if file.ends_with(".instructions.md") => {
-            Some(ArtifactKind::Instruction)
-        }
-        [.., "prompts", file] if has_extension(file, "md") => Some(ArtifactKind::Prompt),
-        [.., "workflows", file] if has_extension(file, "yaml") => Some(ArtifactKind::Workflow),
-        [.., "themes", file] if has_extension(file, "json") => Some(ArtifactKind::Theme),
+/// The kind of artifact a release path holds, if it holds one. Every kind starts
+/// at the root of an area, `core/` or `capabilities/<group>/<name>/`, as the
+/// loaders find it; `known` holds every file of the release.
+fn classify(parts: &[&str], known: &BTreeSet<&str>) -> Option<Located> {
+    let area = match parts {
+        ["manifests", "core", ..] => 2,
+        ["manifests", "capabilities", _, _, ..] => 4,
+        _ => return None,
+    };
+    let located = |kind, path_name: Option<&str>| Located {
+        kind,
+        path_name: path_name.map(str::to_owned),
+    };
+    match &parts[area..] {
+        ["agents", file] => file
+            .strip_suffix(".md")
+            .map(|_| located(ArtifactKind::Role, None)),
+        ["instructions", file] => file
+            .strip_suffix(".instructions.md")
+            .map(|stem| located(ArtifactKind::Instruction, Some(stem))),
+        ["prompts", file] => file
+            .strip_suffix(".md")
+            .map(|stem| located(ArtifactKind::Prompt, Some(stem))),
+        ["workflows", file] => file
+            .strip_suffix(".yaml")
+            .map(|_| located(ArtifactKind::Workflow, None)),
+        ["themes", file] => file
+            .strip_suffix(".json")
+            .map(|_| located(ArtifactKind::Theme, None)),
+        ["guards", file] => file
+            .strip_suffix(".yaml")
+            .map(|_| located(ArtifactKind::GuardRule, None)),
+        ["skills", inside @ ..] => skill_folder(&parts[..=area], inside, known)
+            .map(|folder| located(ArtifactKind::Skill, Some(folder))),
         _ => None,
     }
 }
 
-/// Whether `file` ends in `.extension`, whatever the case of the extension.
-fn has_extension(file: &str, extension: &str) -> bool {
-    Path::new(file)
-        .extension()
-        .is_some_and(|found| found.eq_ignore_ascii_case(extension))
-}
+/// The folder that names the skill at `inside`, the path under the skills root
+/// `root`, when the skill loader finds a skill there: a `SKILL.md` that no
+/// ancestor `SKILL.md` encloses, or a Markdown file directly in the skills root
+/// when the root has no `SKILL.md`. The loader skips hidden entries and
+/// `node_modules`.
+fn skill_folder<'a>(
+    root: &[&'a str],
+    inside: &[&'a str],
+    known: &BTreeSet<&str>,
+) -> Option<&'a str> {
+    let hidden = |part: &str| part.starts_with('.') || part == "node_modules";
+    let (file, folders) = inside.split_last()?;
+    let mut directory = root.join("/");
+    if *file != "SKILL.md" {
+        let direct = folders.is_empty() && !hidden(file) && file.strip_suffix(".md").is_some();
+        let enclosed = known.contains(format!("{directory}/SKILL.md").as_str());
+        return if direct && !enclosed {
+            root.last().copied()
+        } else {
+            None
+        };
+    }
+    for folder in folders {
+        if hidden(folder) || known.contains(format!("{directory}/SKILL.md").as_str()) {
+            return None;
+        }
+        directory = format!("{directory}/{folder}");
+    }
 
-/// Whether a release path is the `package.json` of a capability,
-/// `capabilities/<group>/<name>/package.json`.
-fn is_capability_package(path: &str) -> bool {
-    matches!(
-        path.split('/').collect::<Vec<_>>().as_slice(),
-        ["manifests", "capabilities", _, _, "package.json"]
-    )
+    folders.last().or(root.last()).copied()
 }
 
 /// Reads the `name` of the capability whose `package.json` is at `path`.
-fn capability_name(root: &str, path: &str) -> Result<String, ScorecardError> {
-    let text = read(root, path)?;
-    let package: Value = serde_json::from_str(&text).map_err(|source| ScorecardError::Json {
-        path: path.to_owned(),
-        source,
-    })?;
+fn capability_name(root: &str, path: &str) -> Result<String, Error> {
+    let package = parse_json(path, &read(root, path)?)?;
 
     package["name"]
         .as_str()
         .map(str::to_owned)
-        .ok_or_else(|| ScorecardError::MissingName {
+        .ok_or_else(|| Error::MissingName {
             path: path.to_owned(),
         })
 }
 
 /// Reads the file at `path` in `root`.
-fn read(root: &str, path: &str) -> Result<String, ScorecardError> {
-    fs::read_to_string(format!("{root}/{path}")).map_err(|source| ScorecardError::Read {
+fn read(root: &str, path: &str) -> Result<String, Error> {
+    fs::read_to_string(format!("{root}/{path}")).map_err(|source| Error::Read {
         path: path.to_owned(),
         source,
     })
 }
 
-/// Reads the artifact of `kind` at `path`, with its name and comparable content.
-fn load_artifact(root: &str, path: &str, kind: ArtifactKind) -> Result<Artifact, ScorecardError> {
+/// Parses the JSON `text` of the file at `path`.
+fn parse_json(path: &str, text: &str) -> Result<Value, Error> {
+    serde_json::from_str(text).map_err(|source| Error::Json {
+        path: path.to_owned(),
+        source,
+    })
+}
+
+/// Reads the artifacts at `path`: one, or for a guard file one per rule.
+fn load_artifacts(root: &str, path: &str, located: Located) -> Result<Vec<Artifact>, Error> {
     let text = read(root, path)?;
-    let yaml = |source| ScorecardError::Yaml {
+    if located.kind == ArtifactKind::GuardRule {
+        return guard_rules(path, &text);
+    }
+
+    Ok(vec![load_artifact(path, &text, located)?])
+}
+
+/// Reads the one artifact at `path` from its `text`, with its name and comparable content.
+fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, Error> {
+    let yaml = |source| Error::Yaml {
         path: path.to_owned(),
         source,
     };
-    let (named, content) = match kind {
-        ArtifactKind::Theme => theme_content(path, &text)?,
+    let (named, content) = match located.kind {
+        ArtifactKind::Theme => theme_content(path, text)?,
         ArtifactKind::Workflow => {
-            let (name, head) = take_name(first_document(&text).map_err(yaml)?);
+            let (name, head) = take_key(first_document(text).map_err(yaml)?, "name");
             (
                 name,
                 Content {
@@ -364,27 +440,25 @@ fn load_artifact(root: &str, path: &str, kind: ArtifactKind) -> Result<Artifact,
             )
         }
         _ => {
-            let (frontmatter, body) = split_frontmatter(&text);
-            let (name, head) = take_name(first_document(frontmatter).map_err(yaml)?);
-            (
-                name,
-                Content {
-                    head,
-                    body: body.split_whitespace().collect::<Vec<_>>().join(" "),
-                },
-            )
+            let (frontmatter, body) = split_frontmatter(text);
+            let (name, head) = take_key(first_document(frontmatter).map_err(yaml)?, "name");
+            let body = body.split_whitespace().collect::<Vec<_>>().join(" ");
+            (name, Content { head, body })
         }
     };
-    let file = path.rsplit('/').next().unwrap_or(path);
-    let name = match kind {
-        ArtifactKind::Instruction => file.strip_suffix(".instructions.md").map(str::to_owned),
-        ArtifactKind::Prompt => file.strip_suffix(".md").map(str::to_owned),
-        _ => named,
+    let named_by_file = matches!(
+        located.kind,
+        ArtifactKind::Instruction | ArtifactKind::Prompt
+    );
+    let name = if named_by_file {
+        located.path_name
+    } else {
+        named.or(located.path_name)
     };
 
     Ok(Artifact {
-        kind,
-        name: name.ok_or_else(|| ScorecardError::MissingName {
+        kind: located.kind,
+        name: name.ok_or_else(|| Error::MissingName {
             path: path.to_owned(),
         })?,
         path: path.to_owned(),
@@ -392,12 +466,38 @@ fn load_artifact(root: &str, path: &str, kind: ArtifactKind) -> Result<Artifact,
     })
 }
 
-/// Reads a theme's `name` and the rest of its JSON as comparable content.
-fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), ScorecardError> {
-    let mut theme: Value = serde_json::from_str(text).map_err(|source| ScorecardError::Json {
+/// Reads the rules of the guard file at `path`; each is named by its `id`.
+fn guard_rules(path: &str, text: &str) -> Result<Vec<Artifact>, Error> {
+    let document = first_document(text).map_err(|source| Error::Yaml {
         path: path.to_owned(),
         source,
     })?;
+
+    document["rules"]
+        .as_vec()
+        .into_iter()
+        .flatten()
+        .map(|rule| {
+            let (id, head) = take_key(rule.clone(), "id");
+            let id = id.ok_or_else(|| Error::MissingName {
+                path: path.to_owned(),
+            })?;
+            Ok(Artifact {
+                kind: ArtifactKind::GuardRule,
+                path: format!("{path}#{id}"),
+                name: id,
+                content: Content {
+                    head,
+                    body: String::new(),
+                },
+            })
+        })
+        .collect()
+}
+
+/// Reads a theme's `name` and the rest of its JSON as comparable content.
+fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), Error> {
+    let mut theme = parse_json(path, text)?;
     let name = theme
         .as_object_mut()
         .and_then(|fields| fields.shift_remove("name"))
@@ -406,8 +506,8 @@ fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), Sc
     Ok((
         name,
         Content {
-            head: Yaml::String(theme.to_string()),
-            body: String::new(),
+            head: Yaml::Null,
+            body: theme.to_string(),
         },
     ))
 }
@@ -420,14 +520,14 @@ fn first_document(text: &str) -> Result<Yaml, ScanError> {
         .unwrap_or(Yaml::Null))
 }
 
-/// Removes the `name` key from a YAML mapping and returns it with the rest.
-fn take_name(document: Yaml) -> (Option<String>, Yaml) {
+/// Removes the string `key` from a YAML mapping and returns it with the rest.
+fn take_key(document: Yaml, key: &str) -> (Option<String>, Yaml) {
     match document {
         Yaml::Hash(mut fields) => {
-            let name = fields
-                .remove(&Yaml::String("name".to_owned()))
-                .and_then(|name| name.as_str().map(str::to_owned));
-            (name, Yaml::Hash(fields))
+            let value = fields
+                .remove(&Yaml::String(key.to_owned()))
+                .and_then(|value| value.as_str().map(str::to_owned));
+            (value, Yaml::Hash(fields))
         }
         other => (None, other),
     }
