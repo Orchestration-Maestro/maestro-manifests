@@ -3,7 +3,9 @@
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::support::{Check, Failures, ROOT, Report, Run, run_in, tracked_files};
+use maestro_manifests_tests::ROOT;
+
+use crate::support::{Check, Failures, Report, Run, run_in, tracked_files};
 
 /// Numbers the checkouts of one test run, so no two share a directory.
 static CHECKOUTS: AtomicUsize = AtomicUsize::new(0);

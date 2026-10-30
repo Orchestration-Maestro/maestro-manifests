@@ -2,7 +2,9 @@
 
 use std::collections::BTreeMap;
 
-use crate::support::{Check, Failures, captures, collapse_whitespace, read, sentence_count};
+use crate::support::{
+    Check, Failures, Report, captures, collapse_whitespace, read, sentence_count,
+};
 
 /// The core system prompt.
 const PROMPT: &str = "manifests/core/SYSTEM.md";
@@ -84,7 +86,7 @@ const POINTERS: [&str; 4] = [
 ];
 
 /// Returns the rule bullets of the prompt, in order.
-fn bullets(prompt: &str) -> Result<Vec<String>, crate::support::Report> {
+fn bullets(prompt: &str) -> Result<Vec<String>, Report> {
     captures(r"(?m)^- (.+)$", prompt)
 }
 

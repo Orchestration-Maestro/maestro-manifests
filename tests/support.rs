@@ -4,11 +4,9 @@ use std::collections::HashMap;
 use std::fmt;
 use std::path::Path;
 
+use maestro_manifests_tests::ROOT;
 use regex::Regex;
 use serde_json::Value;
-
-/// The repository root, from which every checked path is relative.
-pub const ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
 /// The words Maestro's voice avoids, as a regex alternation.
 pub const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robust|seamless|magic|\
@@ -34,7 +32,7 @@ impl fmt::Debug for Report {
 /// What every check returns: `Ok` or the report of everything that failed.
 pub type Check = Result<(), Report>;
 
-/// Collects every failed check so one run reports them all, as a subtest loop does.
+/// Collects every failed check so one run reports them all.
 #[derive(Default)]
 pub struct Failures(Vec<String>);
 
@@ -393,11 +391,6 @@ pub fn captures(pattern: &str, text: &str) -> Result<Vec<String>, Report> {
         .collect())
 }
 
-/// Returns whether `check` failed.
-fn refused<T>(check: Result<T, Report>) -> bool {
-    check.is_err()
-}
-
 /// A role file with a name and a model, for the role tests.
 const SCOUT: &str = "---\nname: scout\nmodel: claude-haiku-5-5\n---\nFind it.\n";
 
@@ -418,7 +411,7 @@ fn strings_refuses_a_non_string_entry() -> Check {
     let mut failures = Failures::default();
     let value = serde_json::json!({"locked": ["a", 5]});
 
-    failures.require(refused(strings(&value, "locked")), "locked", "accepts 5");
+    failures.require(strings(&value, "locked").is_err(), "locked", "accepts 5");
 
     failures.finish()
 }
@@ -429,7 +422,7 @@ fn strings_refuses_a_missing_key() -> Check {
     let mut failures = Failures::default();
     let value = serde_json::json!({"models": []});
 
-    failures.require(refused(strings(&value, "locked")), "locked", "is accepted");
+    failures.require(strings(&value, "locked").is_err(), "locked", "is accepted");
 
     failures.finish()
 }
@@ -441,7 +434,7 @@ fn strings_refuses_a_value_that_is_not_an_array() -> Check {
     let value = serde_json::json!({"locked": "a"});
 
     failures.require(
-        refused(strings(&value, "locked")),
+        strings(&value, "locked").is_err(),
         "locked",
         "accepts \"a\"",
     );
@@ -468,7 +461,7 @@ fn role_without_a_field_is_refused() -> Check {
     let role = Role::parse("scout.md", SCOUT)?;
 
     failures.require(
-        refused(role.field("description")),
+        role.field("description").is_err(),
         "description",
         "reads as empty",
     );
@@ -484,7 +477,7 @@ fn role_frontmatter_line_without_a_separator_is_refused() -> Check {
     let text = "---\nname: scout\ndescription\n---\nFind it.\n";
 
     failures.require(
-        refused(Role::parse("scout.md", text)),
+        Role::parse("scout.md", text).is_err(),
         "scout.md",
         "skips the line",
     );
