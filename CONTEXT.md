@@ -54,3 +54,9 @@ repository validate files; they do not execute policy or approve a publisher.
   reloads, drift recovery and repair permission comparisons; not a second checkout.
 - **Blueprint:** Catalog data defining an entry kind's properties and relations.
   Entries derive their owning principal from the last matching CODEOWNERS pattern.
+- **Conflict:** A pair of artifacts that cannot both stay in one release: one kind
+  and name at two places of the release, two capabilities with one `package.json`
+  name, or two artifacts of one kind with the same content. A conflict fails the
+  check; see [scorecard](docs/scorecard.md).
+- **Scorecard:** One card per changed artifact, showing the blocking result first
+  and then advisory scores. Only conflicts fail the check.

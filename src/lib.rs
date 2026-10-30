@@ -5,3 +5,6 @@
 
 /// The repository root, from which every checked path is relative.
 pub const ROOT: &str = env!("CARGO_MANIFEST_DIR");
+
+pub mod reading;
+pub mod scorecard;

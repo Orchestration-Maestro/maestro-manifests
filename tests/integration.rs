@@ -13,6 +13,7 @@ mod policy;
 mod policy_coverage;
 mod quality;
 mod retired_generator;
+mod scorecard;
 mod security_capability;
 mod standards_pages;
 mod support;

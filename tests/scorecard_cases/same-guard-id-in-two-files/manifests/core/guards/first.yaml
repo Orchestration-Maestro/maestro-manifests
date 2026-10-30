@@ -1,0 +1,10 @@
+apiVersion: maestro.guards/v1
+rules:
+  - id: sudo
+    description: Running as another user
+    regex: '\bsudo\b'
+    action: confirm
+    appliesTo: [command]
+    examples:
+      match: ['sudo ls']
+      noMatch: ['pseudo']

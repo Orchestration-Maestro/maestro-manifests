@@ -8,6 +8,7 @@ repos:
         args: [--assume-in-merge]
       - id: check-yaml
       - id: check-json
+        exclude: '^tests/scorecard_cases/error-package-is-not-valid-json/'
       - id: check-toml
       - id: end-of-file-fixer
       - id: trailing-whitespace

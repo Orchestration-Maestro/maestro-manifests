@@ -2,9 +2,9 @@
 
 use std::collections::BTreeMap;
 
-use crate::support::{
-    Check, Failures, Report, captures, collapse_whitespace, read, sentence_count,
-};
+use maestro_manifests_tests::reading::collapse_whitespace;
+
+use crate::support::{Check, Failures, Report, captures, read, sentence_count};
 
 /// The core system prompt.
 const PROMPT: &str = "manifests/core/SYSTEM.md";

@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-name",
+      "artifactKind": "workflow",
+      "name": "implement",
+      "artifacts": [
+        "manifests/capabilities/practice/build/workflows/implement.yaml",
+        "manifests/core/workflows/implement.yaml"
+      ]
+    }
+  ]
+}

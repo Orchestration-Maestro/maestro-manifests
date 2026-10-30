@@ -1,0 +1,13 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-content",
+      "artifactKind": "guard-rule",
+      "artifacts": [
+        "manifests/core/guards/rules.yaml#elevate",
+        "manifests/core/guards/rules.yaml#sudo"
+      ]
+    }
+  ]
+}

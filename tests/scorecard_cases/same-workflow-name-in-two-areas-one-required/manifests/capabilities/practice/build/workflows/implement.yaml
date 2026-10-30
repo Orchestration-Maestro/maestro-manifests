@@ -1,0 +1,7 @@
+apiVersion: maestro.workflow/v1
+kind: Workflow
+name: implement
+description: Fixture workflow.
+chain:
+  - agent: worker
+    task: "Build and test: $@"

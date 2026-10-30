@@ -1,0 +1,13 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-content",
+      "artifactKind": "role",
+      "artifacts": [
+        "manifests/capabilities/practice/review/agents/verifier.md",
+        "manifests/core/agents/checker.md"
+      ]
+    }
+  ]
+}

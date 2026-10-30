@@ -2,9 +2,10 @@
 
 use std::collections::BTreeSet;
 
+use maestro_manifests_tests::reading::collapse_whitespace;
 use serde_json::json;
 
-use crate::support::{Check, Failures, Role, collapse_whitespace, files, owned, read, read_json};
+use crate::support::{Check, Failures, Role, files, owned, read, read_json};
 
 /// The security capability folder.
 const CAPABILITY: &str = "manifests/capabilities/security/maestro-security";
