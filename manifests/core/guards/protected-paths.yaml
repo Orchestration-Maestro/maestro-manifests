@@ -11,10 +11,12 @@ rules:
         - 'api/.env.local'
         - '/srv/app/.env.production'
         - 'C:\work\app\.env'
+        - '.envrc'
+        - 'config/prod.env'
+        - '.env-backup'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
-        - '.envrc'
   - id: git-folder
     description: The Git folder holds history and hooks and is never edited by the agent
     regex: '(?:^|[/\\])\.git(?:[/\\]|$)'
@@ -25,10 +27,10 @@ rules:
         - '.git/config'
         - 'repo/.git/hooks/pre-commit'
         - 'repo\.git\HEAD'
+        - 'src/widget.git/readme.md'
       noMatch:
         - '.github/workflows/ci.yml'
         - '.gitignore'
-        - 'src/widget.git/readme.md'
   - id: installed-dependencies
     description: Installed dependencies are generated and are never edited by the agent
     regex: '(?:^|[/\\])node_modules(?:[/\\]|$)'
@@ -38,6 +40,6 @@ rules:
       match:
         - 'node_modules/left-pad/index.js'
         - 'web/node_modules/react/package.json'
+        - 'my_node_modules/x.js'
       noMatch:
         - 'src/node_modules_notes.md'
-        - 'my_node_modules/x.js'

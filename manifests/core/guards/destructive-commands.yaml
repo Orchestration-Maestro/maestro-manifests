@@ -40,6 +40,8 @@ rules:
         - 'chmod 777 deploy.sh'
         - 'chmod -R 0777 /var/www'
         - 'chown 777 shared'
+        - 'chmod 1777 /srv/shared'
+        - 'chmod 4777 tool'
       noMatch:
         - 'chmod 755 deploy.sh'
         - 'chmod 644 build777.log'
