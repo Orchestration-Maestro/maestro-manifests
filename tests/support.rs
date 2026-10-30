@@ -278,7 +278,7 @@ pub fn strings<'a>(value: &'a Value, key: &str) -> Result<Vec<&'a str>, Report> 
         .collect()
 }
 
-/// A core role file: its frontmatter fields and its prompt body.
+/// A role file: its frontmatter fields and its prompt body.
 pub struct Role {
     /// The file the role was read from, which a failed check names.
     path: String,
@@ -291,7 +291,7 @@ pub struct Role {
 impl Role {
     /// Parses the role file `path` whose text is `text`.
     ///
-    /// A frontmatter line without `: ` fails the check.
+    /// A frontmatter line without `: `, or a key set twice, fails the check.
     pub fn parse(path: &str, text: &str) -> Result<Self, Report> {
         let (frontmatter, body) = split_frontmatter(path, text)?;
         let mut fields = HashMap::new();
@@ -299,7 +299,9 @@ impl Role {
             let (key, value) = line
                 .split_once(": ")
                 .ok_or_else(|| Report(format!("{path}: frontmatter line `{line}` has no `: `")))?;
-            fields.insert(key.to_owned(), value.to_owned());
+            if fields.insert(key.to_owned(), value.to_owned()).is_some() {
+                return Err(Report(format!("{path}: frontmatter sets `{key}` twice")));
+            }
         }
         Ok(Self {
             path: path.to_owned(),

@@ -4,9 +4,7 @@ use std::collections::BTreeSet;
 
 use serde_json::json;
 
-use crate::support::{
-    Check, Failures, collapse_whitespace, files, owned, read, read_json, split_frontmatter,
-};
+use crate::support::{Check, Failures, Role, collapse_whitespace, files, owned, read, read_json};
 
 /// The security capability folder.
 const CAPABILITY: &str = "manifests/capabilities/security/maestro-security";
@@ -89,17 +87,20 @@ const CONTRACTS: [(&str, &[&str]); 5] = [
 /// Records every way the role `name` departs from its name, description, tools and body.
 fn check_role(failures: &mut Failures, name: &str, tools: &[&str]) -> Check {
     let path = format!("{CAPABILITY}/agents/{name}.md");
-    let text = read(&path)?;
-    let (frontmatter, body) = split_frontmatter(&path, &text)?;
+    let role = Role::parse(&path, &read(&path)?)?;
     let held: Vec<String> = tools
         .iter()
         .map(|tool| format!("maestro-security/{tool}"))
         .collect();
 
-    failures.contains(&path, frontmatter, &format!("name: {name}\n"));
-    failures.matches(&path, frontmatter, r"(?m)^description: .+$")?;
-    failures.contains(&path, frontmatter, &format!("tools: {}\n", held.join(", ")));
-    failures.require(!body.trim().is_empty(), &path, "has no body");
+    failures.require_eq(&path, &role.get("name"), &Some(name));
+    failures.require(
+        role.get("description").is_some_and(|text| !text.is_empty()),
+        &path,
+        "has no description",
+    );
+    failures.require_eq(&path, &role.get("tools"), &Some(held.join(", ").as_str()));
+    failures.require(!role.body.trim().is_empty(), &path, "has no body");
     Ok(())
 }
 
@@ -236,9 +237,8 @@ fn check_responsibilities(reshape: impl Fn(&str) -> String) -> Check {
     let mut failures = Failures::default();
     for (name, terms) in CONTRACTS {
         let path = format!("{CAPABILITY}/agents/{name}.md");
-        let text = reshape(&read(&path)?);
-        let (_, body) = split_frontmatter(&path, &text)?;
-        let collapsed = collapse_whitespace(body);
+        let role = Role::parse(&path, &reshape(&read(&path)?))?;
+        let collapsed = collapse_whitespace(&role.body);
         for term in terms {
             failures.contains(name, &collapsed, term);
         }

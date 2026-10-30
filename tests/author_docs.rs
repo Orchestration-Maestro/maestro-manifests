@@ -5,18 +5,19 @@ use crate::support::{Check, Failures, Sections, captures, files, re, read, strip
 /// Records every way the guide at `path` fails to show its sections and checks.
 fn check_guide(failures: &mut Failures, path: &str) -> Check {
     let text = strip_fences(&read(path)?)?;
-    let sections = captures(r"(?m)^## (.+)$", &text)?;
+    let sections = Sections::split(&text, "##")?;
     let opens_with_contents = re(r"(?s)# [^\n]+\n\n[^#\n].*?\n\n## Contents\n")?;
     failures.require(
         opens_with_contents.is_match(&text),
         path,
         "no title, purpose paragraph and `## Contents` in that order",
     );
-    if let Some(contents) = Sections::split(&text, "##")?.get("Contents") {
+    if let Some(contents) = sections.get("Contents") {
         let others: Vec<String> = sections
-            .iter()
+            .titles()
+            .into_iter()
             .filter(|name| *name != "Contents")
-            .cloned()
+            .map(str::to_owned)
             .collect();
         failures.require_eq(
             path,
@@ -26,7 +27,7 @@ fn check_guide(failures: &mut Failures, path: &str) -> Check {
     }
     for required in ["What the organization can lock", "Check a change"] {
         failures.require(
-            sections.iter().any(|name| name == required),
+            sections.get(required).is_some(),
             path,
             &format!("no section `{required}`"),
         );

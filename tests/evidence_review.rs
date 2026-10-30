@@ -6,7 +6,7 @@ use std::path::Path;
 use serde_json::{Value, json};
 
 use crate::support::{
-    AVOIDED_WORDS, Check, Failures, Report, agents, files, owned, re, read, read_json,
+    AVOIDED_WORDS, Check, Failures, Report, Role, agents, files, owned, re, read, read_json,
     sentence_count, split_frontmatter, tasks,
 };
 
@@ -67,7 +67,7 @@ fn evidence_review_workflow_is_opt_in_and_indexed() -> Check {
     let tasks = tasks(&text)?;
     let link = format!("[`{WORKFLOW}`]({WORKFLOW})");
     let settings = read_json("manifests/settings/settings.json")?;
-    let role = read(ROLE)?;
+    let role = Role::parse(ROLE, &read(ROLE)?)?;
 
     failures.contains(WORKFLOW, &text, "apiVersion: maestro.workflow/v1\n");
     failures.contains(WORKFLOW, &text, "kind: Workflow\nname: review-evidence\n");
@@ -91,10 +91,7 @@ fn evidence_review_workflow_is_opt_in_and_indexed() -> Check {
         "settings.json",
         "sets a theme",
     );
-    let tools = role
-        .split_once("tools: ")
-        .and_then(|(_, rest)| rest.lines().next());
-    failures.require_eq(ROLE, &tools, &Some("read, grep, find, ls"));
+    failures.require_eq(ROLE, &role.get("tools"), &Some("read, grep, find, ls"));
 
     failures.finish()
 }

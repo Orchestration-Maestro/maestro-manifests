@@ -1,6 +1,6 @@
 //! Checks the core role and workflow examples without running agents.
 
-use crate::support::{Check, Failures, agents, captures, owned, read, split_frontmatter, tasks};
+use crate::support::{Check, Failures, Sections, agents, owned, read, read_role, tasks};
 
 /// What a core role's file must keep through prose edits.
 struct Contract {
@@ -19,19 +19,16 @@ struct Contract {
 /// Records every way the role file for `contract` departs from it.
 fn check_role(failures: &mut Failures, contract: &Contract) -> Check {
     let path = format!("manifests/core/agents/{}.md", contract.role);
-    let text = read(&path)?;
-    let (frontmatter, body) = split_frontmatter(&path, &text)?;
+    let role = read_role(contract.role)?;
+    let body = role.body.as_str();
 
-    failures.contains(&path, frontmatter, &format!("name: {}\n", contract.role));
-    failures.contains(&path, frontmatter, &format!("model: {}\n", contract.model));
-    match contract.tools {
-        Some(tools) => failures.contains(&path, frontmatter, &format!("tools: {tools}\n")),
-        None => failures.require(!frontmatter.contains("tools:"), &path, "has a `tools` line"),
-    }
+    failures.require_eq(&path, &role.get("name"), &Some(contract.role));
+    failures.require_eq(&path, &role.get("model"), &Some(contract.model));
+    failures.require_eq(&path, &role.get("tools"), &contract.tools);
     failures.require_eq(
         &path,
-        &captures(r"(?m)^## (.+)$", body)?,
-        &owned(contract.headings),
+        &Sections::split(body, "##")?.titles(),
+        &contract.headings.to_vec(),
     );
     failures.require(
         !body.contains(contract.former_intro),
