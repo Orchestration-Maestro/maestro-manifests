@@ -34,11 +34,9 @@ documentation examples. It also checks the layout: every manifest artifact sits
 under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
 every documentation link resolves. Those are content assertions, not runtime
 execution.
-`just rust` fails on an unformatted file or a Clippy warning, and `just test`
-also runs `cargo test --locked` for the repository's one Rust test crate,
-`maestro-manifests-tests`. Its guard tests compile every rule of the
-[guard files](guards.md) with the `regex` crate and run each example, so they
-catch a pattern that Maestro would reject.
+`just rust` fails on an unformatted file or a Clippy warning. `just test` runs only
+`cargo test --locked` for the repository's one Rust test crate,
+`maestro-manifests-tests`.
 
 The content checks parse YAML/JSON/TOML and check spelling, Markdown, EditorConfig,
 file hygiene and conflict markers. Staged commit hooks also scan secrets and
