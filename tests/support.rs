@@ -46,6 +46,29 @@ impl Failures {
         }
     }
 
+    /// Records the subject when `text` does not contain `needle`.
+    pub fn contains(&mut self, subject: &str, text: &str, needle: &str) {
+        self.require(text.contains(needle), subject, &format!("no `{needle}`"));
+    }
+
+    /// Records the subject when no part of `text` matches `pattern`.
+    pub fn matches(&mut self, subject: &str, text: &str, pattern: &str) -> Check {
+        self.require(
+            re(pattern)?.is_match(text),
+            subject,
+            &format!("nothing matches {pattern}"),
+        );
+        Ok(())
+    }
+
+    /// Records the subject and the offending text when a part of `text` matches `pattern`.
+    pub fn avoids(&mut self, subject: &str, text: &str, pattern: &str) -> Check {
+        if let Some(found) = re(pattern)?.find(text) {
+            self.0.push(format!("{subject}: has `{}`", found.as_str()));
+        }
+        Ok(())
+    }
+
     /// Returns `Ok` when nothing failed, otherwise the report of every failure.
     pub fn finish(self) -> Check {
         if self.0.is_empty() {
@@ -105,6 +128,15 @@ pub fn files(dir: &str, suffix: &str) -> Result<Vec<String>, Report> {
     }
     found.sort();
     Ok(found)
+}
+
+/// Splits a Markdown resource into its `---` frontmatter and its body.
+pub fn split_frontmatter<'a>(path: &str, text: &'a str) -> Result<(&'a str, &'a str), Report> {
+    let mut parts = text.splitn(3, "---\n");
+    match (parts.next(), parts.next(), parts.next()) {
+        (Some(_), Some(frontmatter), Some(body)) => Ok((frontmatter, body)),
+        _ => Err(Report(format!("{path}: no `---` frontmatter"))),
+    }
 }
 
 /// Returns `text` without its fenced code blocks.
