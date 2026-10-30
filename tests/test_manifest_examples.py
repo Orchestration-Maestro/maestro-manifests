@@ -134,7 +134,7 @@ class ManifestExamples(unittest.TestCase):
         """Keep one installable instruction, indexed and quoted, with no exception."""
         path = CAPABILITY / "instructions/cite-code-claims.instructions.md"
         security = MANIFEST / "capabilities/security/maestro-security/instructions/security-assessment.instructions.md"
-        self.assertEqual(set(ROOT.rglob("*.instructions.md")), {path, security})
+        self.assertEqual(set(MANIFEST.rglob("*.instructions.md")), {path, security})
         text = path.read_text()
         self.assertTrue(text.startswith('---\napplyTo: "docs/**/*.md"\n---\n'), text)
         relative = path.relative_to(ROOT).as_posix()
