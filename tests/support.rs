@@ -36,6 +36,7 @@ impl From<reading::Error> for Report {
         Self(match error {
             reading::Error::Read { path, source } => format!("{path}: {source}"),
             reading::Error::Json { path, source } => format!("{path}: not valid JSON: {source}"),
+            reading::Error::Yaml { path, source } => format!("{path}: {source}"),
         })
     }
 }
@@ -171,6 +172,11 @@ pub fn git(args: &[&str]) -> Result<Run, Report> {
 /// Reads the file at the repository-relative `path`.
 pub fn read(path: &str) -> Result<String, Report> {
     Ok(reading::read(ROOT, path)?)
+}
+
+/// Parses `text`, the content of the file `path`, as YAML, one value per document.
+pub fn parse_yaml(path: &str, text: &str) -> Result<Vec<yaml_rust2::Yaml>, Report> {
+    Ok(reading::parse_yaml(path, text)?)
 }
 
 /// Parses `text`, the content of the file `path`, as JSON.

@@ -9,8 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
 use serde_json::{Map, Value, json};
-use yaml_rust2::scanner::ScanError;
-use yaml_rust2::{Yaml, YamlLoader};
+use yaml_rust2::Yaml;
 
 use crate::reading;
 
@@ -105,15 +104,8 @@ impl Conflict {
 /// Why a release could not be read.
 #[derive(Debug)]
 pub enum Error {
-    /// A file or folder could not be read, or a JSON file is not valid JSON.
+    /// A file or folder could not be read, or a JSON or YAML file is not valid.
     Reading(reading::Error),
-    /// A frontmatter block or YAML file is not valid YAML.
-    Yaml {
-        /// The path from the root.
-        path: String,
-        /// The scanner's failure.
-        source: ScanError,
-    },
     /// A file that must carry a `name`, or a guard rule that must carry an `id`, has none.
     MissingName {
         /// The path from the root.
@@ -127,7 +119,6 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Reading(error) => fmt::Display::fmt(error, formatter),
-            Self::Yaml { path, .. } => write!(formatter, "{path} is not valid YAML"),
             Self::MissingName { path, key } => write!(formatter, "{path} has no {key}"),
         }
     }
@@ -143,7 +134,6 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Self::Reading(error) => std::error::Error::source(error),
-            Self::Yaml { source, .. } => Some(source),
             Self::MissingName { .. } => None,
         }
     }
@@ -381,14 +371,10 @@ fn load_artifacts(root: &str, path: &str, located: Located) -> Result<Vec<Artifa
 
 /// Reads the one artifact at `path` from its `text`, with its name and comparable content.
 fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, Error> {
-    let yaml = |source| Error::Yaml {
-        path: path.to_owned(),
-        source,
-    };
     let (named, content) = match located.kind {
         ArtifactKind::Theme => theme_content(path, text)?,
         ArtifactKind::Workflow => {
-            let (name, head) = take_key(first_document(text).map_err(yaml)?, "name");
+            let (name, head) = take_key(first_document(path, text)?, "name");
             (
                 name,
                 Content {
@@ -400,7 +386,7 @@ fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, E
         _ => {
             // A file with no frontmatter block has an empty frontmatter.
             let (frontmatter, body) = reading::split_frontmatter(text).unwrap_or(("", text));
-            let (name, head) = take_key(first_document(frontmatter).map_err(yaml)?, "name");
+            let (name, head) = take_key(first_document(path, frontmatter)?, "name");
             let body = reading::collapse_whitespace(body);
             (name, Content { head, body })
         }
@@ -428,10 +414,7 @@ fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, E
 
 /// Reads the rules of the guard file at `path`; each is named by its `id`.
 fn guard_rules(path: &str, text: &str) -> Result<Vec<Artifact>, Error> {
-    let document = first_document(text).map_err(|source| Error::Yaml {
-        path: path.to_owned(),
-        source,
-    })?;
+    let document = first_document(path, text)?;
 
     document["rules"]
         .as_vec()
@@ -473,9 +456,10 @@ fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), Er
     ))
 }
 
-/// Parses the first YAML document of `text`; empty text is a null document.
-fn first_document(text: &str) -> Result<Yaml, ScanError> {
-    Ok(YamlLoader::load_from_str(text)?
+/// Parses the first YAML document of `text`, the content of `path`; empty text
+/// is a null document.
+fn first_document(path: &str, text: &str) -> Result<Yaml, Error> {
+    Ok(reading::parse_yaml(path, text)?
         .into_iter()
         .next()
         .unwrap_or(Yaml::Null))

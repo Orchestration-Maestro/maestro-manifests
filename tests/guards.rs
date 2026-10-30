@@ -1,8 +1,8 @@
 //! Checks that every rule in the guard files compiles and that its examples behave as listed.
 
-use yaml_rust2::{Yaml, YamlLoader};
+use yaml_rust2::Yaml;
 
-use crate::support::{Check, Failures, Report, files, owned, re, read};
+use crate::support::{Check, Failures, Report, files, owned, parse_yaml, re, read};
 
 /// The directory of the guard files, relative to the repository root.
 const GUARDS: &str = "manifests/core/guards";
@@ -40,8 +40,7 @@ fn load_rules() -> Result<Vec<Rule>, Report> {
 fn read_file(path: &str) -> Result<Vec<Rule>, Report> {
     let name = path.rsplit('/').next().unwrap_or(path);
     let text = read(path)?;
-    let documents = YamlLoader::load_from_str(&text)
-        .map_err(|error| Report::new(format!("{name}: {error}")))?;
+    let documents = parse_yaml(path, &text)?;
     let [document] = documents.as_slice() else {
         return Err(Report::new(format!("{name}: expected one YAML document")));
     };
@@ -207,8 +206,7 @@ fn a_rule_with_an_empty_example_list_fails_naming_the_list() {
 
 /// Parses one rule mapping the way `read_file` hands it to `read_rule`.
 fn parsed(text: &str) -> Result<Yaml, Report> {
-    let documents =
-        YamlLoader::load_from_str(text).map_err(|error| Report::new(error.to_string()))?;
+    let documents = parse_yaml("rule.yaml", text)?;
     documents
         .into_iter()
         .next()

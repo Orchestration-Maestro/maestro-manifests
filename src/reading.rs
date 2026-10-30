@@ -1,5 +1,5 @@
 //! Reading the files under a root: the one owner of listing a folder, reading
-//! a file, parsing JSON, splitting frontmatter and collapsing whitespace, for
+//! a file, parsing JSON and YAML, splitting frontmatter and collapsing whitespace, for
 //! the scorecard and for the checks in `tests`.
 
 use std::fmt;
@@ -8,6 +8,8 @@ use std::io;
 use std::path::Path;
 
 use serde_json::Value;
+use yaml_rust2::scanner::ScanError;
+use yaml_rust2::{Yaml, YamlLoader};
 
 /// Why a file or folder under a root could not be read.
 #[derive(Debug)]
@@ -26,6 +28,13 @@ pub enum Error {
         /// The parser's failure.
         source: serde_json::Error,
     },
+    /// A YAML file or frontmatter block is not valid YAML.
+    Yaml {
+        /// The path from the root.
+        path: String,
+        /// The scanner's failure.
+        source: ScanError,
+    },
 }
 
 impl fmt::Display for Error {
@@ -33,6 +42,7 @@ impl fmt::Display for Error {
         match self {
             Self::Read { path, .. } => write!(formatter, "cannot read {path}"),
             Self::Json { path, .. } => write!(formatter, "{path} is not valid JSON"),
+            Self::Yaml { path, .. } => write!(formatter, "{path} is not valid YAML"),
         }
     }
 }
@@ -42,6 +52,7 @@ impl std::error::Error for Error {
         match self {
             Self::Read { source, .. } => Some(source),
             Self::Json { source, .. } => Some(source),
+            Self::Yaml { source, .. } => Some(source),
         }
     }
 }
@@ -65,6 +76,19 @@ pub fn read(root: &str, path: &str) -> Result<String, Error> {
 /// Returns [`Error::Json`] when `text` is not valid JSON.
 pub fn parse_json(path: &str, text: &str) -> Result<Value, Error> {
     serde_json::from_str(text).map_err(|source| Error::Json {
+        path: path.to_owned(),
+        source,
+    })
+}
+
+/// Parses `text`, the content of the file `path`, as YAML, one value per
+/// document; empty text has no document.
+///
+/// # Errors
+///
+/// Returns [`Error::Yaml`] when `text` is not valid YAML.
+pub fn parse_yaml(path: &str, text: &str) -> Result<Vec<Yaml>, Error> {
+    YamlLoader::load_from_str(text).map_err(|source| Error::Yaml {
         path: path.to_owned(),
         source,
     })
