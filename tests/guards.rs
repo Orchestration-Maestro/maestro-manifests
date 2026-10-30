@@ -2,18 +2,10 @@
 
 use yaml_rust2::{Yaml, YamlLoader};
 
-use crate::support::{Report, files, owned, re, read};
+use crate::support::{Check, Failures, Report, files, owned, re, read};
 
 /// The directory of the guard files, relative to the repository root.
 const GUARDS: &str = "manifests/core/guards";
-
-/// The guard files the core area ships, in file-name order.
-const GUARD_FILES: [&str; 4] = [
-    "destructive-commands.yaml",
-    "pii.yaml",
-    "prompt-injection.yaml",
-    "protected-paths.yaml",
-];
 
 /// One rule of a guard file, as far as the example checks read it.
 struct Rule {
@@ -29,19 +21,14 @@ struct Rule {
     must_not_match: Vec<String>,
 }
 
-/// Shows a failed support check as one message.
-fn message(report: &Report) -> String {
-    format!("{report:?}").trim().to_owned()
-}
-
 /// Reads every rule of every guard file under `core/guards/` in the manifest root.
 ///
 /// # Errors
-/// Returns a message naming the file when it cannot be read or parsed, or when a member the
+/// Returns a report naming the file when it cannot be read or parsed, or when a member the
 /// example checks need is missing or has the wrong kind.
-fn load_rules() -> Result<Vec<Rule>, String> {
+fn load_rules() -> Result<Vec<Rule>, Report> {
     let mut rules = Vec::new();
-    for path in files(GUARDS, ".yaml").map_err(|report| message(&report))? {
+    for path in files(GUARDS, ".yaml")? {
         rules.extend(read_file(&path)?);
     }
     Ok(rules)
@@ -50,47 +37,53 @@ fn load_rules() -> Result<Vec<Rule>, String> {
 /// Reads the rules of the guard file at the repository-relative `path`, taking the members the
 /// example checks need from the untyped YAML value; the file's shape is checked by Maestro's
 /// schema, not here.
-fn read_file(path: &str) -> Result<Vec<Rule>, String> {
+fn read_file(path: &str) -> Result<Vec<Rule>, Report> {
     let name = path.rsplit('/').next().unwrap_or(path);
-    let text = read(path).map_err(|report| message(&report))?;
-    let documents = YamlLoader::load_from_str(&text).map_err(|error| format!("{name}: {error}"))?;
+    let text = read(path)?;
+    let documents = YamlLoader::load_from_str(&text)
+        .map_err(|error| Report::new(format!("{name}: {error}")))?;
     let [document] = documents.as_slice() else {
-        return Err(format!("{name}: expected one YAML document"));
+        return Err(Report::new(format!("{name}: expected one YAML document")));
     };
     let rules = document["rules"]
         .as_vec()
-        .ok_or_else(|| format!("{name}: rules is not a list"))?;
+        .ok_or_else(|| Report::new(format!("{name}: rules is not a list")))?;
     rules.iter().map(|rule| read_rule(name, rule)).collect()
 }
 
 /// Reads one rule's id, expression and example lists from its YAML mapping.
-fn read_rule(file: &str, rule: &Yaml) -> Result<Rule, String> {
-    let text = |value: &Yaml, member: &str| {
-        value
+fn read_rule(file: &str, rule: &Yaml) -> Result<Rule, Report> {
+    let id = rule["id"]
+        .as_str()
+        .ok_or_else(|| Report::new(format!("{file}: id is not a string")))?;
+    let text = |member: &str| {
+        rule[member]
             .as_str()
             .map(str::to_owned)
-            .ok_or_else(|| format!("{file}: {member} is not a string"))
+            .ok_or_else(|| Report::new(format!("{file}: rule {id}: {member} is not a string")))
     };
-    let id = text(&rule["id"], "id")?;
-    let examples = |member: &str| -> Result<Vec<String>, String> {
-        let list = rule["examples"][member]
-            .as_vec()
-            .ok_or_else(|| format!("{file}: rule {id}: examples.{member} is not a list"))?;
+    let examples = |member: &str| -> Result<Vec<String>, Report> {
+        let list = rule["examples"][member].as_vec().ok_or_else(|| {
+            Report::new(format!(
+                "{file}: rule {id}: examples.{member} is not a list"
+            ))
+        })?;
         list.iter()
             .map(|value| {
-                value
-                    .as_str()
-                    .map(str::to_owned)
-                    .ok_or_else(|| format!("{file}: rule {id}: examples.{member} is not a string"))
+                value.as_str().map(str::to_owned).ok_or_else(|| {
+                    Report::new(format!(
+                        "{file}: rule {id}: examples.{member} is not a string"
+                    ))
+                })
             })
             .collect()
     };
     Ok(Rule {
         file: file.to_owned(),
-        regex: text(&rule["regex"], "regex")?,
+        id: id.to_owned(),
+        regex: text("regex")?,
         must_match: examples("match")?,
         must_not_match: examples("noMatch")?,
-        id,
     })
 }
 
@@ -114,7 +107,7 @@ fn problems(rule: &Rule) -> Vec<String> {
         Err(report) => {
             found.push(format!(
                 "{file}: rule {id}: the expression does not compile: {}",
-                message(&report)
+                report.message()
             ));
             return found;
         }
@@ -213,63 +206,92 @@ fn a_rule_with_an_empty_example_list_fails_naming_the_list() {
 }
 
 /// Parses one rule mapping the way `read_file` hands it to `read_rule`.
-fn parsed(text: &str) -> Yaml {
-    YamlLoader::load_from_str(text)
-        .ok()
-        .and_then(|documents| documents.into_iter().next())
-        .unwrap_or(Yaml::Null)
+fn parsed(text: &str) -> Result<Yaml, Report> {
+    let documents =
+        YamlLoader::load_from_str(text).map_err(|error| Report::new(error.to_string()))?;
+    documents
+        .into_iter()
+        .next()
+        .ok_or_else(|| Report::new("the rule text holds no YAML document".to_owned()))
+}
+
+/// Returns the message `read_rule` gives for the rule `text`, or a report when it accepts it.
+fn rejection(text: &str) -> Result<String, Report> {
+    match read_rule("pii.yaml", &parsed(text)?) {
+        Err(report) => Ok(report.message().to_owned()),
+        Ok(rule) => Err(Report::new(format!("rule {} was accepted", rule.id))),
+    }
 }
 
 /// A non-string example is reported with its file, rule id and example list.
 #[test]
-fn a_non_string_example_names_its_file_rule_and_list() {
-    let rule = parsed("id: bad-example\nregex: a\nexamples:\n  match: [1]\n  noMatch: [b]\n");
-    let error = read_rule("pii.yaml", &rule).err().unwrap_or_default();
+fn a_non_string_example_names_its_file_rule_and_list() -> Check {
+    let error = rejection("id: bad-example\nregex: a\nexamples:\n  match: [1]\n  noMatch: [b]\n")?;
     assert_eq!(
         error,
         "pii.yaml: rule bad-example: examples.match is not a string"
     );
+    Ok(())
 }
 
 /// A missing example list is reported with its file, rule id and list name.
 #[test]
-fn a_missing_example_list_names_its_file_rule_and_list() {
-    let rule = parsed("id: no-list\nregex: a\nexamples:\n  match: [a]\n");
-    let error = read_rule("pii.yaml", &rule).err().unwrap_or_default();
+fn a_missing_example_list_names_its_file_rule_and_list() -> Check {
+    let error = rejection("id: no-list\nregex: a\nexamples:\n  match: [a]\n")?;
     assert_eq!(
         error,
         "pii.yaml: rule no-list: examples.noMatch is not a list"
     );
+    Ok(())
+}
+
+/// A non-string expression is reported with its file and rule id.
+#[test]
+fn a_non_string_regex_names_its_file_and_rule() -> Check {
+    let error = rejection("id: bad-regex\nregex: [a]\nexamples:\n  match: [a]\n  noMatch: [b]\n")?;
+    assert_eq!(error, "pii.yaml: rule bad-regex: regex is not a string");
+    Ok(())
+}
+
+/// Text that is not YAML is reported as a parse error, not as a missing member.
+#[test]
+fn rule_text_that_is_not_yaml_reports_the_parse_error() {
+    let report = parsed("id: [unclosed\n");
+    assert!(report.is_err(), "the broken text parsed");
 }
 
 /// A guard file that cannot be read is reported by name.
 #[test]
 fn a_missing_guard_file_is_reported_by_name() {
-    let error = read_file("manifests/core/guards/absent.yaml")
+    let report = read_file("manifests/core/guards/absent.yaml")
         .err()
+        .map(|report| report.message().to_owned())
         .unwrap_or_default();
     assert!(
-        error.starts_with("manifests/core/guards/absent.yaml: "),
-        "{error}"
+        report.starts_with("manifests/core/guards/absent.yaml: "),
+        "{report}"
     );
 }
 
-/// Every shipped guard file holds at least one rule.
+/// Every guard file under `core/guards/` holds at least one rule.
 #[test]
-fn each_guard_file_holds_at_least_one_rule() -> Result<(), String> {
+fn each_guard_file_holds_at_least_one_rule() -> Check {
     let rules = load_rules()?;
-    for file in GUARD_FILES {
-        assert!(
-            rules.iter().any(|rule| rule.file == file),
-            "{file} holds no rules"
+    let mut failures = Failures::default();
+    for path in files(GUARDS, ".yaml")? {
+        let name = path.rsplit('/').next().unwrap_or(&path);
+        failures.require(
+            rules.iter().any(|rule| rule.file == name),
+            name,
+            "holds no rules",
         );
     }
-    Ok(())
+    failures.finish()
 }
 
 /// Every example of every shipped rule behaves as its list says.
 #[test]
-fn every_example_of_every_guard_rule_behaves_as_listed() -> Result<(), String> {
+fn every_example_of_every_guard_rule_behaves_as_listed() -> Check {
     let rules = load_rules()?;
     assert!(!rules.is_empty(), "no guard rules were loaded");
     let found: Vec<String> = rules.iter().flat_map(problems).collect();

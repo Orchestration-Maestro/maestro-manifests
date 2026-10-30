@@ -172,7 +172,7 @@ permission-gate example: recursive `rm`, `sudo` and a mode ending in 777, such
 as 1777, 4777 or 0o777, with `chmod` or `chown`. The rules read the command
 text and do not parse the shell, so `echo "rm -rf x"` asks too. A `confirm` rule
 asks; it does not forbid. The recursive-removal rule also catches flag clusters
-such as `-fr` and `-R`, and flags that come before the recursive one.
+such as `-fr`, and flags that come before the recursive one.
 
 **Protected paths** start from the paths of Maestro's shipped protected-paths
 example: environment files, the Git folder and the installed-dependencies
@@ -183,8 +183,8 @@ and installed-dependencies rules match the same paths as the example, plus
 backslash separators: `.git/` and `node_modules/` anywhere in a path, including
 a bare `widget.git/` folder. Unlike the example, the Git rule also blocks a path
 that ends in `.git`. `.github/` and `.gitignore` pass. Path rules check the
-`path` argument of `write` and `edit` only; they do not see a path inside a `bash` command, which only the `command`
-rules read.
+`path` argument of `write` and `edit` only; they do not see a path inside a
+`bash` command, which only the `command` rules read.
 
 **Personal data** is redacted in tool output, assistant text and prompts. The
 rules cover Canadian social insurance numbers, payment card numbers, email
@@ -259,9 +259,9 @@ review attribution and not runtime permission.
 Guards run only in manifest mode, in every session that loads the manifest
 package. Select the release as [settings](settings.md#usage) describes. The four
 files then apply with no further setting, once Maestro's manifest package reads
-them ([maestro#2910](https://github.com/Orchestration-Maestro/maestro/issues/2910)). A refusal, confirmation or warning
-names the rule by its id and description, and a redaction leaves the marker
-`[<FAMILY>:<id>]` in the text. The core system prompt tells the agent to treat a
+them ([maestro#2910](https://github.com/Orchestration-Maestro/maestro/issues/2910)).
+A refusal, confirmation or warning names the rule by its id and description,
+and a redaction leaves the marker `[<FAMILY>:<id>]` in the text. The core system prompt tells the agent to treat a
 refusal as final and report it.
 
 ## Validation
@@ -270,14 +270,14 @@ refusal as final and report it.
 against `.editorconfig`. It also runs the guard tests in `tests/guards.rs`, which
 read each file in `manifests/core/guards/` and, for every rule, compile the
 expression with the `regex` crate Maestro uses and run its `match` and `noMatch`
-examples. A failure names the file, the rule id and the example. The tests read the
-YAML as an untyped value, so they do not check the file's shape; Maestro's schema
-does that.
+examples. A failure names the file, the rule id and the example. The tests
+read the YAML as an untyped value, so they do not check the file's shape;
+Maestro's schema does that.
 
 The contract has Maestro check the same things when it loads the manifest, and a
-failure makes the manifest invalid. The release load check, `maestro -p "/manifest status"` on the pull
-request's commit, covers this once Maestro's manifest package reads guard files
-([maestro#2910](https://github.com/Orchestration-Maestro/maestro/issues/2910)).
+failure makes the manifest invalid. The release load check,
+`maestro -p "/manifest status"` on the pull request's commit, covers this once
+Maestro's manifest package reads guard files ([maestro#2910](https://github.com/Orchestration-Maestro/maestro/issues/2910)).
 The schema check for guard files waits on
 [maestro#2812](https://github.com/Orchestration-Maestro/maestro/issues/2812).
 Until both ship, no check loads a guard file with Maestro itself. Report the load
