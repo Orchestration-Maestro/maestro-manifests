@@ -17,9 +17,10 @@ claim that runtime manifest loading is already a required check.
 
 ## Local checks
 
-Install [mise](https://mise.jdx.dev/), trust the checkout with `mise trust` and
+Install [mise](https://mise.jdx.dev/) and [rustup](https://rustup.rs/), trust the checkout with `mise trust` and
 run `mise exec -- just setup` once. Then run `mise exec -- just check`, which
-runs the content checks, the Rust gate and the tests, before proposing a change.
+runs the content checks, the Rust checks and the tests, before proposing a
+change.
 
 ## Example
 
@@ -33,7 +34,7 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the content checks, the Rust gate and the tests, as CI does.
+# Run the content checks, the Rust checks and the tests, as CI does.
 check: content rust test
 
 # Run the repository-owned content checks.
@@ -49,11 +50,9 @@ rust:
     cargo fmt --check
     cargo clippy --all-targets --locked -- -D warnings
 
-# Run the Rust tests, then the Python tests that exercise contributor commands in
-# disposable Git indexes.
+# Run the Rust tests, which exercise contributor commands in disposable Git indexes.
 test:
     cargo test --locked
-    python3 -m unittest discover -s tests
 ```
 
 `mise.toml` pins the tools; `mise.lock` records their download checksums.
@@ -73,10 +72,12 @@ changes for secrets; the commit-msg hooks check conventional headers and line
 lengths. Check failures stop the commit. If a check fixes a file, review and stage
 that fix before retrying.
 
-`just test` exercises these commands in disposable Git indexes: valid content
-passes, malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
+`just test` runs the Rust tests with `cargo test --locked`. Its `quality` tests
+exercise these commands in disposable Git indexes: valid content passes,
+malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
 untracked files. Those tests run `just content`, not `just check`, which would
-run the tests again, and they read `just check` only as a dry run. Tests do not change your index.
+run the tests again, and they read `just check` only as a dry run. Tests do not
+change your index.
 
 ## Required CI
 

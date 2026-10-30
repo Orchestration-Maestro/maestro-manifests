@@ -3,7 +3,7 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the content checks, the Rust gate and the tests, as CI does.
+# Run the content checks, the Rust checks and the tests, as CI does.
 check: content rust test
 
 # Run the repository-owned content checks.
@@ -19,8 +19,6 @@ rust:
     cargo fmt --check
     cargo clippy --all-targets --locked -- -D warnings
 
-# Run the Rust tests, then the Python tests that exercise contributor commands in
-# disposable Git indexes.
+# Run the Rust tests, which exercise contributor commands in disposable Git indexes.
 test:
     cargo test --locked
-    python3 -m unittest discover -s tests

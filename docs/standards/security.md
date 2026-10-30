@@ -90,7 +90,7 @@ manifest source can name a branch that moves.
 
 ### How it is applied here
 
-The test `tests/test_manifest_examples.py` fixes each chain's placeholders and
+The test `tests/manifest_examples.rs` fixes each chain's placeholders and
 each core role's tool list. Maestro applies the tool list whatever the task says,
 so a role reading hostile text still holds only its listed tools. A new role,
 instruction or workflow takes authority only from its own frontmatter and the

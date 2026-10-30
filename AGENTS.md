@@ -10,7 +10,9 @@ what is required and how it is checked.
 
 ## Setup
 
-Run `mise trust` and `mise exec -- just setup` once. It installs the tools pinned
+Install [rustup](https://rustup.rs/), which installs the Rust toolchain that
+`just check` needs and that `just setup` does not. Run `mise trust` and
+`mise exec -- just setup` once. It installs the tools pinned
 in `mise.toml` and the prek hooks for pre-commit, pre-merge-commit and
 commit-msg. Run later commands through `mise exec --` when mise is not active in
 your shell.
@@ -43,16 +45,16 @@ hooks are installed.
 - `just rust` runs `cargo fmt --check` and `cargo clippy --all-targets --locked
   -- -D warnings`. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
-- `just test` runs `cargo test --locked` and then
-  `python3 -m unittest discover -s tests`. The Python tests run the contributor
-  commands in disposable Git indexes, the manifest examples and the retired
-  generator check. Checked by: the required workflow runs it through
-  `just check`; report its result in the pull request.
+- `just test` runs `cargo test --locked`: the Rust checks of the guides, roles,
+  policy and manifest examples, and of the contributor commands in disposable Git
+  indexes. Checked by: the required workflow runs it through `just check`; report
+  its result in the pull request.
 - Report the checks you actually ran, with exit codes. Do not claim a schema or
   runtime check; this repository has none yet.
-- `.pre-commit-config.yaml` owns the checks. The Git hooks call `just pre-commit`,
-  which runs them on staged files through prek's `manual` stage to avoid calling
-  the Git hook again, and scan the staged change with `gitleaks`. Do not
+- `.pre-commit-config.yaml` owns the content checks. The `rust` recipe in the
+  `justfile` owns the Rust checks. The Git hooks call `just pre-commit`, which
+  runs the content checks on staged files through prek's `manual` stage to avoid
+  calling the Git hook again, and scan the staged change with `gitleaks`. Do not
   duplicate the checks in CI. Checked by: the required workflow calls only
   `just check`.
 
