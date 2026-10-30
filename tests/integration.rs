@@ -6,6 +6,7 @@ mod evidence_review;
 mod instructions;
 mod manifest_examples;
 mod manifest_root;
+mod one_owner;
 mod package_file;
 mod policy;
 mod policy_coverage;

@@ -1,9 +1,11 @@
 //! Helpers the check modules share: failure collection, file reading and text splitting.
 
+use std::collections::HashMap;
 use std::fmt;
 use std::path::Path;
 
 use regex::Regex;
+use serde_json::Value;
 
 /// The repository root, from which every checked path is relative.
 pub const ROOT: &str = env!("CARGO_MANIFEST_DIR");
@@ -261,6 +263,59 @@ pub fn exists(path: &str) -> bool {
     Path::new(ROOT).join(path).exists()
 }
 
+/// Returns the entries of the string array `key` in `value`.
+///
+/// A missing key, a value that is not an array and an entry that is not a string each fail the check.
+pub fn strings<'a>(value: &'a Value, key: &str) -> Result<Vec<&'a str>, Report> {
+    Ok(value
+        .get(key)
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .filter_map(Value::as_str)
+        .collect())
+}
+
+/// A core role file: its frontmatter fields and its prompt body.
+pub struct Role {
+    /// The `key: value` lines of the frontmatter.
+    fields: HashMap<String, String>,
+    /// The prompt after the frontmatter.
+    pub body: String,
+}
+
+impl Role {
+    /// Parses the role file `path` whose text is `text`.
+    pub fn parse(path: &str, text: &str) -> Result<Self, Report> {
+        let (frontmatter, body) = split_frontmatter(path, text)?;
+        let fields = frontmatter
+            .lines()
+            .filter_map(|line| line.split_once(": "))
+            .map(|(key, value)| (key.to_owned(), value.to_owned()))
+            .collect();
+        Ok(Self {
+            fields,
+            body: body.to_owned(),
+        })
+    }
+
+    /// Returns the frontmatter value for `key`.
+    pub fn field(&self, key: &str) -> Result<&str, Report> {
+        Ok(self.get(key).unwrap_or_default())
+    }
+
+    /// Returns the frontmatter value for `key`, or `None` when the role does not set it.
+    pub fn get(&self, key: &str) -> Option<&str> {
+        self.fields.get(key).map(String::as_str)
+    }
+}
+
+/// Reads the core role `name`.
+pub fn read_role(name: &str) -> Result<Role, Report> {
+    let path = format!("manifests/core/agents/{name}.md");
+    Role::parse(&path, &read(&path)?)
+}
+
 /// Counts the sentences in `text`: each `.`, `!` or `?` followed by whitespace or the end.
 pub fn sentence_count(text: &str) -> Result<usize, Report> {
     Ok(re(r"[.!?](?:\s|$)")?.find_iter(text).count())
@@ -283,4 +338,113 @@ pub fn captures(pattern: &str, text: &str) -> Result<Vec<String>, Report> {
         .captures_iter(text)
         .filter_map(|found| found.get(1).map(|group| group.as_str().to_owned()))
         .collect())
+}
+
+/// Returns whether `check` failed.
+fn refused<T>(check: Result<T, Report>) -> bool {
+    check.is_err()
+}
+
+/// A role file with a name and a model, for the role tests.
+const SCOUT: &str = "---\nname: scout\nmodel: claude-haiku-5-5\n---\nFind it.\n";
+
+/// The string entries of an array come back in order.
+#[test]
+fn strings_returns_the_entries_of_an_array() -> Check {
+    let mut failures = Failures::default();
+    let value = serde_json::json!({"locked": ["a", "b"]});
+
+    failures.require_eq("locked", &strings(&value, "locked")?, &vec!["a", "b"]);
+
+    failures.finish()
+}
+
+/// An entry that is not a string fails the check, as the set and equality checks failed it.
+#[test]
+fn strings_refuses_a_non_string_entry() -> Check {
+    let mut failures = Failures::default();
+    let value = serde_json::json!({"locked": ["a", 5]});
+
+    failures.require(refused(strings(&value, "locked")), "locked", "accepts 5");
+
+    failures.finish()
+}
+
+/// A key the object lacks fails the check instead of reading as an empty array.
+#[test]
+fn strings_refuses_a_missing_key() -> Check {
+    let mut failures = Failures::default();
+    let value = serde_json::json!({"models": []});
+
+    failures.require(refused(strings(&value, "locked")), "locked", "is accepted");
+
+    failures.finish()
+}
+
+/// A value that is not an array fails the check.
+#[test]
+fn strings_refuses_a_value_that_is_not_an_array() -> Check {
+    let mut failures = Failures::default();
+    let value = serde_json::json!({"locked": "a"});
+
+    failures.require(
+        refused(strings(&value, "locked")),
+        "locked",
+        "accepts \"a\"",
+    );
+
+    failures.finish()
+}
+
+/// A role gives back the frontmatter value of a field it sets.
+#[test]
+fn role_field_returns_the_frontmatter_value() -> Check {
+    let mut failures = Failures::default();
+    let role = Role::parse("scout.md", SCOUT)?;
+
+    failures.require_eq("name", &role.field("name")?, &"scout");
+    failures.require_eq("model", &role.get("model"), &Some("claude-haiku-5-5"));
+
+    failures.finish()
+}
+
+/// A field the role lacks fails the check, as the missing key failed the Python test.
+#[test]
+fn role_without_a_field_is_refused() -> Check {
+    let mut failures = Failures::default();
+    let role = Role::parse("scout.md", SCOUT)?;
+
+    failures.require(
+        refused(role.field("description")),
+        "description",
+        "reads as empty",
+    );
+    failures.require_eq("description", &role.get("description"), &None);
+
+    failures.finish()
+}
+
+/// A frontmatter line without `: ` fails the check instead of being skipped.
+#[test]
+fn role_frontmatter_line_without_a_separator_is_refused() -> Check {
+    let mut failures = Failures::default();
+    let text = "---\nname: scout\ndescription\n---\nFind it.\n";
+
+    failures.require(
+        refused(Role::parse("scout.md", text)),
+        "scout.md",
+        "skips the line",
+    );
+
+    failures.finish()
+}
+
+/// The role reader finds a core role file by name.
+#[test]
+fn read_role_reads_a_core_role_file() -> Check {
+    let mut failures = Failures::default();
+
+    failures.require_eq("scout", &read_role("scout")?.field("name")?, &"scout");
+
+    failures.finish()
 }

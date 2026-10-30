@@ -347,7 +347,7 @@ const FORGE_ROLES: [(&str, &str); 6] = [
 ];
 
 /// Resolves each color of `theme` through its `vars`, keyed by token.
-fn resolved_colors(theme: &Value) -> BTreeMap<String, String> {
+fn resolved_colors(theme: &Value) -> BTreeMap<String, Value> {
     let vars = theme.get("vars");
     let colors = theme.get("colors").and_then(Value::as_object);
     colors
@@ -359,7 +359,7 @@ fn resolved_colors(theme: &Value) -> BTreeMap<String, String> {
                 .and_then(|vars| vars.get(named))
                 .and_then(Value::as_str)
                 .unwrap_or(named);
-            (token.clone(), color.to_owned())
+            (token.clone(), json!(color))
         })
         .collect()
 }
@@ -370,12 +370,12 @@ fn review_dark_uses_forge_roles_for_all_tokens() -> Check {
     let mut failures = Failures::default();
     let path = format!("{CAPABILITY}/themes/review-dark.json");
     let theme = json(&path)?;
-    let expected: BTreeMap<String, String> = FORGE_ROLES
+    let expected: BTreeMap<String, Value> = FORGE_ROLES
         .iter()
         .flat_map(|(color, tokens)| {
             tokens
                 .split_whitespace()
-                .map(move |token| (token.to_owned(), (*color).to_owned()))
+                .map(move |token| (token.to_owned(), json!(color)))
         })
         .collect();
 
@@ -383,6 +383,43 @@ fn review_dark_uses_forge_roles_for_all_tokens() -> Check {
     failures.require_eq(&path, &resolved_colors(&theme), &expected);
     failures.require_eq(&path, &theme.get("name"), &Some(&json!("review-dark")));
     failures.quoted(&path, "docs/themes.md", "json", &read(&path)?)?;
+
+    failures.finish()
+}
+
+/// Keeps an indexed color as the number the theme holds, so it never equals the empty color.
+#[test]
+fn an_indexed_color_is_not_resolved_to_an_empty_one() -> Check {
+    let mut failures = Failures::default();
+    let theme = json!({"colors": {"text": 0}});
+
+    failures.require_eq(
+        "text",
+        &resolved_colors(&theme).get("text"),
+        &Some(&json!(0)),
+    );
+
+    failures.finish()
+}
+
+/// Resolves a color named in `vars` to the value `vars` holds, and keeps any other as written.
+#[test]
+fn colors_resolve_through_vars() -> Check {
+    let mut failures = Failures::default();
+    let theme = json!({
+        "vars": {"gold": "#D9A066"},
+        "colors": {"accent": "gold", "text": "", "border": "#5E7383"},
+    });
+
+    failures.require_eq(
+        "colors",
+        &resolved_colors(&theme),
+        &BTreeMap::from([
+            ("accent".to_owned(), json!("#D9A066")),
+            ("text".to_owned(), json!("")),
+            ("border".to_owned(), json!("#5E7383")),
+        ]),
+    );
 
     failures.finish()
 }
