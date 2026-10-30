@@ -7,4 +7,6 @@ mod instructions;
 mod manifest_examples;
 mod manifest_root;
 mod package_file;
+mod policy;
+mod policy_coverage;
 mod support;
