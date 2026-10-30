@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-name",
+      "artifactKind": "guard-rule",
+      "name": "sudo",
+      "artifacts": [
+        "manifests/core/guards/first.yaml#sudo",
+        "manifests/core/guards/second.yaml#sudo"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+apiVersion: maestro.guards/v1
+rules:
+  - id: sudo
+    description: Elevated commands
+    regex: '\bdoas\b'
+    action: block
+    appliesTo: [command]
+    examples:
+      match: ['doas ls']
+      noMatch: ['adoas']

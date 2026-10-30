@@ -2,7 +2,7 @@
 //! releases in `tests/scorecard_cases` and over this repository's own release.
 
 use maestro_manifests_tests::scorecard::report;
-use serde_json::Value;
+use serde_json::{Value, json};
 use std::fs;
 
 /// The folder holding one mini release and its `expected.json` per case.
@@ -18,7 +18,7 @@ fn every_case_reports_the_conflicts_its_expected_file_names() {
         let expected =
             fs::read_to_string(format!("{case}/expected.json")).expect("expected.json reads");
         let expected: Value = serde_json::from_str(&expected).expect("expected.json parses");
-        let actual = report(case).expect("a case release reads");
+        let actual = report(case).unwrap_or_else(|error| json!({ "error": error.to_string() }));
         if actual != expected {
             mismatches.push(format!(
                 "{case}\n  expected {expected}\n  actual   {actual}"
@@ -27,6 +27,13 @@ fn every_case_reports_the_conflicts_its_expected_file_names() {
     }
 
     assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+}
+
+#[test]
+fn a_root_with_no_manifests_folder_cannot_be_read() {
+    let error = report(&format!("{CASES}/no-such-case")).expect_err("the root has no release");
+
+    assert_eq!(error.to_string(), "cannot read manifests");
 }
 
 #[test]
