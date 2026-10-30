@@ -18,31 +18,31 @@ struct Contract {
 
 /// Records every way the role file for `contract` departs from it.
 fn check_role(failures: &mut Failures, contract: &Contract) -> Check {
-    let path = format!("manifests/core/agents/{}.md", contract.role);
     let role = read_role(contract.role)?;
+    let path = role.path();
     let body = role.body.as_str();
 
-    failures.require_eq(&path, &role.get("name"), &Some(contract.role));
-    failures.require_eq(&path, &role.get("model"), &Some(contract.model));
-    failures.require_eq(&path, &role.get("tools"), &contract.tools);
+    failures.require_eq(path, &role.get("name"), &Some(contract.role));
+    failures.require_eq(path, &role.get("model"), &Some(contract.model));
+    failures.require_eq(path, &role.get("tools"), &contract.tools);
     failures.require_eq(
-        &path,
-        &Sections::split(body, "##")?.titles(),
-        &contract.headings.to_vec(),
+        path,
+        Sections::split(body, "##")?.titles().as_slice(),
+        contract.headings,
     );
     failures.require(
         !body.contains(contract.former_intro),
-        &path,
+        path,
         "keeps its former intro",
     );
     failures.require(
         !body.contains("path/to/file.ts"),
-        &path,
+        path,
         "keeps the old file example",
     );
     failures.require(
         !body.contains("```typescript"),
-        &path,
+        path,
         "keeps a typescript block",
     );
     Ok(())

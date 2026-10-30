@@ -315,6 +315,11 @@ impl Role {
         })
     }
 
+    /// Returns the repository-relative path of the role file.
+    pub fn path(&self) -> &str {
+        &self.path
+    }
+
     /// Returns the frontmatter value for `key`; a field the role lacks fails the check.
     pub fn field(&self, key: &str) -> Result<&str, Report> {
         self.get(key)

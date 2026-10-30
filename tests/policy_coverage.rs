@@ -71,10 +71,11 @@ fn every_model_a_core_role_declares_is_allowed() -> Check {
     let models = strings(&baseline.policy, "models")?;
 
     for name in core_roles()? {
-        if let Some(model) = read_role(&name)?.get("model") {
+        let role = read_role(&name)?;
+        if let Some(model) = role.get("model") {
             failures.require(
                 models.contains(&model),
-                &format!("manifests/core/agents/{name}.md"),
+                role.path(),
                 &format!("declares {model}, which the policy does not allow"),
             );
         }
