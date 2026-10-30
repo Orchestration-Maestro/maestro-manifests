@@ -2,6 +2,8 @@
 
 mod author_docs;
 mod core_roles;
+mod evidence_review;
 mod instructions;
+mod manifest_examples;
 mod package_file;
 mod support;

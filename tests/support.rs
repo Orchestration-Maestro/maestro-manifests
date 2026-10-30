@@ -8,6 +8,10 @@ use regex::Regex;
 /// The repository root, from which every checked path is relative.
 const ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
+/// The words Maestro's voice avoids, as a regex alternation.
+pub const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robust|seamless|magic|\
+                                 blazing|revolutionary|supercharge|please note";
+
 /// A failed check: one line per problem, each naming the file it concerns.
 pub struct Report(String);
 
@@ -51,6 +55,11 @@ impl Failures {
         self.require(text.contains(needle), subject, &format!("no `{needle}`"));
     }
 
+    /// Records the subject when `text` contains `needle`.
+    pub fn lacks(&mut self, subject: &str, text: &str, needle: &str) {
+        self.require(!text.contains(needle), subject, &format!("has `{needle}`"));
+    }
+
     /// Records the subject when no part of `text` matches `pattern`.
     pub fn matches(&mut self, subject: &str, text: &str, pattern: &str) -> Check {
         self.require(
@@ -66,6 +75,14 @@ impl Failures {
         if let Some(found) = re(pattern)?.find(text) {
             self.0.push(format!("{subject}: has `{}`", found.as_str()));
         }
+        Ok(())
+    }
+
+    /// Records the subject when `guide` does not quote `text` in a fenced block of language `fence`.
+    pub fn quoted(&mut self, subject: &str, guide: &str, fence: &str, text: &str) -> Check {
+        let block = format!("```{fence}\n{text}```");
+        let problem = format!("{guide} does not quote it in a `{fence}` block");
+        self.require(read(guide)?.contains(&block), subject, &problem);
         Ok(())
     }
 
@@ -88,6 +105,26 @@ pub fn re(pattern: &str) -> Result<Regex, Report> {
 pub fn read(path: &str) -> Result<String, Report> {
     std::fs::read_to_string(Path::new(ROOT).join(path))
         .map_err(|error| Report(format!("{path}: {error}")))
+}
+
+/// Reads and parses the JSON file at the repository-relative `path`.
+pub fn json(path: &str) -> Result<serde_json::Value, Report> {
+    serde_json::from_str(&read(path)?).map_err(|error| Report(format!("{path}: {error}")))
+}
+
+/// Copies string literals into owned strings, for comparison with captured text.
+pub fn owned(items: &[&str]) -> Vec<String> {
+    items.iter().map(|item| (*item).to_owned()).collect()
+}
+
+/// Returns the `agent` of each step of a workflow file's chain.
+pub fn agents(workflow: &str) -> Result<Vec<String>, Report> {
+    captures(r"(?m)^  - agent: (.+)$", workflow)
+}
+
+/// Returns the `task` of each step of a workflow file's chain.
+pub fn tasks(workflow: &str) -> Result<Vec<String>, Report> {
+    captures(r"(?m)^    task: (.+)$", workflow)
 }
 
 /// Lists the repository-relative paths Git tracks.

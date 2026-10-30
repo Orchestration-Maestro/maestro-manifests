@@ -2,7 +2,9 @@
 
 use std::collections::{BTreeSet, HashMap};
 
-use crate::support::{Check, Failures, Report, captures, files, re, read, split_frontmatter};
+use crate::support::{
+    AVOIDED_WORDS, Check, Failures, Report, captures, files, re, read, split_frontmatter,
+};
 
 /// The core role files, by name.
 const ROLES: [&str; 5] = ["maestro", "scout", "planner", "reviewer", "worker"];
@@ -10,10 +12,6 @@ const ROLES: [&str; 5] = ["maestro", "scout", "planner", "reviewer", "worker"];
 const CURRENT_MODELS: [&str; 3] = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"];
 /// The tools that run commands or change files.
 const SHELL_AND_WRITE_TOOLS: [&str; 3] = ["bash", "edit", "write"];
-/// The words Maestro's voice avoids, as a regex alternation.
-const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robust|seamless|magic|\
-                             blazing|revolutionary|supercharge|please note";
-
 /// A core role file: its frontmatter fields and its prompt body.
 struct Role {
     /// The `key: value` lines of the frontmatter.
