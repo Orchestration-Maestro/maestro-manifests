@@ -6,7 +6,7 @@ use std::path::Path;
 use regex::Regex;
 
 /// The repository root, from which every checked path is relative.
-const ROOT: &str = env!("CARGO_MANIFEST_DIR");
+pub const ROOT: &str = env!("CARGO_MANIFEST_DIR");
 
 /// The words Maestro's voice avoids, as a regex alternation.
 pub const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robust|seamless|magic|\

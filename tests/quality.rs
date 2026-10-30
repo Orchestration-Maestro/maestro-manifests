@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::support::{Check, Failures, Report, Run, run_in, tracked_files};
+use crate::support::{Check, Failures, ROOT, Report, Run, run_in, tracked_files};
 
 /// Numbers the checkouts of one test run, so no two share a directory.
 static CHECKOUTS: AtomicUsize = AtomicUsize::new(0);
@@ -30,10 +30,7 @@ impl Checkout {
             let copied = target
                 .parent()
                 .map_or(Ok(()), std::fs::create_dir_all)
-                .and_then(|()| {
-                    std::fs::copy(Path::new(env!("CARGO_MANIFEST_DIR")).join(&name), &target)
-                        .map(drop)
-                });
+                .and_then(|()| std::fs::copy(Path::new(ROOT).join(&name), &target).map(drop));
             copied.map_err(|error| Report::new(format!("{name}: {error}")))?;
         }
         checkout.run("git", &["init", "-q"])?;
