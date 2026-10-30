@@ -19,8 +19,6 @@ rust:
     cargo fmt --check
     cargo clippy --all-targets --locked -- -D warnings
 
-# Run the Rust tests, then the Python tests that exercise contributor commands in
-# disposable Git indexes.
+# Run the Rust tests, which exercise contributor commands in disposable Git indexes.
 test:
     cargo test --locked
-    python3 -m unittest discover -s tests

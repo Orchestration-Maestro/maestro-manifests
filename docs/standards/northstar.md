@@ -81,11 +81,11 @@ teach contributors from the same files, so a stale quotation misleads them.
 
 ### How it is applied here
 
-`just test` runs the tests under `tests/`. The test `tests/test_manifest_examples.py`
-fixes the contracts of the core roles, the chains and the review theme, and checks
-that each guide quotes its source file. The test `tests/test_quality.py` runs the
-contributor commands in disposable Git indexes, and `tests/test_standards_pages.py`
-keeps the standards pages explanatory and accurate. A behaviour change starts
+`just test` runs the Rust tests under `tests/`. The tests `tests/manifest_examples.rs`
+and `tests/evidence_review.rs` fix the contracts of the core roles, the chains and
+the review theme, and check that each guide quotes its source file. The test
+`tests/quality.rs` runs the contributor commands in disposable Git indexes, and
+`tests/standards_pages.rs` keeps the standards pages explanatory and accurate. A behaviour change starts
 with a test seen failing. `just check` runs `just test`, so a pull request that
 breaks a test fails `Required content checks` and cannot merge.
 

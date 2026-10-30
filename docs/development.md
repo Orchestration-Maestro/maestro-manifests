@@ -49,11 +49,9 @@ rust:
     cargo fmt --check
     cargo clippy --all-targets --locked -- -D warnings
 
-# Run the Rust tests, then the Python tests that exercise contributor commands in
-# disposable Git indexes.
+# Run the Rust tests, which exercise contributor commands in disposable Git indexes.
 test:
     cargo test --locked
-    python3 -m unittest discover -s tests
 ```
 
 `mise.toml` pins the tools; `mise.lock` records their download checksums.
@@ -73,10 +71,12 @@ changes for secrets; the commit-msg hooks check conventional headers and line
 lengths. Check failures stop the commit. If a check fixes a file, review and stage
 that fix before retrying.
 
-`just test` exercises these commands in disposable Git indexes: valid content
-passes, malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
+`just test` runs the Rust tests with `cargo test --locked`. Its `quality` tests
+exercise these commands in disposable Git indexes: valid content passes,
+malformed YAML, JSON and TOML fail, and the staged hook ignores unrelated
 untracked files. Those tests run `just content`, not `just check`, which would
-run the tests again, and they read `just check` only as a dry run. Tests do not change your index.
+run the tests again, and they read `just check` only as a dry run. Tests do not
+change your index.
 
 ## Required CI
 

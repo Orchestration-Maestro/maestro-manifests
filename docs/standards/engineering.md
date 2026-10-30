@@ -43,9 +43,9 @@ unsupported here and the page says that too.
   `hygiene-central` ruleset requires that job.
 - **Rust gate.** `just rust` runs `cargo fmt --check` and Clippy with warnings
   denied. A pull request with an unformatted file or a warning fails the required job.
-- **Tests.** `just test` runs the Rust test crate with `cargo test --locked`, then
-  the standard-library tests under `tests/`. Because `just check` runs them, a
-  pull request that breaks one fails the required job.
+- **Tests.** `just test` runs the Rust test crate with `cargo test --locked`.
+  Because `just check` runs it, a pull request that breaks a test fails the
+  required job.
 - **Commit hooks.** `just setup` installs them. At commit, the hook
   `workspace-check` runs `just pre-commit` on the staged files and the hook
   `gitleaks` scans them for secrets. The hooks `conventional-commit-header` and
@@ -118,7 +118,7 @@ and settings stay in their own artifact kinds (`README.md`, Layout).
 
 The hook `typos` checks spelling against `typos.toml`, and the reviewer checks
 that a term matches its `CONTEXT.md` entry and keeps one spelling. A setting
-that can repeat is a list, and `tests/test_manifest_examples.py` fixes the
+that can repeat is a list, and `tests/policy.rs` fixes the
 shipped `manifestAreas` as an empty list. A change made for speed cites the
 measured job time, with the Speed KPI on the [Northstar page](northstar.md) as
 the baseline. These practices are reviews, except the spelling hook and the test
@@ -142,8 +142,9 @@ them before anyone knows what they share.
 
 ### How it is applied here
 
-The test `tests/test_manifest_examples.py` fails when a guide's quoted workflow
-or theme differs from the file it quotes, so the copy in the guide cannot drift.
+The tests `tests/manifest_examples.rs` and `tests/evidence_review.rs` fail when a
+guide's quoted workflow or theme differs from the file it quotes, so the copy in
+the guide cannot drift.
 For everything else the reviewer decides. A second copy of a role, chain or
 passage is allowed, and a shared abstraction built from two cases is refused.
 On the third copy, the reviewer asks for one source and links from the others,
@@ -193,15 +194,15 @@ developer's agent at startup, not by one contributor in review.
 
 The hooks `check-yaml`, `check-json` and `check-toml` refuse a malformed
 structured file at commit and in `Required content checks`. The test
-`tests/test_quality.py` stages a broken file of each kind in a disposable index
-and requires the failing run to name the hook. The test
-`tests/test_manifest_examples.py` fixes each core role's tools and section
-headings, each chain's `$@` and `{previous}` handoffs and the 51 tokens of the
+`tests/quality.rs` stages a broken file of each kind in a disposable index
+and requires the failing run to name the hook. The tests
+`tests/manifest_examples.rs` and `tests/evidence_review.rs` fix each core role's
+tools and section headings, each chain's `$@` and `{previous}` handoffs and the 51 tokens of the
 review theme. No schema check exists yet (`docs/schemas-and-checks.md`), so the
 Format table in each guide holds the rest by review.
 
 Tests and scripts added here parse a file into a value before they assert on it,
-as `tests/test_manifest_examples.py` does with `json.loads` and anchored
+as `tests/evidence_review.rs` does with `serde_json` and anchored
 patterns, and the reviewer opens a thread on a check that string-matches a raw
 file. Maestro parses the release when it loads it; no required job loads it yet.
 
@@ -227,8 +228,8 @@ The release workflow sets `permissions: contents: read` and mints a token for
 `contents`, `issues` and `pull-requests` only
 (`.github/workflows/release-please.yml`). The required job reads the repository
 with no secret, and the organization allows only selected actions to run. The
-test `tests/test_manifest_examples.py` fixes the tool list of each core role and
-of the evidence reviewer, and Maestro applies the `tools:` list whatever the
+tests `tests/manifest_examples.rs` and `tests/evidence_review.rs` fix the tool list
+of each core role and of the evidence reviewer, and Maestro applies the `tools:` list whatever the
 prompt says. `AGENTS.md` and instruction files grant nothing: authority comes
 from the rulesets, the `permissions:` block and the `tools:` lists.
 
@@ -326,8 +327,9 @@ accounts that can merge a release are the last link in that chain.
 checksum and provenance. Action references in
 `.github/workflows/release-please.yml` use full commit SHAs, which the
 organization's Actions policy requires, and `.github/dependabot.yml` proposes
-updates weekly after a seven-day cooldown. No dependency needs a lockfile:
-`manifests/package.json` lists none and the tests use only the Python standard library.
+updates weekly after a seven-day cooldown. The content needs no lockfile:
+`manifests/package.json` lists no dependency. The test crate pins its crates
+exactly in `Cargo.toml` and records them in `Cargo.lock`.
 
 The hook `gitleaks` scans each staged change at commit. It is a local hook and no
 CI job runs it. On the platform, secret scanning with push protection and
@@ -384,7 +386,7 @@ record of a pass: it tells the owner where to spend the next change.
 
 This page and the [security standards](security.md) are the map. Each family
 explains how its rules are held, and the gaps are stated where they occur. The
-test `tests/test_standards_pages.py` fails when a family loses its explanation of
+test `tests/standards_pages.rs` fails when a family loses its explanation of
 what, why or how, when a golden rule is no longer named, when a table appears or
 when a page names a file, recipe or hook this repository lacks. A maintainer
 maps a rule added upstream when moving the revision linked above.
