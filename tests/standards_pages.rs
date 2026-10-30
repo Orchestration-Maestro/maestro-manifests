@@ -1,6 +1,6 @@
 //! Checks that the standards pages explain each principle family and map nothing in tables.
 
-use crate::support::{Check, Failures, Report, captures, exists, pairs, re, read};
+use crate::support::{Check, Failures, Report, Sections, captures, exists, pairs, re, read};
 
 /// The topics every principle family explains.
 const TOPICS: [&str; 3] = [
@@ -97,47 +97,6 @@ const FAMILIES: [Page; 3] = [
         ],
     ),
 ];
-
-/// A page split at its headings: each heading with the text up to the next one.
-struct Sections(Vec<(String, String)>);
-
-impl Sections {
-    /// Splits `text` at each line that opens with `marker` and a space.
-    fn split(text: &str, marker: &str) -> Result<Self, Report> {
-        let headings = re(&format!(r"(?m)^{marker} (.+)\n"))?;
-        let found: Vec<_> = headings.captures_iter(text).collect();
-        let mut parts = Vec::new();
-        for (index, heading) in found.iter().enumerate() {
-            let (Some(whole), Some(title)) = (heading.get(0), heading.get(1)) else {
-                continue;
-            };
-            let end = found
-                .get(index + 1)
-                .and_then(|next| next.get(0))
-                .map_or(text.len(), |next| next.start());
-            parts.push((title.as_str().to_owned(), text[whole.end()..end].to_owned()));
-        }
-        Ok(Self(parts))
-    }
-
-    /// Returns the text under `title`, if the page has that heading.
-    fn get(&self, title: &str) -> Option<&str> {
-        self.0
-            .iter()
-            .find(|(name, _)| name == title)
-            .map(|(_, body)| body.as_str())
-    }
-
-    /// Returns the text under `title`, or an empty string when the heading is missing.
-    fn text(&self, title: &str) -> &str {
-        self.get(title).unwrap_or_default()
-    }
-
-    /// Returns every heading in order.
-    fn titles(&self) -> Vec<&str> {
-        self.0.iter().map(|(title, _)| title.as_str()).collect()
-    }
-}
 
 /// Returns the text of the standards page `name`.
 fn page(name: &str) -> Result<String, Report> {

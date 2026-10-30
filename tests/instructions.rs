@@ -2,12 +2,7 @@
 
 use regex::Regex;
 
-use crate::support::{Check, Failures, Report, captures, re, read, tracked_files};
-
-/// Returns the text after `marker` up to the next `## ` heading, if `marker` occurs.
-fn section_after<'a>(text: &'a str, marker: &str) -> Option<&'a str> {
-    text.split_once(marker)?.1.split("\n## ").next()
-}
+use crate::support::{Check, Failures, Report, Sections, captures, re, read, tracked_files};
 
 /// Expands the first `{a,b}` group the way `EditorConfig` reads it, recursively.
 fn expand_braces(pattern: &str) -> Result<Vec<String>, Report> {
@@ -49,7 +44,7 @@ fn setup_is_not_detected_by_the_required_workflow() -> Check {
     let mut failures = Failures::default();
     let text = read("AGENTS.md")?;
 
-    match section_after(&text, "## Setup") {
+    match Sections::split(&text, "##")?.get("Setup") {
         Some(setup) => failures.avoids("AGENTS.md", setup, r"(?i)required\s+workflow")?,
         None => failures.require(false, "AGENTS.md", "no `## Setup` section"),
     }
@@ -64,7 +59,7 @@ fn secret_scan_is_not_attributed_to_ci() -> Check {
     let path = "docs/standards/engineering.md";
     let text = read(path)?;
 
-    match section_after(&text, "\n## Pin inputs and keep secrets out\n") {
+    match Sections::split(&text, "##")?.get("Pin inputs and keep secrets out") {
         Some(section) => {
             failures.contains(
                 path,

@@ -24,7 +24,7 @@ fn only_in(owner: &str, pattern: &str) -> Check {
 /// Cuts the text under a heading in one place.
 #[test]
 fn headings_are_split_only_in_support() -> Check {
-    only_in(SUPPORT, r#"split(?:_once)?\("[^"]*## |\\n## "#)
+    only_in(SUPPORT, r#"split(?:_once)?\("[^"]*## "#)
 }
 
 /// Reads a core role's frontmatter in one place.

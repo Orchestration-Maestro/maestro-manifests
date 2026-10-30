@@ -1,7 +1,7 @@
 //! Checks that the baseline policy covers the core release content and that its guide lists it.
 
 use crate::policy::Baseline;
-use crate::support::{Check, Failures, Report, exists, files, read, read_role, strings};
+use crate::support::{Check, Failures, Report, Sections, exists, files, read, read_role, strings};
 
 /// Returns the core role stems, from the role files.
 fn core_roles() -> Result<Vec<String>, Report> {
@@ -89,10 +89,7 @@ fn policy_guide_lists_the_baseline() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
     let guide = read("docs/policy.md")?;
-    let baseline_section = guide
-        .split("## The baseline")
-        .nth(1)
-        .and_then(|rest| rest.split("\n## ").next());
+    let sections = Sections::split(&guide, "##")?;
     let bounds = baseline.bounds();
     let roles = baseline.roles();
     let mut listed = strings(&baseline.policy, "locked")?;
@@ -114,7 +111,7 @@ fn policy_guide_lists_the_baseline() -> Check {
         &read("manifests/settings/settings.json")?,
     )?;
     failures.require(!listed.is_empty(), "policy.json", "names nothing");
-    match baseline_section {
+    match sections.get("The baseline") {
         Some(section) => {
             for name in listed {
                 failures.contains("docs/policy.md baseline", section, &format!("`{name}`"));

@@ -328,6 +328,47 @@ pub fn read_role(name: &str) -> Result<Role, Report> {
     Role::parse(&path, &read(&path)?)
 }
 
+/// A page split at its headings: each heading with the text up to the next one.
+pub struct Sections(Vec<(String, String)>);
+
+impl Sections {
+    /// Splits `text` at each line that opens with `marker` and a space.
+    pub fn split(text: &str, marker: &str) -> Result<Self, Report> {
+        let headings = re(&format!(r"(?m)^{marker} (.+)\n"))?;
+        let found: Vec<_> = headings.captures_iter(text).collect();
+        let mut parts = Vec::new();
+        for (index, heading) in found.iter().enumerate() {
+            let (Some(whole), Some(title)) = (heading.get(0), heading.get(1)) else {
+                continue;
+            };
+            let end = found
+                .get(index + 1)
+                .and_then(|next| next.get(0))
+                .map_or(text.len(), |next| next.start());
+            parts.push((title.as_str().to_owned(), text[whole.end()..end].to_owned()));
+        }
+        Ok(Self(parts))
+    }
+
+    /// Returns the text under `title`, if the page has that heading.
+    pub fn get(&self, title: &str) -> Option<&str> {
+        self.0
+            .iter()
+            .find(|(name, _)| name == title)
+            .map(|(_, body)| body.as_str())
+    }
+
+    /// Returns the text under `title`, or an empty string when the heading is missing.
+    pub fn text(&self, title: &str) -> &str {
+        self.get(title).unwrap_or_default()
+    }
+
+    /// Returns every heading in order.
+    pub fn titles(&self) -> Vec<&str> {
+        self.0.iter().map(|(title, _)| title.as_str()).collect()
+    }
+}
+
 /// Counts the sentences in `text`: each `.`, `!` or `?` followed by whitespace or the end.
 pub fn sentence_count(text: &str) -> Result<usize, Report> {
     Ok(re(r"[.!?](?:\s|$)")?.find_iter(text).count())
@@ -457,6 +498,22 @@ fn read_role_reads_a_core_role_file() -> Check {
     let mut failures = Failures::default();
 
     failures.require_eq("scout", &read_role("scout")?.field("name")?, &"scout");
+
+    failures.finish()
+}
+
+/// A heading owns the text up to the next heading of the same level, subheadings included.
+#[test]
+fn sections_run_from_a_heading_to_the_next_of_its_level() -> Check {
+    let mut failures = Failures::default();
+    let page = "# Title\n\n## A\none\n### Inner\ntwo\n## B\nthree\n";
+    let sections = Sections::split(page, "##")?;
+
+    failures.require_eq("titles", &sections.titles(), &vec!["A", "B"]);
+    failures.require_eq("A", &sections.get("A"), &Some("one\n### Inner\ntwo\n"));
+    failures.require_eq("B", &sections.get("B"), &Some("three\n"));
+    failures.require_eq("C", &sections.get("C"), &None);
+    failures.require_eq("C text", &sections.text("C"), &"");
 
     failures.finish()
 }

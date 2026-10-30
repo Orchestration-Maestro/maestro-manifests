@@ -1,6 +1,6 @@
 //! Checks the public author guides without claiming runtime validation.
 
-use crate::support::{Check, Failures, captures, files, re, read, strip_fences};
+use crate::support::{Check, Failures, Sections, captures, files, re, read, strip_fences};
 
 /// Records every way the guide at `path` fails to show its sections and checks.
 fn check_guide(failures: &mut Failures, path: &str) -> Check {
@@ -12,8 +12,7 @@ fn check_guide(failures: &mut Failures, path: &str) -> Check {
         path,
         "no title, purpose paragraph and `## Contents` in that order",
     );
-    if let Some((_, after)) = text.split_once("## Contents\n") {
-        let contents = after.split("\n## ").next().unwrap_or_default();
+    if let Some(contents) = Sections::split(&text, "##")?.get("Contents") {
         let others: Vec<String> = sections
             .iter()
             .filter(|name| *name != "Contents")
