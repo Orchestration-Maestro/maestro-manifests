@@ -41,6 +41,7 @@ outside it.
 - [Releases and updates](releases-and-updates.md) - pins, required floors, permission growth and rollback.
 - [Integrity](integrity.md) - repair checkout drift and installed instruction copies.
 - [Catalog](catalog.md) - inspect cards, owners and dependency relations.
+- [Scorecard](scorecard.md) - conflicts that block, scores that advise and how to raise them.
 - [Schemas and checks](schemas-and-checks.md) - distinguish content parsing, schemas and actual loading.
 - [Development](development.md) - pinned tools, hooks, protected review and release automation.
 - [Engineering standards](standards/engineering.md) - how this repository follows the organization's engineering rules.
