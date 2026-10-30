@@ -11,5 +11,6 @@ mod policy;
 mod policy_coverage;
 mod retired_generator;
 mod security_capability;
+mod standards_pages;
 mod support;
 mod system_prompt;
