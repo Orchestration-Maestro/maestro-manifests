@@ -44,9 +44,10 @@ hooks are installed.
   -- -D warnings`. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
 - `just test` runs `cargo test --locked` and then
-  `python3 -m unittest discover -s tests`. The Python tests run the contributor
-  commands in disposable Git indexes, the manifest examples and the retired
-  generator check. Checked by: the required workflow runs it through
+  `python3 -m unittest discover -s tests`. The Rust tests compile every guard
+  rule and run its examples with the `regex` crate. The Python tests run the
+  contributor commands in disposable Git indexes, the manifest examples and the
+  retired generator check. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
 - Report the checks you actually ran, with exit codes. Do not claim a schema or
   runtime check; this repository has none yet.

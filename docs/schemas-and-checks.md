@@ -35,7 +35,9 @@ every documentation link resolves. Those are content assertions, not runtime
 execution.
 `just rust` fails on an unformatted file or a Clippy warning, and `just test`
 also runs `cargo test --locked` for the repository's one Rust test crate,
-`maestro-manifests-tests`.
+`maestro-manifests-tests`. Its guard tests compile every rule of the
+[guard files](guards.md) with the `regex` crate and run each example, so they
+catch a pattern that Maestro would reject.
 
 The content checks parse YAML/JSON/TOML and check spelling, Markdown, EditorConfig,
 file hygiene and conflict markers. Staged commit hooks also scan secrets and

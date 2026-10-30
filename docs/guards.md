@@ -203,8 +203,9 @@ To propose a rule:
    in `noMatch`. Use synthetic values only: documentation numbers such as the
    test social insurance number and test card numbers, `example.com` addresses
    and `555` telephone numbers.
-4. Check the expression uses the `regex` crate syntax only, then check each
-   example by hand against it until a check that runs them exists.
+4. Run `mise exec -- just check`. The guard tests compile the expression with
+   the `regex` crate and run every example, so a look-around, a back-reference
+   or a wrong example fails and names the file and the rule.
 5. Open a pull request that names the issue. CODEOWNERS requests the security
    review described under [review routing](#review-routing).
 
@@ -250,17 +251,21 @@ refusal as final and report it.
 ## Validation
 
 `just check` parses the YAML, checks spelling and Markdown, and checks every file
-against `.editorconfig`. It does not compile a pattern or run an example.
+against `.editorconfig`. It also runs the guard tests in `tests/guards.rs`, which
+read each file in `manifests/core/guards/` and, for every rule, compile the
+expression with the `regex` crate Maestro uses and run its `match` and `noMatch`
+examples. A failure names the file, the rule id and the example. The tests read the
+YAML as an untyped value, so they do not check the file's shape; Maestro's schema
+does that.
 
-The contract has Maestro check the rest when it loads the manifest: it compiles
-each expression and runs every example, and a failure makes the manifest
-invalid. The release load check, `maestro -p "/manifest status"` on the pull
+The contract has Maestro check the same things when it loads the manifest, and a
+failure makes the manifest invalid. The release load check, `maestro -p "/manifest status"` on the pull
 request's commit, covers this once Maestro's manifest package reads guard files
 ([maestro#2910](https://github.com/Orchestration-Maestro/maestro/issues/2910)).
 The schema check for guard files waits on
 [maestro#2812](https://github.com/Orchestration-Maestro/maestro/issues/2812).
-Until both ship, a guard change is unverified at runtime. Report the load check
-and the schema check as not run.
+Until both ship, no check loads a guard file with Maestro itself. Report the load
+check and the schema check as not run.
 
 ## What the organization can lock
 
@@ -279,9 +284,9 @@ Follow [development](development.md#local-checks) and run
 1. Confirm the file has only `apiVersion` and `rules`, and that every rule has
    all six members.
 2. Confirm every `id` is unique across the four files.
-3. Run each `match` and `noMatch` example against the expression with an engine
-   that uses the `regex` crate. A different engine can accept patterns that
-   Maestro rejects.
+3. Confirm the guard tests ran: `cargo test --locked` reports them under
+   `guards::`. An engine other than the `regex` crate can accept patterns that
+   Maestro rejects, so do not substitute one.
 4. Confirm every action allows every target in `appliesTo`.
 5. Confirm every file quoted on this page matches its source.
 
