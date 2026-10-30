@@ -101,6 +101,21 @@ pub fn re(pattern: &str) -> Result<Regex, Report> {
     Regex::new(pattern).map_err(|error| Report(format!("pattern {pattern}: {error}")))
 }
 
+/// Runs `git` with `args` in the repository and returns its exit code, stdout and stderr.
+pub fn git(args: &[&str]) -> Result<(Option<i32>, String, String), Report> {
+    let output = std::process::Command::new("git")
+        .args(args)
+        .current_dir(ROOT)
+        .output()
+        .map_err(|error| Report(format!("git {}: {error}", args.join(" "))))?;
+    let text = |bytes: &[u8]| String::from_utf8_lossy(bytes).into_owned();
+    Ok((
+        output.status.code(),
+        text(&output.stdout),
+        text(&output.stderr),
+    ))
+}
+
 /// Reads the file at the repository-relative `path`.
 pub fn read(path: &str) -> Result<String, Report> {
     std::fs::read_to_string(Path::new(ROOT).join(path))
@@ -129,15 +144,11 @@ pub fn tasks(workflow: &str) -> Result<Vec<String>, Report> {
 
 /// Lists the repository-relative paths Git tracks.
 pub fn tracked_files() -> Result<Vec<String>, Report> {
-    let output = std::process::Command::new("git")
-        .args(["ls-files", "-z"])
-        .current_dir(ROOT)
-        .output()
-        .map_err(|error| Report(format!("git ls-files: {error}")))?;
-    if !output.status.success() {
-        return Err(Report(format!("git ls-files: {}", output.status)));
+    let (code, stdout, stderr) = git(&["ls-files", "-z"])?;
+    if code != Some(0) {
+        return Err(Report(format!("git ls-files exited {code:?}: {stderr}")));
     }
-    Ok(String::from_utf8_lossy(&output.stdout)
+    Ok(stdout
         .split('\0')
         .filter(|name| !name.is_empty())
         .map(str::to_owned)
