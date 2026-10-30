@@ -229,11 +229,11 @@ it on when they ship.
 
 Core skills and instructions wait until the core ships them; then add their
 release-relative paths to `required`. The local-addition locks do not substitute
-for those required entries. Core roles, guard files and workflows are required. Locations left unset use engine
-resolution, including host and environment fallbacks; they are not a portable
-fixed executable or a filesystem sandbox. Credential restrictions apply to
-`anthropic`; no secret is shipped. Thinking remains bounded rather than locked,
-as previously approved.
+for those required entries. Core roles, guard files and workflows are required.
+Locations left unset use engine resolution, including host and environment
+fallbacks; they are not a portable fixed executable or a filesystem sandbox.
+Credential restrictions apply to `anthropic`; no secret is shipped. Thinking
+remains bounded rather than locked, as previously approved.
 
 ## Combining areas and local values
 

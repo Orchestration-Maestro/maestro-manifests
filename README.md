@@ -97,7 +97,8 @@ outside the root. Paths in settings and policy, such as `manifestAreas` and
 
 The common root, `manifests/` itself, holds `package.json`, `CHANGELOG.md` and
 `settings/`. Core, at `manifests/core/`, holds the base prompt, main persona,
-four delegated roles, four guard rule files and three workflows. The optional capability at
+four delegated roles, four guard rule files and three workflows. The optional
+capability at
 `manifests/capabilities/practice/evidence-review/` keeps its native package and
 all six resources together. Documentation lives under `docs/`; CODEOWNERS
 supplies review and catalog attribution. The complete input inventory follows.
@@ -188,9 +189,9 @@ artifacts; see their separate guides.
 ## Documentation
 
 Start with the [documentation index](docs/index.md), in reading order. It covers
-settings, policy, prompts, instructions, roles, skills, workflows, guards, themes,
-models, extensions, capabilities, ownership, releases, integrity, schemas and the catalog.
-It also records the models and extensions exceptions.
+settings, policy, prompts, instructions, roles, skills, workflows, guards,
+themes, models, extensions, capabilities, ownership, releases, integrity,
+schemas and the catalog. It also records the models and extensions exceptions.
 [CONTEXT.md](CONTEXT.md) defines the vocabulary; [development](docs/development.md)
 describes pinned tools, hooks, CI and delivery.
 

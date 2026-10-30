@@ -125,6 +125,15 @@ class ManifestExamples(unittest.TestCase):
                          .split("tools: ")[1].splitlines()[0], "read, grep, find, ls")
 
 
+    def test_guards_page_quotes_match_the_guard_files(self):
+        """Keep the guards page's protected-paths quote and pii excerpt equal to their sources."""
+        page = (ROOT / "docs/guards.md").read_text()
+        paths = (MANIFEST / "core/guards/protected-paths.yaml").read_text()
+        self.assertIn(f"```yaml\n{paths}```", page)
+        pii = (MANIFEST / "core/guards/pii.yaml").read_text()
+        head, first, _ = re.split(r"(?m)^(?=  - id: )", pii, maxsplit=2)
+        self.assertIn(f"```yaml\n{head}{first}```", page)
+
     def test_evidence_review_rule_applies_only_to_review_work(self):
         """Keep the review rule out of sessions that do not review evidence."""
         for path in CAPABILITY.rglob("*.instructions.md"):

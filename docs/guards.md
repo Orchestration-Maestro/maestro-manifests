@@ -171,8 +171,8 @@ matched again.
 permission-gate example: recursive `rm`, `sudo` and a mode ending in 777, such
 as 1777, 4777 or 0o777, with `chmod` or `chown`. The rules read the command
 text and do not parse the shell, so `echo "rm -rf x"` asks too. A `confirm` rule
-asks; it does not forbid. The recursive-removal rule also catches flag clusters such as
-`-fr` and `-R`, and flags that come before the recursive one.
+asks; it does not forbid. The recursive-removal rule also catches flag clusters
+such as `-fr` and `-R`, and flags that come before the recursive one.
 
 **Protected paths** start from the paths of Maestro's shipped protected-paths
 example: environment files, the Git folder and the installed-dependencies
@@ -181,9 +181,9 @@ does, so `.envrc`, `prod.env`, `.env-backup`, `.env_local`, `.envs/` and a
 `.env/` folder are blocked, and so is a template such as `.env.example`. The Git
 and installed-dependencies rules match the same paths as the example, plus
 backslash separators: `.git/` and `node_modules/` anywhere in a path, including
-a bare `widget.git/` folder, and a path that ends in `.git`. `.github/` and
-`.gitignore` pass. Path rules check the `path` argument of `write` and `edit`
-only; they do not see a path inside a `bash` command, which only the `command`
+a bare `widget.git/` folder. Unlike the example, the Git rule also blocks a path
+that ends in `.git`. `.github/` and `.gitignore` pass. Path rules check the
+`path` argument of `write` and `edit` only; they do not see a path inside a `bash` command, which only the `command`
 rules read.
 
 **Personal data** is redacted in tool output, assistant text and prompts. The
@@ -231,6 +231,11 @@ To review a rule, check these in order:
 5. The cost of a false positive is acceptable for the action. A `block` on a
    common word stops real work.
 6. No example holds a real credential, person or account.
+
+Review `prompt-injection.yaml` and `pii.yaml` in the pull request diff, not
+through an agent. In manifest mode Maestro withholds `prompt-injection.yaml`
+when an agent reads it, because the file's own examples match its rules, and
+`pii.yaml` comes back redacted the same way.
 
 ## Review routing
 
@@ -299,7 +304,8 @@ Follow [development](development.md#local-checks) and run
    `guards::`. An engine other than the `regex` crate can accept patterns that
    Maestro rejects, so do not substitute one.
 4. Confirm every action allows every target in `appliesTo`.
-5. Confirm every file quoted on this page matches its source.
+5. Confirm any new quote on this page matches its source. `just check` already
+   compares the two quotes here.
 
 When the manifest package reads guard files, add the release load check and the
 schema check, and report each result with its exit code. Until then, name them as

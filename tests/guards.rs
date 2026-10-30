@@ -79,18 +79,26 @@ fn read_rule(file: &str, rule: &Yaml) -> Result<Rule, String> {
             .map(str::to_owned)
             .ok_or_else(|| format!("{file}: {member} is not a string"))
     };
+    let id = text(&rule["id"], "id")?;
     let examples = |member: &str| -> Result<Vec<String>, String> {
         let list = rule["examples"][member]
             .as_vec()
-            .ok_or_else(|| format!("{file}: examples.{member} is not a list"))?;
-        list.iter().map(|value| text(value, member)).collect()
+            .ok_or_else(|| format!("{file}: rule {id}: examples.{member} is not a list"))?;
+        list.iter()
+            .map(|value| {
+                value
+                    .as_str()
+                    .map(str::to_owned)
+                    .ok_or_else(|| format!("{file}: rule {id}: examples.{member} is not a string"))
+            })
+            .collect()
     };
     Ok(Rule {
         file: file.to_owned(),
-        id: text(&rule["id"], "id")?,
         regex: text(&rule["regex"], "regex")?,
         must_match: examples("match")?,
         must_not_match: examples("noMatch")?,
+        id,
     })
 }
 
@@ -150,6 +158,7 @@ fn rule(file: &str, id: &str, regex: &str, must_match: &[&str], must_not_match: 
     }
 }
 
+/// A look-around expression is reported as not compiling, with its file and rule id.
 #[test]
 fn look_around_fails_to_compile_and_names_its_file_and_rule() {
     let found = problems(&rule(
@@ -165,6 +174,7 @@ fn look_around_fails_to_compile_and_names_its_file_and_rule() {
     assert!(found[0].contains("does not compile"), "{found:?}");
 }
 
+/// A back-reference expression is reported as not compiling, with its file and rule id.
 #[test]
 fn back_reference_fails_to_compile_and_names_its_file_and_rule() {
     let found = problems(&rule(
@@ -177,8 +187,10 @@ fn back_reference_fails_to_compile_and_names_its_file_and_rule() {
     assert_eq!(found.len(), 1, "{found:?}");
     assert!(found[0].contains("pii.yaml"), "{found:?}");
     assert!(found[0].contains("bad-back-reference"), "{found:?}");
+    assert!(found[0].contains("does not compile"), "{found:?}");
 }
 
+/// A wrong `match` or `noMatch` example is reported with its file, rule id and string.
 #[test]
 fn examples_that_do_not_behave_as_listed_are_named_with_their_rule() {
     let found = problems(&rule(
@@ -200,6 +212,7 @@ fn examples_that_do_not_behave_as_listed_are_named_with_their_rule() {
     );
 }
 
+/// An empty example list is reported by the member it is missing from.
 #[test]
 fn a_rule_with_an_empty_example_list_fails_naming_the_list() {
     let found = problems(&rule("pii.yaml", "no-examples", "a", &[], &[]));
@@ -208,12 +221,50 @@ fn a_rule_with_an_empty_example_list_fails_naming_the_list() {
         found[0].contains("pii.yaml") && found[0].contains("no-examples"),
         "{found:?}"
     );
-    assert!(
-        found[0].contains("match") && found[1].contains("noMatch"),
-        "{found:?}"
+    assert!(found[0].contains("examples.match is empty"), "{found:?}");
+    assert!(found[1].contains("examples.noMatch is empty"), "{found:?}");
+}
+
+/// Parses one rule mapping the way `read_file` hands it to `read_rule`.
+fn parsed(text: &str) -> Yaml {
+    YamlLoader::load_from_str(text)
+        .ok()
+        .and_then(|documents| documents.into_iter().next())
+        .unwrap_or(Yaml::Null)
+}
+
+/// A non-string example is reported with its file, rule id and example list.
+#[test]
+fn a_non_string_example_names_its_file_rule_and_list() {
+    let rule = parsed("id: bad-example\nregex: a\nexamples:\n  match: [1]\n  noMatch: [b]\n");
+    let error = read_rule("pii.yaml", &rule).err().unwrap_or_default();
+    assert_eq!(
+        error,
+        "pii.yaml: rule bad-example: examples.match is not a string"
     );
 }
 
+/// A missing example list is reported with its file, rule id and list name.
+#[test]
+fn a_missing_example_list_names_its_file_rule_and_list() {
+    let rule = parsed("id: no-list\nregex: a\nexamples:\n  match: [a]\n");
+    let error = read_rule("pii.yaml", &rule).err().unwrap_or_default();
+    assert_eq!(
+        error,
+        "pii.yaml: rule no-list: examples.noMatch is not a list"
+    );
+}
+
+/// A guard file that cannot be read is reported by name.
+#[test]
+fn a_missing_guard_file_is_reported_by_name() {
+    let error = read_file(MANIFEST_ROOT, "absent.yaml")
+        .err()
+        .unwrap_or_default();
+    assert!(error.starts_with("absent.yaml: "), "{error}");
+}
+
+/// Every shipped guard file holds at least one rule.
 #[test]
 fn each_guard_file_holds_at_least_one_rule() -> Result<(), String> {
     let rules = load_rules()?;
@@ -226,6 +277,7 @@ fn each_guard_file_holds_at_least_one_rule() -> Result<(), String> {
     Ok(())
 }
 
+/// Every example of every shipped rule behaves as its list says.
 #[test]
 fn every_example_of_every_guard_rule_behaves_as_listed() -> Result<(), String> {
     let rules = load_rules()?;
