@@ -14,6 +14,7 @@ rules:
         - '.envrc'
         - 'config/prod.env'
         - '.env-backup'
+        - 'venv/.env/bin/activate'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
