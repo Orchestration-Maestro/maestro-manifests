@@ -261,9 +261,10 @@ job and no ruleset has a bypass actor. A diff that edits `.pre-commit-config.yam
 of its own.
 
 The tiers are the hook `workspace-check`, which runs `just pre-commit` on the
-staged files at commit, and `just check`, which runs the same hooks on every file
-in the merge-blocking job. Code scanning's weekly scan is the heavy tier. No
-pre-push tier exists, because no check here is heavier than the commit tier.
+staged files at commit, and `just check`, which runs the hooks on every file in
+the merge-blocking job and then Clippy and the Rust and Python tests, which the
+commit tier does not run. Code scanning's weekly scan is the heavy tier. No
+pre-push tier exists: `just check` is the heavier tier before merge.
 Rulesets and organization settings live as code in the `.github` repository, and
 the Organization drift workflow compares them with GitHub every week. A pull
 request that renames a required check updates the ruleset that requires it in the
@@ -326,8 +327,10 @@ accounts that can merge a release are the last link in that chain.
 checksum and provenance. Action references in
 `.github/workflows/release-please.yml` use full commit SHAs, which the
 organization's Actions policy requires, and `.github/dependabot.yml` proposes
-updates weekly after a seven-day cooldown. No dependency needs a lockfile:
-`manifests/package.json` lists none and the tests use only the Python standard library.
+updates weekly after a seven-day cooldown. `Cargo.lock` pins the test crate's
+dependencies and `manifests/package.json` lists none. `rust-toolchain.toml` pins
+Rust, but rustup downloads the toolchain and the repository pins no checksum for
+it, so ENF-012 has a gap here.
 
 The hook `gitleaks` scans each staged change at commit. It is a local hook and no
 CI job runs it. On the platform, secret scanning with push protection and

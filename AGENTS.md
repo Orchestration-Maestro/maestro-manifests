@@ -50,9 +50,10 @@ hooks are installed.
   `just check`; report its result in the pull request.
 - Report the checks you actually ran, with exit codes. Do not claim a schema or
   runtime check; this repository has none yet.
-- `.pre-commit-config.yaml` owns the checks. The Git hooks call `just pre-commit`,
-  which runs them on staged files through prek's `manual` stage to avoid calling
-  the Git hook again, and scan the staged change with `gitleaks`. Do not
+- `.pre-commit-config.yaml` owns the content checks and the `rust` recipe in the
+  `justfile` owns the Rust checks. The Git hooks call `just pre-commit`, which
+  runs the content checks on staged files through prek's `manual` stage to avoid
+  calling the Git hook again, and scan the staged change with `gitleaks`. Do not
   duplicate the checks in CI. Checked by: the required workflow calls only
   `just check`.
 
