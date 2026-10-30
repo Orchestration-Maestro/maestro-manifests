@@ -5,14 +5,19 @@ use std::path::Path;
 
 use maestro_manifests_tests::MANIFEST_ROOT;
 use regex::Regex;
+use serde_json::Value;
 
 /// Returns the package file's top-level `name` when it is in the organization scope.
 fn organization_package_name(text: &str) -> Result<String, String> {
-    let scoped = Regex::new(r#""name":\s*"(@orchestration-maestro/[a-z-]+)""#)
-        .map_err(|error| error.to_string())?;
-    scoped
-        .captures(text)
-        .map(|found| found[1].to_owned())
+    let package: Value = serde_json::from_str(text)
+        .map_err(|error| format!("package.json is not valid JSON: {error}"))?;
+    let scoped =
+        Regex::new(r"^@orchestration-maestro/[a-z-]+$").map_err(|error| error.to_string())?;
+    package
+        .get("name")
+        .and_then(Value::as_str)
+        .filter(|name| scoped.is_match(name))
+        .map(str::to_owned)
         .ok_or_else(|| "package.json names no @orchestration-maestro package".to_owned())
 }
 
