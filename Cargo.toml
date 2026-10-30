@@ -1,0 +1,40 @@
+[package]
+name = "maestro-manifests-tests"
+version = "0.0.0"
+edition = "2024"
+license = "MIT"
+publish = false
+autotests = false
+description = "Tests that check the manifest resources in this repository."
+
+[lib]
+path = "src/lib.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[dependencies]
+regex = "=1.13.1"
+
+[lints]
+workspace = true
+
+[workspace]
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+forbidden_lint_groups = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "forbid", priority = -1 }
+missing_docs_in_private_items = "forbid"
+redundant_clone = "forbid"
+too_many_arguments = "forbid"
+fn_params_excessive_bools = "forbid"
+too_many_lines = "forbid"
+cognitive_complexity = "forbid"
+excessive_nesting = "forbid"
+unwrap_used = "forbid"
+expect_used = "forbid"
+panic = "forbid"

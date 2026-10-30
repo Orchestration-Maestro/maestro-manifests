@@ -35,14 +35,22 @@ class QualityCommands(unittest.TestCase):
             env={**os.environ, "PREK_ALLOW_NO_CONFIG": "0"},
         )
 
-    def test_check_runs_the_content_checks_and_the_tests_without_recursion(self):
-        """Run the tests in `check`, which CI runs, but not in `content`, which they run."""
+    def test_check_runs_the_content_checks_the_rust_gate_and_the_tests_without_recursion(self):
+        """Run Rust formatting, lints and tests in `check`, which CI runs, but not in `content`."""
         check = self.run_command("just", "--dry-run", "check")
         self.assertEqual(check.returncode, 0, check.stderr)
-        self.assertIn("prek run --all-files --stage manual", check.stderr)
-        self.assertIn("unittest discover", check.stderr)
+        for command in [
+            "prek run --all-files --stage manual",
+            "cargo fmt --check",
+            "cargo clippy --all-targets --locked -- -D warnings",
+            "cargo test --locked",
+            "unittest discover",
+        ]:
+            with self.subTest(command=command):
+                self.assertIn(command, check.stderr)
         content = self.run_command("just", "--dry-run", "content")
         self.assertEqual(content.returncode, 0, content.stderr)
+        self.assertNotIn("cargo", content.stderr)
         self.assertNotIn("unittest", content.stderr)
 
     def test_check(self):
