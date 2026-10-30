@@ -1,9 +1,9 @@
 //! Checks the contracts the core roles state, without running agents.
 
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 
 use crate::support::{
-    AVOIDED_WORDS, Check, Failures, Report, captures, files, re, read, split_frontmatter,
+    AVOIDED_WORDS, Check, Failures, Report, Role, captures, files, re, read, read_role,
 };
 
 /// The core role files, by name.
@@ -12,36 +12,6 @@ const ROLES: [&str; 5] = ["maestro", "scout", "planner", "reviewer", "worker"];
 const CURRENT_MODELS: [&str; 3] = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"];
 /// The tools that run commands or change files.
 const SHELL_AND_WRITE_TOOLS: [&str; 3] = ["bash", "edit", "write"];
-/// A core role file: its frontmatter fields and its prompt body.
-struct Role {
-    /// The `key: value` lines of the frontmatter.
-    fields: HashMap<String, String>,
-    /// The prompt after the frontmatter.
-    body: String,
-}
-
-impl Role {
-    /// Returns the frontmatter value for `key`, or an empty string when absent.
-    fn field(&self, key: &str) -> &str {
-        self.fields.get(key).map_or("", String::as_str)
-    }
-}
-
-/// Reads the core role `name`.
-fn read_role(name: &str) -> Result<Role, Report> {
-    let path = format!("manifests/core/agents/{name}.md");
-    let text = read(&path)?;
-    let (frontmatter, body) = split_frontmatter(&path, &text)?;
-    let fields = frontmatter
-        .lines()
-        .filter_map(|line| line.split_once(": "))
-        .map(|(key, value)| (key.to_owned(), value.to_owned()))
-        .collect();
-    Ok(Role {
-        fields,
-        body: body.to_owned(),
-    })
-}
 
 /// Splits `text` after each sentence-ending `.`, `:`, `!` or `?` that whitespace follows.
 fn sentences(text: &str) -> Result<Vec<&str>, Report> {
@@ -62,12 +32,13 @@ fn sentences(text: &str) -> Result<Vec<&str>, Report> {
 fn roles_name_only_current_models() -> Check {
     let mut failures = Failures::default();
     for name in ROLES {
-        let model = read_role(name)?.field("model").to_owned();
-        failures.require(
-            model.is_empty() || CURRENT_MODELS.contains(&model.as_str()),
-            name,
-            &format!("model {model} is not current"),
-        );
+        if let Some(model) = read_role(name)?.get("model") {
+            failures.require(
+                CURRENT_MODELS.contains(&model),
+                name,
+                &format!("model {model} is not current"),
+            );
+        }
     }
     let mut sources = vec!["README.md".to_owned()];
     for dir in ["manifests/core", "docs", "manifests/capabilities"] {
@@ -87,7 +58,7 @@ fn reviewer_authority_comes_from_its_tool_list() -> Check {
     let mut failures = Failures::default();
     let reviewer = read_role("reviewer")?;
 
-    failures.require_eq("reviewer", reviewer.field("tools"), "read, grep, find, ls");
+    failures.require_eq("reviewer", reviewer.field("tools")?, "read, grep, find, ls");
     failures.avoids("reviewer", &reviewer.body, r"(?i)\b(bash|shell|git)\b")?;
 
     failures.finish()
@@ -95,10 +66,10 @@ fn reviewer_authority_comes_from_its_tool_list() -> Check {
 
 /// Returns the sentences of `role` that name a shell or write tool the role holds.
 fn sentences_naming_held_tools(role: &Role) -> Result<Vec<&str>, Report> {
-    let tools = role.field("tools");
+    let tools = role.get("tools");
     let mut named = Vec::new();
     for tool in SHELL_AND_WRITE_TOOLS {
-        if tools.is_empty() || tools.split(", ").any(|held| held == tool) {
+        if tools.is_none_or(|tools| tools.split(", ").any(|held| held == tool)) {
             let names_tool = re(&format!(r"\b{tool}\b"))?;
             named.extend(
                 sentences(&role.body)?
@@ -200,7 +171,7 @@ fn roles_speak_in_maestro_voice() -> Check {
     let mut failures = Failures::default();
     for name in ROLES {
         let role = read_role(name)?;
-        let text = format!("{}{}", role.field("description"), role.body);
+        let text = format!("{}{}", role.field("description")?, role.body);
         failures.avoids(name, &text, &format!(r"(?i)\b({AVOIDED_WORDS})\b"))?;
     }
     let persona = read_role("maestro")?.body;

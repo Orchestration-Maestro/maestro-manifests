@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use serde_json::{Map, Value, json};
 
-use crate::support::{Check, Failures, Report, json};
+use crate::support::{Check, Failures, Report, json, strings};
 
 /// The thinking levels, lowest first.
 const THINKING: [&str; 6] = ["off", "minimal", "low", "medium", "high", "xhigh"];
@@ -140,19 +140,9 @@ impl Baseline {
         })
     }
 
-    /// Returns the strings in the policy's array `key`.
-    pub fn strings(&self, key: &str) -> Vec<&str> {
-        let items = self.policy.get(key).and_then(Value::as_array);
-        items
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .collect()
-    }
-
     /// Returns the policy's `locked` keys.
-    pub fn locked(&self) -> BTreeSet<&str> {
-        self.strings("locked").into_iter().collect()
+    pub fn locked(&self) -> Result<BTreeSet<&str>, Report> {
+        Ok(strings(&self.policy, "locked")?.into_iter().collect())
     }
 
     /// Returns the policy's `roles` object.
@@ -183,11 +173,12 @@ impl Baseline {
     }
 
     /// Records each of `keys` that the policy does not lock.
-    fn require_locked(&self, failures: &mut Failures, keys: &[&str]) {
-        let locked = self.locked();
+    fn require_locked(&self, failures: &mut Failures, keys: &[&str]) -> Check {
+        let locked = self.locked()?;
         for key in keys {
             failures.require(locked.contains(key), key, "is not locked");
         }
+        Ok(())
     }
 }
 
@@ -215,7 +206,7 @@ fn privacy_and_supply_chain_are_locked() -> Check {
     baseline.require_locked(
         &mut failures,
         &["enableInstallTelemetry", "images.blockImages"],
-    );
+    )?;
     failures.require_eq(
         "enableInstallTelemetry",
         &baseline.setting("enableInstallTelemetry"),
@@ -235,7 +226,7 @@ fn privacy_and_supply_chain_are_locked() -> Check {
 fn models_are_the_three_core_role_models() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
-    let mut models = baseline.strings("models");
+    let mut models = strings(&baseline.policy, "models")?;
     models.sort_unstable();
     let default_model = baseline
         .setting("defaultModel")
@@ -247,7 +238,7 @@ fn models_are_the_three_core_role_models() -> Check {
         &models,
         &vec!["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"],
     );
-    baseline.require_locked(&mut failures, &["defaultProvider", "defaultModel"]);
+    baseline.require_locked(&mut failures, &["defaultProvider", "defaultModel"])?;
     failures.require_eq(
         "defaultProvider",
         &baseline.setting("defaultProvider"),
@@ -324,7 +315,7 @@ fn prompts_manifest_selection_and_local_additions_are_locked() -> Check {
             "skills",
             "prompts",
         ],
-    );
+    )?;
     failures.require_eq(
         "manifestAreas",
         &baseline.setting("manifestAreas"),
@@ -359,18 +350,18 @@ fn remaining_governed_surfaces_are_locked() -> Check {
     baseline.require_locked(
         &mut failures,
         &names(NEW_LOCKS).into_iter().collect::<Vec<_>>(),
-    );
+    )?;
     for key in names(NEW_LOCKS) {
         failures.require_eq(key, &baseline.setting(key), &explicit.get(key));
     }
     failures.require(
-        !baseline.locked().contains("lastChangelogVersion"),
+        !baseline.locked()?.contains("lastChangelogVersion"),
         "lastChangelogVersion",
         "is locked",
     );
     failures.require_eq(
         "required",
-        &baseline.strings("required"),
+        &strings(&baseline.policy, "required")?,
         &vec!["core/agents", "core/workflows"],
     );
 
@@ -383,7 +374,7 @@ fn personal_ui_is_not_locked() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
     let personal = personal_settings();
-    let locked = baseline.locked();
+    let locked = baseline.locked()?;
 
     failures.require_eq(
         "keybindings",
@@ -409,7 +400,7 @@ fn output_holding_waits_for_guards() -> Check {
     let baseline = Baseline::load()?;
 
     failures.require(
-        !baseline.locked().contains("holdUncheckedText"),
+        !baseline.locked()?.contains("holdUncheckedText"),
         "holdUncheckedText",
         "is locked",
     );
@@ -428,7 +419,7 @@ fn npm_command_keeps_the_engine_default() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
 
-    baseline.require_locked(&mut failures, &["npmCommand"]);
+    baseline.require_locked(&mut failures, &["npmCommand"])?;
     failures.require(
         baseline.settings.get("npmCommand").is_none(),
         "npmCommand",
@@ -446,7 +437,7 @@ fn policy_uses_only_the_lockable_surface() -> Check {
     let lockable = names(LOCKABLE);
     let top_level = baseline.policy.as_object().cloned().unwrap_or_default();
 
-    for key in baseline.locked().difference(&lockable) {
+    for key in baseline.locked()?.difference(&lockable) {
         failures.require(false, key, "is locked but not lockable");
     }
     for key in baseline
@@ -463,7 +454,7 @@ fn policy_uses_only_the_lockable_surface() -> Check {
         failures.require(false, key, "is not a policy key");
     }
     failures.require(
-        !baseline.locked().is_empty(),
+        !baseline.locked()?.is_empty(),
         "locked",
         "the baseline locks nothing",
     );

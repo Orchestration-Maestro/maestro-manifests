@@ -1,9 +1,7 @@
 //! Checks that the baseline policy covers the core release content and that its guide lists it.
 
-use serde_json::Value;
-
 use crate::policy::Baseline;
-use crate::support::{Check, Failures, Report, exists, files, read, split_frontmatter};
+use crate::support::{Check, Failures, Report, exists, files, read, read_role, strings};
 
 /// Returns the core role stems, from the role files.
 fn core_roles() -> Result<Vec<String>, Report> {
@@ -20,7 +18,7 @@ fn core_roles() -> Result<Vec<String>, Report> {
 fn core_roles_and_workflows_are_required() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
-    let required = baseline.strings("required");
+    let required = strings(&baseline.policy, "required")?;
     let mut resources = files("manifests/core/agents", ".md")?;
     resources.extend(files("manifests/core/workflows", ".yaml")?);
 
@@ -52,15 +50,12 @@ fn every_core_role_locks_model_thinking_and_tools() -> Check {
     let mut core = core_roles()?;
     core.sort();
 
-    failures.require_eq("roles", &roles.keys().cloned().collect::<Vec<_>>(), &core);
+    let mut names: Vec<String> = roles.keys().cloned().collect();
+    names.sort();
+
+    failures.require_eq("roles", &names, &core);
     for (name, role) in &roles {
-        let mut locked: Vec<&str> = role
-            .get("locked")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .collect();
+        let mut locked = strings(role, "locked")?;
         locked.sort_unstable();
         failures.require_eq(name, &locked, &vec!["model", "thinking", "tools"]);
     }
@@ -73,19 +68,13 @@ fn every_core_role_locks_model_thinking_and_tools() -> Check {
 fn every_model_a_core_role_declares_is_allowed() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
-    let models = baseline.strings("models");
+    let models = strings(&baseline.policy, "models")?;
 
     for name in core_roles()? {
-        let path = format!("manifests/core/agents/{name}.md");
-        let text = read(&path)?;
-        let (frontmatter, _) = split_frontmatter(&path, &text)?;
-        for model in frontmatter
-            .lines()
-            .filter_map(|line| line.strip_prefix("model: "))
-        {
+        if let Some(model) = read_role(&name)?.get("model") {
             failures.require(
                 models.contains(&model),
-                &path,
+                &format!("manifests/core/agents/{name}.md"),
                 &format!("declares {model}, which the policy does not allow"),
             );
         }
@@ -106,9 +95,9 @@ fn policy_guide_lists_the_baseline() -> Check {
         .and_then(|rest| rest.split("\n## ").next());
     let bounds = baseline.bounds();
     let roles = baseline.roles();
-    let mut listed = baseline.strings("locked");
-    listed.extend(baseline.strings("models"));
-    listed.extend(baseline.strings("required"));
+    let mut listed = strings(&baseline.policy, "locked")?;
+    listed.extend(strings(&baseline.policy, "models")?);
+    listed.extend(strings(&baseline.policy, "required")?);
     listed.extend(bounds.keys().map(String::as_str));
     listed.extend(roles.keys().map(String::as_str));
 

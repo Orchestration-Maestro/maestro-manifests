@@ -354,12 +354,11 @@ fn resolved_colors(theme: &Value) -> BTreeMap<String, Value> {
         .into_iter()
         .flatten()
         .map(|(token, value)| {
-            let named = value.as_str().unwrap_or_default();
-            let color = vars
-                .and_then(|vars| vars.get(named))
-                .and_then(Value::as_str)
-                .unwrap_or(named);
-            (token.clone(), json!(color))
+            let color = value
+                .as_str()
+                .and_then(|name| vars.and_then(|vars| vars.get(name)))
+                .unwrap_or(value);
+            (token.clone(), color.clone())
         })
         .collect()
 }

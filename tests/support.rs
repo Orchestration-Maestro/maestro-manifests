@@ -267,17 +267,23 @@ pub fn exists(path: &str) -> bool {
 ///
 /// A missing key, a value that is not an array and an entry that is not a string each fail the check.
 pub fn strings<'a>(value: &'a Value, key: &str) -> Result<Vec<&'a str>, Report> {
-    Ok(value
+    let items = value
         .get(key)
         .and_then(Value::as_array)
-        .into_iter()
-        .flatten()
-        .filter_map(Value::as_str)
-        .collect())
+        .ok_or_else(|| Report(format!("{key}: no array")))?;
+    items
+        .iter()
+        .map(|item| {
+            item.as_str()
+                .ok_or_else(|| Report(format!("{key}: {item} is not a string")))
+        })
+        .collect()
 }
 
 /// A core role file: its frontmatter fields and its prompt body.
 pub struct Role {
+    /// The file the role was read from, which a failed check names.
+    path: String,
     /// The `key: value` lines of the frontmatter.
     fields: HashMap<String, String>,
     /// The prompt after the frontmatter.
@@ -286,22 +292,28 @@ pub struct Role {
 
 impl Role {
     /// Parses the role file `path` whose text is `text`.
+    ///
+    /// A frontmatter line without `: ` fails the check.
     pub fn parse(path: &str, text: &str) -> Result<Self, Report> {
         let (frontmatter, body) = split_frontmatter(path, text)?;
-        let fields = frontmatter
-            .lines()
-            .filter_map(|line| line.split_once(": "))
-            .map(|(key, value)| (key.to_owned(), value.to_owned()))
-            .collect();
+        let mut fields = HashMap::new();
+        for line in frontmatter.lines() {
+            let (key, value) = line
+                .split_once(": ")
+                .ok_or_else(|| Report(format!("{path}: frontmatter line `{line}` has no `: `")))?;
+            fields.insert(key.to_owned(), value.to_owned());
+        }
         Ok(Self {
+            path: path.to_owned(),
             fields,
             body: body.to_owned(),
         })
     }
 
-    /// Returns the frontmatter value for `key`.
+    /// Returns the frontmatter value for `key`; a field the role lacks fails the check.
     pub fn field(&self, key: &str) -> Result<&str, Report> {
-        Ok(self.get(key).unwrap_or_default())
+        self.get(key)
+            .ok_or_else(|| Report(format!("{}: no `{key}` field", self.path)))
     }
 
     /// Returns the frontmatter value for `key`, or `None` when the role does not set it.
