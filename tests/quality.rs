@@ -59,28 +59,33 @@ impl Drop for Checkout {
     }
 }
 
-/// Runs only the Rust tests in `check`, which CI runs, and no tests in `content`, which they run.
+/// Runs Rust formatting, lints and tests in `check`, which CI runs, but not in `content`.
 #[test]
-fn check_runs_the_content_checks_and_the_tests_without_recursion() -> Check {
+fn check_runs_the_content_checks_the_rust_gate_and_the_tests_without_recursion() -> Check {
     let mut failures = Failures::default();
     let checkout = Checkout::new()?;
+    let commands = [
+        "prek run --all-files --stage manual",
+        "cargo fmt --check",
+        "cargo clippy --all-targets --locked -- -D warnings",
+        "cargo test --locked",
+    ];
 
     let check = checkout.run("just", &["--dry-run", "check"])?;
-    failures.require(check.code == Some(0), "just --dry-run check", &check.text());
-    failures.contains(
-        "just --dry-run check",
-        &check.text(),
-        "prek run --all-files --stage manual",
-    );
-    failures.contains("just --dry-run check", &check.text(), "cargo test");
-    failures.lacks("just --dry-run check", &check.text(), "unittest");
     let content = checkout.run("just", &["--dry-run", "content"])?;
+
+    failures.require(check.code == Some(0), "just --dry-run check", &check.text());
+    for command in commands {
+        failures.contains("just --dry-run check", &check.text(), command);
+    }
+    failures.lacks("just --dry-run check", &check.text(), "unittest");
     failures.require(
         content.code == Some(0),
         "just --dry-run content",
         &content.text(),
     );
-    failures.lacks("just --dry-run content", &content.text(), "cargo test");
+    failures.lacks("just --dry-run content", &content.text(), "cargo");
+    failures.lacks("just --dry-run content", &content.text(), "unittest");
 
     failures.finish()
 }
