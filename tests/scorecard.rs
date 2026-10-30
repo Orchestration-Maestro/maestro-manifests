@@ -1,44 +1,54 @@
 //! Checks that the scorecard blocks conflicts and duplicates, over the mini
 //! releases in `tests/scorecard_cases` and over this repository's own release.
 
+use maestro_manifests_tests::ROOT;
 use maestro_manifests_tests::scorecard::report;
-use serde_json::{Value, json};
-use std::fs;
+use serde_json::json;
+
+use crate::support::{Check, Failures, Report, entries, read_json};
 
 /// The folder holding one mini release and its `expected.json` per case.
-const CASES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/scorecard_cases");
+const CASES: &str = "tests/scorecard_cases";
 
+/// Each case reports the conflicts its `expected.json` names, or the error it names.
 #[test]
-fn every_case_reports_the_conflicts_its_expected_file_names() {
-    let mut mismatches = Vec::new();
+fn every_case_reports_the_conflicts_its_expected_file_names() -> Check {
+    let mut failures = Failures::default();
 
-    for entry in fs::read_dir(CASES).expect("the cases folder exists") {
-        let case = entry.expect("a case entry reads").path();
-        let case = case.to_str().expect("a case path is UTF-8");
-        let expected =
-            fs::read_to_string(format!("{case}/expected.json")).expect("expected.json reads");
-        let expected: Value = serde_json::from_str(&expected).expect("expected.json parses");
-        let actual = report(case).unwrap_or_else(|error| json!({ "error": error.to_string() }));
-        if actual != expected {
-            mismatches.push(format!(
-                "{case}\n  expected {expected}\n  actual   {actual}"
-            ));
-        }
+    for (case, _) in entries(CASES)? {
+        let expected = read_json(&format!("{case}/expected.json"))?;
+        let actual = report(&format!("{ROOT}/{case}"))
+            .unwrap_or_else(|error| json!({ "error": error.to_string() }));
+        failures.require_eq(&case, &actual, &expected);
     }
 
-    assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+    failures.finish()
 }
 
+/// A root with no `manifests/` folder fails with the folder's name.
 #[test]
-fn a_root_with_no_manifests_folder_cannot_be_read() {
-    let error = report(&format!("{CASES}/no-such-case")).expect_err("the root has no release");
+fn a_root_with_no_manifests_folder_cannot_be_read() -> Check {
+    let mut failures = Failures::default();
 
-    assert_eq!(error.to_string(), "cannot read manifests");
+    match report(&format!("{ROOT}/{CASES}/no-such-case")) {
+        Ok(found) => failures.require(false, CASES, &format!("read a missing root: {found}")),
+        Err(error) => failures.require_eq(
+            CASES,
+            &error.to_string(),
+            &"cannot read manifests".to_owned(),
+        ),
+    }
+
+    failures.finish()
 }
 
+/// This repository's own release has no conflict.
 #[test]
-fn this_release_has_no_conflicts() {
-    let actual = report(env!("CARGO_MANIFEST_DIR")).expect("the release reads");
+fn this_release_has_no_conflicts() -> Check {
+    let actual = report(ROOT).map_err(|error| Report::new(error.to_string()))?;
+    let mut failures = Failures::default();
 
-    assert_eq!(actual["status"], "pass", "{actual}");
+    failures.require_eq("scorecard status", &actual["status"], &json!("pass"));
+
+    failures.finish()
 }

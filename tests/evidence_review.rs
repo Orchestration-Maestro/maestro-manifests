@@ -122,7 +122,7 @@ fn shipped_instruction_is_a_real_example_scoped_to_docs() -> Check {
 
     failures.require_eq(
         "*.instructions.md",
-        &files("", ".instructions.md")?,
+        &files("manifests", ".instructions.md")?,
         &expected,
     );
     failures.require(
