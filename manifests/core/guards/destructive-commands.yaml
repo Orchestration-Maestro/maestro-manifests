@@ -1,0 +1,46 @@
+apiVersion: maestro.guards/v1
+rules:
+  - id: recursive-rm
+    description: Recursive file removal can delete a whole tree
+    regex: '(?i)\brm\s+(?:-\S+\s+)*(?:-[a-z]*r[a-z]*|--recursive)\b'
+    action: confirm
+    appliesTo: [command]
+    examples:
+      match:
+        - 'rm -rf build'
+        - 'rm -fr /tmp/cache'
+        - 'rm -f -r old'
+        - 'cd out && rm -R .'
+        - 'rm --recursive target'
+      noMatch:
+        - 'rm notes.txt'
+        - 'rm -f build.log'
+        - 'git rm --cached notes.txt'
+        - 'echo format -r disk'
+  - id: sudo
+    description: Running as another user, usually root, bypasses file permissions
+    regex: '(?i)\bsudo\b'
+    action: confirm
+    appliesTo: [command]
+    examples:
+      match:
+        - 'sudo apt install ripgrep'
+        - 'cd /srv && sudo systemctl restart web'
+      noMatch:
+        - 'echo pseudo-code'
+        - 'cat /etc/sudoers'
+        - 'visudo --check'
+  - id: world-writable-permissions
+    description: Mode 777 lets every user on the machine write the file
+    regex: '(?i)\b(?:chmod|chown)\b[^\r\n]*\b0?777\b'
+    action: confirm
+    appliesTo: [command]
+    examples:
+      match:
+        - 'chmod 777 deploy.sh'
+        - 'chmod -R 0777 /var/www'
+        - 'chown 777 shared'
+      noMatch:
+        - 'chmod 755 deploy.sh'
+        - 'chmod 644 build777.log'
+        - 'ls -l 777.txt'

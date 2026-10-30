@@ -1,0 +1,43 @@
+apiVersion: maestro.guards/v1
+rules:
+  - id: environment-files
+    description: Environment files hold credentials and are never edited by the agent
+    regex: '(?:^|[/\\])\.env(?:\.[^/\\]+)?$'
+    action: block
+    appliesTo: [path]
+    examples:
+      match:
+        - '.env'
+        - 'api/.env.local'
+        - '/srv/app/.env.production'
+        - 'C:\work\app\.env'
+      noMatch:
+        - 'src/environment.ts'
+        - 'docs/env-guide.md'
+        - '.envrc'
+  - id: git-folder
+    description: The Git folder holds history and hooks and is never edited by the agent
+    regex: '(?:^|[/\\])\.git(?:[/\\]|$)'
+    action: block
+    appliesTo: [path]
+    examples:
+      match:
+        - '.git/config'
+        - 'repo/.git/hooks/pre-commit'
+        - 'repo\.git\HEAD'
+      noMatch:
+        - '.github/workflows/ci.yml'
+        - '.gitignore'
+        - 'src/widget.git/readme.md'
+  - id: installed-dependencies
+    description: Installed dependencies are generated and are never edited by the agent
+    regex: '(?:^|[/\\])node_modules(?:[/\\]|$)'
+    action: block
+    appliesTo: [path]
+    examples:
+      match:
+        - 'node_modules/left-pad/index.js'
+        - 'web/node_modules/react/package.json'
+      noMatch:
+        - 'src/node_modules_notes.md'
+        - 'my_node_modules/x.js'
