@@ -9,6 +9,7 @@ mod manifest_root;
 mod package_file;
 mod policy;
 mod policy_coverage;
+mod quality;
 mod retired_generator;
 mod security_capability;
 mod standards_pages;

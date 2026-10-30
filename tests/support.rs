@@ -15,6 +15,13 @@ pub const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robus
 /// A failed check: one line per problem, each naming the file it concerns.
 pub struct Report(String);
 
+impl Report {
+    /// Wraps `message` as a failed check.
+    pub fn new(message: String) -> Self {
+        Self(message)
+    }
+}
+
 impl fmt::Debug for Report {
     /// Prints the lines unescaped so the test runner shows them as written.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
