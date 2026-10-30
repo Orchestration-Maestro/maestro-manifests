@@ -85,7 +85,7 @@ impl Drop for Checkout {
     }
 }
 
-/// Runs the tests in `check`, which CI runs, but not in `content`, which they run.
+/// Runs only the Rust tests in `check`, which CI runs, and no tests in `content`, which they run.
 #[test]
 fn check_runs_the_content_checks_and_the_tests_without_recursion() -> Check {
     let mut failures = Failures::default();
@@ -99,6 +99,7 @@ fn check_runs_the_content_checks_and_the_tests_without_recursion() -> Check {
         "prek run --all-files --stage manual",
     );
     failures.contains("just --dry-run check", &check.text, "cargo test");
+    failures.lacks("just --dry-run check", &check.text, "unittest");
     let content = checkout.run("just", &["--dry-run", "content"])?;
     failures.require(
         content.code == Some(0),
