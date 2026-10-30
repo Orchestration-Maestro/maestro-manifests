@@ -60,7 +60,10 @@ fn frontmatter_is_split_only_in_reading() -> Check {
 /// Collapses whitespace in one place.
 #[test]
 fn whitespace_is_collapsed_only_in_reading() -> Check {
-    only_in(READING, r#"split_whitespace\(\)\.collect::<Vec<_>>\(\)\.join\(" "\)"#)
+    only_in(
+        READING,
+        r#"split_whitespace\(\)\.collect::<Vec<_>>\(\)\.join\(" "\)"#,
+    )
 }
 
 /// Compiles patterns in one place.

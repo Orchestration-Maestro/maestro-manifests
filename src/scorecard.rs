@@ -7,12 +7,12 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
-use std::fs;
-use std::io;
 
 use serde_json::{Map, Value, json};
 use yaml_rust2::scanner::ScanError;
 use yaml_rust2::{Yaml, YamlLoader};
+
+use crate::reading;
 
 /// The kind of an authored artifact; a name is unique per kind.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -105,26 +105,14 @@ impl Conflict {
 /// Why a release could not be read.
 #[derive(Debug)]
 pub enum Error {
-    /// A file or folder could not be read.
-    Read {
-        /// The path from the root.
-        path: String,
-        /// The failure from the operating system.
-        source: io::Error,
-    },
+    /// A file or folder could not be read, or a JSON file is not valid JSON.
+    Reading(reading::Error),
     /// A frontmatter block or YAML file is not valid YAML.
     Yaml {
         /// The path from the root.
         path: String,
         /// The scanner's failure.
         source: ScanError,
-    },
-    /// A JSON file is not valid JSON.
-    Json {
-        /// The path from the root.
-        path: String,
-        /// The parser's failure.
-        source: serde_json::Error,
     },
     /// A file that must carry a `name`, or a guard rule that must carry an `id`, has none.
     MissingName {
@@ -138,20 +126,24 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Read { path, .. } => write!(formatter, "cannot read {path}"),
+            Self::Reading(error) => fmt::Display::fmt(error, formatter),
             Self::Yaml { path, .. } => write!(formatter, "{path} is not valid YAML"),
-            Self::Json { path, .. } => write!(formatter, "{path} is not valid JSON"),
             Self::MissingName { path, key } => write!(formatter, "{path} has no {key}"),
         }
+    }
+}
+
+impl From<reading::Error> for Error {
+    fn from(error: reading::Error) -> Self {
+        Self::Reading(error)
     }
 }
 
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::Read { source, .. } => Some(source),
+            Self::Reading(error) => std::error::Error::source(error),
             Self::Yaml { source, .. } => Some(source),
-            Self::Json { source, .. } => Some(source),
             Self::MissingName { .. } => None,
         }
     }
@@ -211,9 +203,7 @@ pub fn report(root: &str) -> Result<Value, Error> {
 ///
 /// Returns [`Error`] when a file of the release cannot be read or parsed.
 pub(crate) fn conflicts(root: &str) -> Result<Vec<Conflict>, Error> {
-    let mut files = Vec::new();
-    collect_files(root, "manifests", &mut files)?;
-    files.sort();
+    let files = reading::files(root, "manifests", &[])?;
     let known: BTreeSet<&str> = files.iter().map(String::as_str).collect();
 
     let mut artifacts = Vec::new();
@@ -296,25 +286,6 @@ fn duplicates<'a, K: Ord>(items: impl Iterator<Item = (K, &'a str)>) -> Vec<(K, 
         .collect()
 }
 
-/// Lists every file under `relative` in `root`, as `/`-separated paths from the root.
-fn collect_files(root: &str, relative: &str, files: &mut Vec<String>) -> Result<(), Error> {
-    let read_failure = |source| Error::Read {
-        path: relative.to_owned(),
-        source,
-    };
-    for entry in fs::read_dir(format!("{root}/{relative}")).map_err(read_failure)? {
-        let entry = entry.map_err(read_failure)?;
-        let path = format!("{relative}/{}", entry.file_name().to_string_lossy());
-        if entry.file_type().map_err(read_failure)?.is_dir() {
-            collect_files(root, &path, files)?;
-        } else {
-            files.push(path);
-        }
-    }
-
-    Ok(())
-}
-
 /// The kind of artifact a release path holds, if it holds one. Every kind starts
 /// at the root of an area, `core/` or `capabilities/<group>/<name>/`, as the
 /// loaders find it; `known` holds every file of the release.
@@ -387,7 +358,7 @@ fn skill_folder<'a>(
 
 /// Reads the `name` of the capability whose `package.json` is at `path`.
 fn capability_name(root: &str, path: &str) -> Result<String, Error> {
-    let package = parse_json(path, &read(root, path)?)?;
+    let package = reading::parse_json(path, &reading::read(root, path)?)?;
 
     package["name"]
         .as_str()
@@ -398,25 +369,9 @@ fn capability_name(root: &str, path: &str) -> Result<String, Error> {
         })
 }
 
-/// Reads the file at `path` in `root`.
-fn read(root: &str, path: &str) -> Result<String, Error> {
-    fs::read_to_string(format!("{root}/{path}")).map_err(|source| Error::Read {
-        path: path.to_owned(),
-        source,
-    })
-}
-
-/// Parses the JSON `text` of the file at `path`.
-fn parse_json(path: &str, text: &str) -> Result<Value, Error> {
-    serde_json::from_str(text).map_err(|source| Error::Json {
-        path: path.to_owned(),
-        source,
-    })
-}
-
 /// Reads the artifacts at `path`: one, or for a guard file one per rule.
 fn load_artifacts(root: &str, path: &str, located: Located) -> Result<Vec<Artifact>, Error> {
-    let text = read(root, path)?;
+    let text = reading::read(root, path)?;
     if located.kind == ArtifactKind::GuardRule {
         return guard_rules(path, &text);
     }
@@ -443,9 +398,10 @@ fn load_artifact(path: &str, text: &str, located: Located) -> Result<Artifact, E
             )
         }
         _ => {
-            let (frontmatter, body) = split_frontmatter(text);
+            // A file with no frontmatter block has an empty frontmatter.
+            let (frontmatter, body) = reading::split_frontmatter(text).unwrap_or(("", text));
             let (name, head) = take_key(first_document(frontmatter).map_err(yaml)?, "name");
-            let body = body.split_whitespace().collect::<Vec<_>>().join(" ");
+            let body = reading::collapse_whitespace(body);
             (name, Content { head, body })
         }
     };
@@ -502,7 +458,7 @@ fn guard_rules(path: &str, text: &str) -> Result<Vec<Artifact>, Error> {
 
 /// Reads a theme's `name` and the rest of its JSON as comparable content.
 fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), Error> {
-    let mut theme = parse_json(path, text)?;
+    let mut theme = reading::parse_json(path, text)?;
     let name = theme
         .as_object_mut()
         .and_then(|fields| fields.shift_remove("name"))
@@ -543,21 +499,4 @@ fn take_key(document: Yaml, key: &str) -> (Option<String>, Yaml) {
         }
         other => (None, other),
     }
-}
-
-/// Splits a Markdown file into its frontmatter and body; a file with no
-/// frontmatter block has an empty frontmatter.
-fn split_frontmatter(text: &str) -> (&str, &str) {
-    let Some(rest) = text.strip_prefix("---\n") else {
-        return ("", text);
-    };
-    let mut end = 0;
-    for line in rest.split_inclusive('\n') {
-        if line.trim_end() == "---" {
-            return (&rest[..end], &rest[end + line.len()..]);
-        }
-        end += line.len();
-    }
-
-    ("", text)
 }

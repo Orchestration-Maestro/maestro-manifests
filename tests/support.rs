@@ -4,13 +4,16 @@ use std::collections::HashMap;
 use std::fmt;
 use std::path::Path;
 
-use maestro_manifests_tests::ROOT;
+use maestro_manifests_tests::{ROOT, reading};
 use regex::Regex;
 use serde_json::Value;
 
 /// The words Maestro's voice avoids, as a regex alternation.
 pub const AVOIDED_WORDS: &str = "just|simply|leverage|utilize|oops|awesome|robust|seamless|magic|\
                                  blazing|revolutionary|supercharge|please note";
+
+/// The entries `entries` and `files` leave out: Git's own directory and the build directory.
+const SKIPPED: [&str; 2] = [".git", "target"];
 
 /// A failed check: one line per problem, each naming the file it concerns.
 pub struct Report(String);
@@ -19,6 +22,16 @@ impl Report {
     /// Wraps `message` as a failed check.
     pub fn new(message: String) -> Self {
         Self(message)
+    }
+}
+
+impl From<reading::Error> for Report {
+    /// Words a failed read or parse as a line naming its file.
+    fn from(error: reading::Error) -> Self {
+        Self(match error {
+            reading::Error::Read { path, source } => format!("{path}: {source}"),
+            reading::Error::Json { path, source } => format!("{path}: not valid JSON: {source}"),
+        })
     }
 }
 
@@ -152,13 +165,12 @@ pub fn git(args: &[&str]) -> Result<Run, Report> {
 
 /// Reads the file at the repository-relative `path`.
 pub fn read(path: &str) -> Result<String, Report> {
-    std::fs::read_to_string(Path::new(ROOT).join(path))
-        .map_err(|error| Report(format!("{path}: {error}")))
+    Ok(reading::read(ROOT, path)?)
 }
 
 /// Parses `text`, the content of the file `path`, as JSON.
 pub fn parse_json(path: &str, text: &str) -> Result<serde_json::Value, Report> {
-    serde_json::from_str(text).map_err(|error| Report(format!("{path}: not valid JSON: {error}")))
+    Ok(reading::parse_json(path, text)?)
 }
 
 /// Reads and parses the JSON file at the repository-relative `path`.
@@ -202,49 +214,21 @@ pub fn tracked_files() -> Result<Vec<String>, Report> {
 ///
 /// Git's own directory and the build directory are left out.
 pub fn entries(dir: &str) -> Result<Vec<(String, bool)>, Report> {
-    let failed = |error: std::io::Error| Report(format!("{dir}: {error}"));
-    let mut found = Vec::new();
-    for entry in std::fs::read_dir(Path::new(ROOT).join(dir)).map_err(failed)? {
-        let entry = entry.map_err(failed)?;
-        let name = entry.file_name().to_string_lossy().into_owned();
-        if name != ".git" && name != "target" {
-            let path = if dir.is_empty() {
-                name
-            } else {
-                format!("{dir}/{name}")
-            };
-            found.push((path, entry.path().is_dir()));
-        }
-    }
-    Ok(found)
+    Ok(reading::entries(ROOT, dir, &SKIPPED)?)
 }
 
 /// Lists the files under the repository-relative `dir` whose names end in `suffix`.
 ///
 /// Paths are repository-relative and sorted.
 pub fn files(dir: &str, suffix: &str) -> Result<Vec<String>, Report> {
-    let mut found = Vec::new();
-    let mut pending = vec![dir.to_owned()];
-    while let Some(current) = pending.pop() {
-        for (path, is_directory) in entries(&current)? {
-            if is_directory {
-                pending.push(path);
-            } else if path.ends_with(suffix) {
-                found.push(path);
-            }
-        }
-    }
-    found.sort();
+    let mut found = reading::files(ROOT, dir, &SKIPPED)?;
+    found.retain(|path| path.ends_with(suffix));
     Ok(found)
 }
 
 /// Splits a Markdown resource into its `---` frontmatter and its body.
 pub fn split_frontmatter<'a>(path: &str, text: &'a str) -> Result<(&'a str, &'a str), Report> {
-    let mut parts = text.splitn(3, "---\n");
-    match (parts.next(), parts.next(), parts.next()) {
-        (Some(_), Some(frontmatter), Some(body)) => Ok((frontmatter, body)),
-        _ => Err(Report(format!("{path}: no `---` frontmatter"))),
-    }
+    reading::split_frontmatter(text).ok_or_else(|| Report(format!("{path}: no `---` frontmatter")))
 }
 
 /// Returns groups `1` and `2` of every match of `pattern` in `text`.
@@ -382,11 +366,6 @@ impl Sections {
 /// Counts the sentences in `text`: each `.`, `!` or `?` followed by whitespace or the end.
 pub fn sentence_count(text: &str) -> Result<usize, Report> {
     Ok(re(r"[.!?](?:\s|$)")?.find_iter(text).count())
-}
-
-/// Returns `text` with every run of whitespace replaced by one space.
-pub fn collapse_whitespace(text: &str) -> String {
-    text.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
 /// Returns `text` without its fenced code blocks.
