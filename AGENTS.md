@@ -45,11 +45,10 @@ hooks are installed.
 - `just rust` runs `cargo fmt --check` and `cargo clippy --all-targets --locked
   -- -D warnings`. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
-- `just test` runs `cargo test --locked` and then
-  `python3 -m unittest discover -s tests`. The Python tests run the contributor
-  commands in disposable Git indexes, the manifest examples and the retired
-  generator check. Checked by: the required workflow runs it through
-  `just check`; report its result in the pull request.
+- `just test` runs `cargo test --locked`: the Rust checks of the guides, roles,
+  policy and manifest examples, and of the contributor commands in disposable Git
+  indexes. Checked by: the required workflow runs it through `just check`; report
+  its result in the pull request.
 - Report the checks you actually ran, with exit codes. Do not claim a schema or
   runtime check; this repository has none yet.
 - `.pre-commit-config.yaml` owns the content checks. The `rust` recipe in the

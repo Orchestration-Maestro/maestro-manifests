@@ -143,7 +143,7 @@ its body is the appended text. There is no sidecar or ownership field.
 ## Validation
 
 Content checks cover Markdown and file hygiene. `just test` runs
-`tests/test_system_prompt.py`, which pairs each rule of the base prompt with the
+`tests/system_prompt.rs`, which pairs each rule of the base prompt with the
 golden rules it serves, checks that the [standards pages](standards/engineering.md)
 list them and checks that the example above is the file. Prompt precedence and
 refusal before an explicit replacement require the runtime loader and decision
