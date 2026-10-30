@@ -1,0 +1,13 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-content",
+      "artifactKind": "theme",
+      "artifacts": [
+        "manifests/capabilities/practice/review/themes/night.json",
+        "manifests/capabilities/security/scan/themes/dusk.json"
+      ]
+    }
+  ]
+}
