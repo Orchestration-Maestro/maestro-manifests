@@ -391,7 +391,7 @@ fn capability_name(root: &str, path: &str) -> Result<String, Error> {
 
     package["name"]
         .as_str()
-        .map(str::to_owned)
+        .and_then(name_of)
         .ok_or_else(|| Error::MissingName {
             path: path.to_owned(),
             key: "name",
@@ -506,7 +506,7 @@ fn theme_content(path: &str, text: &str) -> Result<(Option<String>, Content), Er
     let name = theme
         .as_object_mut()
         .and_then(|fields| fields.shift_remove("name"))
-        .and_then(|name| name.as_str().map(str::to_owned));
+        .and_then(|name| name.as_str().and_then(name_of));
 
     Ok((
         name,
@@ -525,6 +525,12 @@ fn first_document(text: &str) -> Result<Yaml, ScanError> {
         .unwrap_or(Yaml::Null))
 }
 
+/// The name `value` gives an artifact; an empty value gives none, for every
+/// kind and every reader.
+fn name_of(value: &str) -> Option<String> {
+    (!value.is_empty()).then(|| value.to_owned())
+}
+
 /// Removes the string `key` from a YAML mapping and returns it with the rest;
 /// a missing, non-string or empty value comes back as `None`.
 fn take_key(document: Yaml, key: &str) -> (Option<String>, Yaml) {
@@ -532,8 +538,7 @@ fn take_key(document: Yaml, key: &str) -> (Option<String>, Yaml) {
         Yaml::Hash(mut fields) => {
             let value = fields
                 .remove(&Yaml::String(key.to_owned()))
-                .and_then(|value| value.as_str().map(str::to_owned))
-                .filter(|value| !value.is_empty());
+                .and_then(|value| value.as_str().and_then(name_of));
             (value, Yaml::Hash(fields))
         }
         other => (None, other),
