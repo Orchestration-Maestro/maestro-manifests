@@ -2,5 +2,6 @@
 
 mod author_docs;
 mod core_roles;
+mod instructions;
 mod package_file;
 mod support;

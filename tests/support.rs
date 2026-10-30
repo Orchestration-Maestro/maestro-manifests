@@ -90,6 +90,23 @@ pub fn read(path: &str) -> Result<String, Report> {
         .map_err(|error| Report(format!("{path}: {error}")))
 }
 
+/// Lists the repository-relative paths Git tracks.
+pub fn tracked_files() -> Result<Vec<String>, Report> {
+    let output = std::process::Command::new("git")
+        .args(["ls-files", "-z"])
+        .current_dir(ROOT)
+        .output()
+        .map_err(|error| Report(format!("git ls-files: {error}")))?;
+    if !output.status.success() {
+        return Err(Report(format!("git ls-files: {}", output.status)));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .split('\0')
+        .filter(|name| !name.is_empty())
+        .map(str::to_owned)
+        .collect())
+}
+
 /// Lists the entries of the repository-relative `dir` as `(path, is_directory)`.
 ///
 /// Git's own directory and the build directory are left out.
