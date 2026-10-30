@@ -42,6 +42,7 @@ rules:
         - 'chown 777 shared'
         - 'chmod 1777 /srv/shared'
         - 'chmod 4777 tool'
+        - 'python3 -c "import os; os.chmod(p, 0o777)"'
       noMatch:
         - 'chmod 755 deploy.sh'
         - 'chmod 644 build777.log'

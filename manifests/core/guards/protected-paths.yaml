@@ -15,6 +15,10 @@ rules:
         - 'config/prod.env'
         - '.env-backup'
         - 'venv/.env/bin/activate'
+        - '.envs/.production/.django'
+        - '.env_local'
+        - '.env2'
+        - '.envrc.local'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
