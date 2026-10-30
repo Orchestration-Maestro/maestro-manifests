@@ -21,16 +21,19 @@ fn only_in(owner: &str, pattern: &str) -> Check {
     failures.finish()
 }
 
-/// Cuts the text under a heading in one place.
+/// Cuts the text under a heading, and lists a page's headings, in one place.
 #[test]
 fn headings_are_split_only_in_support() -> Check {
-    only_in(SUPPORT, r#"split(?:_once)?\("[^"]*## "#)
+    only_in(SUPPORT, r#"split(?:_once)?\("[^"]*## |\^## \("#)
 }
 
-/// Reads a core role's frontmatter in one place.
+/// Reads a role's frontmatter in one place.
 #[test]
 fn role_frontmatter_is_read_only_in_support() -> Check {
-    only_in(SUPPORT, r#""model: "|split_once\(": "\)"#)
+    only_in(
+        SUPPORT,
+        r#""(?:name|model|tools): |\^description: |split_once\(": "\)"#,
+    )
 }
 
 /// Reads the string entries of a JSON array in one place.

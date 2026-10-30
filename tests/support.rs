@@ -485,6 +485,21 @@ fn role_frontmatter_line_without_a_separator_is_refused() -> Check {
     failures.finish()
 }
 
+/// A key the frontmatter sets twice fails the check instead of keeping the last value.
+#[test]
+fn role_with_a_repeated_key_is_refused() -> Check {
+    let mut failures = Failures::default();
+    let text = "---\nname: scout\nmodel: gpt-5\nmodel: claude-haiku-5-5\n---\nFind it.\n";
+
+    failures.require(
+        Role::parse("scout.md", text).is_err(),
+        "scout.md",
+        "keeps the last `model`",
+    );
+
+    failures.finish()
+}
+
 /// The role reader finds a core role file by name.
 #[test]
 fn read_role_reads_a_core_role_file() -> Check {
