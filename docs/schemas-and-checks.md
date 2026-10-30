@@ -24,7 +24,7 @@ then `mise exec -- just check`. The commands are defined in the real
 
 `just setup` installs pinned tools and prek hooks. `.pre-commit-config.yaml`
 owns the checks; the shared required CI invokes the same `just check`, which
-runs the hooks through `just content` and then `just test`. Do not create a second
+runs the hooks through `just content`, then `just rust` and `just test`. Do not create a second
 copy of those checks in a workflow. `just test` runs the contributor-command tests
 in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
@@ -33,8 +33,9 @@ documentation examples. It also checks the layout: every manifest artifact sits
 under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
 every documentation link resolves. Those are content assertions, not runtime
 execution.
-There is no Rust crate in this repository, so there are no Cargo tests or Clippy
-invocation here.
+`just rust` fails on an unformatted file or a Clippy warning, and `just test`
+also runs `cargo test --locked` for the repository's one Rust test crate,
+`maestro-manifests-tests`.
 
 The content checks parse YAML/JSON/TOML and check spelling, Markdown, EditorConfig,
 file hygiene and conflict markers. Staged commit hooks also scan secrets and

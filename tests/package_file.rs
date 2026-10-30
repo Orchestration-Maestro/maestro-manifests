@@ -13,6 +13,9 @@ fn package_file_names_a_package_in_the_organization_scope() -> Result<(), String
     let text = fs::read_to_string(&path).map_err(|error| format!("{}: {error}", path.display()))?;
     let name = Regex::new(r#""name":\s*"@orchestration-maestro/[a-z-]+""#)
         .map_err(|error| error.to_string())?;
-    assert!(name.is_match(&text), "package.json names no @orchestration-maestro package");
+    assert!(
+        name.is_match(&text),
+        "package.json names no @orchestration-maestro package"
+    );
     Ok(())
 }

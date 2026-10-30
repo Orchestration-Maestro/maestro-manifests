@@ -37,12 +37,15 @@ review is all that holds a practice. Where neither exists, the rule is
 unsupported here and the page says that too.
 
 - **Content check.** `just check` runs `just content`, which runs the hooks of
-  `.pre-commit-config.yaml` on every tracked file, and then `just test`. The job
+  `.pre-commit-config.yaml` on every tracked file, then `just rust` and `just test`. The job
   `Required content checks` runs it on each pull request and merge group, on a
   hosted `ubuntu-24.04` runner with `contents: read` and no secret. The
   `hygiene-central` ruleset requires that job.
-- **Tests.** `just test` runs the standard-library tests under `tests/`. Because
-  `just check` runs them, a pull request that breaks one fails the required job.
+- **Rust gate.** `just rust` runs `cargo fmt --check` and Clippy with warnings
+  denied. A pull request with an unformatted file or a warning fails the required job.
+- **Tests.** `just test` runs the Rust test crate with `cargo test --locked`, then
+  the standard-library tests under `tests/`. Because `just check` runs them, a
+  pull request that breaks one fails the required job.
 - **Commit hooks.** `just setup` installs them. At commit, the hook
   `workspace-check` runs `just pre-commit` on the staged files and the hook
   `gitleaks` scans them for secrets. The hooks `conventional-commit-header` and

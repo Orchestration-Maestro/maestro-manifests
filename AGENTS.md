@@ -32,7 +32,7 @@ hooks are installed.
 
 ## Checks
 
-- `just check` runs `just content` and `just test`, as CI does.
+- `just check` runs `just content`, `just rust` and `just test`, as CI does.
   `just content` runs `prek run --all-files --stage manual`. It checks merge
   markers, YAML, JSON and TOML syntax, final newlines, trailing whitespace, line
   endings, files over 500 KB, case conflicts, shebangs, spelling (`typos`), every
@@ -40,7 +40,11 @@ hooks are installed.
   (`rumdl`). The organization's required content workflow runs
   `mise exec -- just check` on every pull request and merge group, and the merge
   queue waits for it.
-- `just test` runs `python3 -m unittest discover -s tests`: the contributor
+- `just rust` runs `cargo fmt --check` and `cargo clippy --all-targets --locked
+  -- -D warnings`. Checked by: the required workflow runs it through
+  `just check`; report its result in the pull request.
+- `just test` runs `cargo test --locked` and then
+  `python3 -m unittest discover -s tests`. The Python tests run the contributor
   commands in disposable Git indexes, the manifest examples and the retired
   generator check. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
