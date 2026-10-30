@@ -10,4 +10,5 @@ mod package_file;
 mod policy;
 mod policy_coverage;
 mod retired_generator;
+mod security_capability;
 mod support;
