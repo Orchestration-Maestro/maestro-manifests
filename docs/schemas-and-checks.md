@@ -31,8 +31,9 @@ contributor-command tests in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
 contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
 documentation examples. It also runs every example of every guard rule and
-checks that the guards page quotes the guard files as written. It also checks
-the layout: every manifest artifact sits
+checks that the guards page quotes the guard files as written. It also runs the
+[scorecard](scorecard.md) over the release and fails on a name or content
+conflict. It also checks the layout: every manifest artifact sits
 under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
 every documentation link resolves. Those are content assertions, not runtime
 execution.
