@@ -4,7 +4,9 @@ use std::collections::BTreeSet;
 
 use serde_json::json;
 
-use crate::support::{Check, Failures, files, json, owned, read, split_frontmatter};
+use crate::support::{
+    Check, Failures, collapse_whitespace, files, json, owned, read, split_frontmatter,
+};
 
 /// The security capability folder.
 const CAPABILITY: &str = "manifests/capabilities/security/maestro-security";
@@ -236,7 +238,7 @@ fn check_responsibilities(reshape: impl Fn(&str) -> String) -> Check {
         let path = format!("{CAPABILITY}/agents/{name}.md");
         let text = reshape(&read(&path)?);
         let (_, body) = split_frontmatter(&path, &text)?;
-        let collapsed = body.split_whitespace().collect::<Vec<_>>().join(" ");
+        let collapsed = collapse_whitespace(body);
         for term in terms {
             failures.contains(name, &collapsed, term);
         }

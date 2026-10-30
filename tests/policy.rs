@@ -155,6 +155,15 @@ impl Baseline {
         self.strings("locked").into_iter().collect()
     }
 
+    /// Returns the policy's `roles` object.
+    pub fn roles(&self) -> Map<String, Value> {
+        self.policy
+            .get("roles")
+            .and_then(Value::as_object)
+            .cloned()
+            .unwrap_or_default()
+    }
+
     /// Returns the policy's `bounds` object.
     pub fn bounds(&self) -> Map<String, Value> {
         self.policy

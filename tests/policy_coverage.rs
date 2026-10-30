@@ -48,12 +48,7 @@ fn core_roles_and_workflows_are_required() -> Check {
 fn every_core_role_locks_model_thinking_and_tools() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
-    let roles = baseline
-        .policy
-        .get("roles")
-        .and_then(Value::as_object)
-        .cloned()
-        .unwrap_or_default();
+    let roles = baseline.roles();
     let mut core = core_roles()?;
     core.sort();
 
@@ -110,12 +105,7 @@ fn policy_guide_lists_the_baseline() -> Check {
         .nth(1)
         .and_then(|rest| rest.split("\n## ").next());
     let bounds = baseline.bounds();
-    let roles = baseline
-        .policy
-        .get("roles")
-        .and_then(Value::as_object)
-        .cloned()
-        .unwrap_or_default();
+    let roles = baseline.roles();
     let mut listed = baseline.strings("locked");
     listed.extend(baseline.strings("models"));
     listed.extend(baseline.strings("required"));

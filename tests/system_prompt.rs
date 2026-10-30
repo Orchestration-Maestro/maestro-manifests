@@ -2,7 +2,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::support::{Check, Failures, captures, re, read};
+use crate::support::{Check, Failures, captures, collapse_whitespace, read, sentence_count};
 
 /// The core system prompt.
 const PROMPT: &str = "manifests/core/SYSTEM.md";
@@ -94,12 +94,11 @@ fn prompt_is_the_listed_rules_with_its_fixed_lines() -> Check {
     let mut failures = Failures::default();
     let prompt = read(PROMPT)?;
     let listed: Vec<String> = RULES.iter().map(|(rule, _)| (*rule).to_owned()).collect();
-    let sentence_end = re(r"[.!?](?:\s|$)")?;
-    let prose = prompt.split_whitespace().collect::<Vec<_>>().join(" ");
+    let prose = collapse_whitespace(&prompt);
 
     failures.require_eq("rules", &bullets(&prompt)?, &listed);
     for (rule, _) in RULES {
-        failures.require_eq(rule, &sentence_end.find_iter(rule).count(), &1);
+        failures.require_eq(rule, &sentence_count(rule)?, &1);
         failures.require(rule.ends_with('.'), rule, "does not end with a period");
     }
     failures.require(

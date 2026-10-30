@@ -261,6 +261,16 @@ pub fn exists(path: &str) -> bool {
     Path::new(ROOT).join(path).exists()
 }
 
+/// Counts the sentences in `text`: each `.`, `!` or `?` followed by whitespace or the end.
+pub fn sentence_count(text: &str) -> Result<usize, Report> {
+    Ok(re(r"[.!?](?:\s|$)")?.find_iter(text).count())
+}
+
+/// Returns `text` with every run of whitespace replaced by one space.
+pub fn collapse_whitespace(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 /// Returns `text` without its fenced code blocks.
 pub fn strip_fences(text: &str) -> Result<String, Report> {
     Ok(re(r"(?s)```.*?```")?.replace_all(text, "").into_owned())

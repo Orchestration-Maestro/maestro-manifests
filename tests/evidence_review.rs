@@ -6,7 +6,7 @@ use std::path::Path;
 use serde_json::{Value, json};
 
 use crate::support::{
-    AVOIDED_WORDS, Check, Failures, Report, agents, files, json, owned, re, read,
+    AVOIDED_WORDS, Check, Failures, Report, agents, files, json, owned, re, read, sentence_count,
     split_frontmatter, tasks,
 };
 
@@ -278,7 +278,6 @@ fn evidence_review_rules_compare_gaps_and_results_with_observations() -> Check {
 #[test]
 fn evidence_review_text_uses_maestro_voice() -> Check {
     let mut failures = Failures::default();
-    let sentence_end = re(r"[.!?](?:\s|$)")?;
     let numbering = re(r"^\d+\. ")?;
 
     for name in [
@@ -307,7 +306,7 @@ fn evidence_review_text_uses_maestro_voice() -> Check {
                 .collect()
         };
         for line in lines.iter().filter(|line| !line.starts_with('|')) {
-            let count = sentence_end.find_iter(&numbering.replace(line, "")).count();
+            let count = sentence_count(&numbering.replace(line, ""))?;
             failures.require(
                 count <= 1,
                 &path,
