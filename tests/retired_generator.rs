@@ -23,9 +23,9 @@ fn verdict(code: Option<i32>, stdout: &str, stderr: &str) -> Check {
 #[test]
 fn no_tracked_file_names_the_generator() -> Check {
     // The bracket keeps this file from matching its own pattern.
-    let (code, stdout, stderr) = git(&["grep", "-n", "-i", "-e", "rust[-]gate"])?;
+    let scan = git(&["grep", "-n", "-i", "-e", "rust[-]gate"])?;
 
-    verdict(code, &stdout, &stderr)
+    verdict(scan.code, &scan.stdout, &scan.stderr)
 }
 
 /// Rejects a Git failure even when it produces no stdout.

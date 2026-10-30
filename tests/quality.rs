@@ -1,21 +1,12 @@
 //! Exercises the contributor commands in disposable Git indexes.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::support::{Check, Failures, Report, tracked_files};
+use crate::support::{Check, Failures, Report, Run, run_in, tracked_files};
 
 /// Numbers the checkouts of one test run, so no two share a directory.
 static CHECKOUTS: AtomicUsize = AtomicUsize::new(0);
-
-/// A command's exit code and its output.
-struct Run {
-    /// The exit code, or `None` when a signal ended the command.
-    code: Option<i32>,
-    /// Standard output followed by standard error.
-    text: String,
-}
 
 /// A copy of the tracked files in a fresh Git repository, removed when dropped.
 ///
@@ -50,23 +41,9 @@ impl Checkout {
         Ok(checkout)
     }
 
-    /// Runs `program` in the copy and captures its output.
+    /// Runs `program` in the copy with the prek configuration check on.
     fn run(&self, program: &str, args: &[&str]) -> Result<Run, Report> {
-        let output = Command::new(program)
-            .args(args)
-            .current_dir(&self.root)
-            .env("PREK_ALLOW_NO_CONFIG", "0")
-            .output()
-            .map_err(|error| Report::new(format!("{program} {}: {error}", args.join(" "))))?;
-        let text = format!(
-            "{}{}",
-            String::from_utf8_lossy(&output.stdout),
-            String::from_utf8_lossy(&output.stderr)
-        );
-        Ok(Run {
-            code: output.status.code(),
-            text,
-        })
+        run_in(&self.root, program, args, &[("PREK_ALLOW_NO_CONFIG", "0")])
     }
 
     /// Writes `content` to `name` in the copy.
@@ -92,21 +69,21 @@ fn check_runs_the_content_checks_and_the_tests_without_recursion() -> Check {
     let checkout = Checkout::new()?;
 
     let check = checkout.run("just", &["--dry-run", "check"])?;
-    failures.require(check.code == Some(0), "just --dry-run check", &check.text);
+    failures.require(check.code == Some(0), "just --dry-run check", &check.text());
     failures.contains(
         "just --dry-run check",
-        &check.text,
+        &check.text(),
         "prek run --all-files --stage manual",
     );
-    failures.contains("just --dry-run check", &check.text, "cargo test");
-    failures.lacks("just --dry-run check", &check.text, "unittest");
+    failures.contains("just --dry-run check", &check.text(), "cargo test");
+    failures.lacks("just --dry-run check", &check.text(), "unittest");
     let content = checkout.run("just", &["--dry-run", "content"])?;
     failures.require(
         content.code == Some(0),
         "just --dry-run content",
-        &content.text,
+        &content.text(),
     );
-    failures.lacks("just --dry-run content", &content.text, "cargo test");
+    failures.lacks("just --dry-run content", &content.text(), "cargo test");
 
     failures.finish()
 }
@@ -118,7 +95,7 @@ fn check_accepts_the_checkout_and_rejects_malformed_structured_content() -> Chec
     let checkout = Checkout::new()?;
 
     let clean = checkout.run("just", &["content"])?;
-    failures.require(clean.code == Some(0), "just content", &clean.text);
+    failures.require(clean.code == Some(0), "just content", &clean.text());
     for (name, content, hook) in [
         ("broken.yaml", "value: [\n", "check-yaml"),
         ("broken.json", "{\"value\":\n", "check-json"),
@@ -130,7 +107,7 @@ fn check_accepts_the_checkout_and_rejects_malformed_structured_content() -> Chec
         let broken = checkout.run("just", &["content"])?;
 
         failures.require(broken.code != Some(0), name, "just content accepted it");
-        failures.contains(name, &broken.text, &format!("- hook id: {hook}"));
+        failures.contains(name, &broken.text(), &format!("- hook id: {hook}"));
         checkout.run("git", &["rm", "--cached", name])?;
         std::fs::remove_file(checkout.root.join(name))
             .map_err(|error| Report::new(format!("{name}: {error}")))?;
@@ -157,7 +134,7 @@ fn pre_commit_checks_staged_files_without_rejecting_untracked_content() -> Check
     failures.require(
         untracked.code == Some(0),
         "just pre-commit with an untracked file",
-        &untracked.text,
+        &untracked.text(),
     );
     failures.require(
         broken.code != Some(0),
@@ -166,13 +143,13 @@ fn pre_commit_checks_staged_files_without_rejecting_untracked_content() -> Check
     );
     failures.contains(
         "prek with broken.yaml staged",
-        &broken.text,
+        &broken.text(),
         "- hook id: check-yaml",
     );
     failures.require(
         fixed.code == Some(0),
         "prek with broken.yaml fixed",
-        &fixed.text,
+        &fixed.text(),
     );
 
     failures.finish()

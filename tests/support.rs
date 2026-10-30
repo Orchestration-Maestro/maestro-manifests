@@ -108,19 +108,46 @@ pub fn re(pattern: &str) -> Result<Regex, Report> {
     Regex::new(pattern).map_err(|error| Report(format!("pattern {pattern}: {error}")))
 }
 
-/// Runs `git` with `args` in the repository and returns its exit code, stdout and stderr.
-pub fn git(args: &[&str]) -> Result<(Option<i32>, String, String), Report> {
-    let output = std::process::Command::new("git")
+/// A finished command: its exit code and captured output.
+pub struct Run {
+    /// The exit code, or `None` when a signal ended the command.
+    pub code: Option<i32>,
+    /// What the command printed on standard output.
+    pub stdout: String,
+    /// What the command printed on standard error.
+    pub stderr: String,
+}
+
+impl Run {
+    /// Standard output followed by standard error.
+    pub fn text(&self) -> String {
+        format!("{}{}", self.stdout, self.stderr)
+    }
+}
+
+/// Runs `program` with `args` in the directory `dir`, with `env` added to its environment.
+pub fn run_in(
+    dir: &Path,
+    program: &str,
+    args: &[&str],
+    env: &[(&str, &str)],
+) -> Result<Run, Report> {
+    let output = std::process::Command::new(program)
         .args(args)
-        .current_dir(ROOT)
+        .current_dir(dir)
+        .envs(env.iter().copied())
         .output()
-        .map_err(|error| Report(format!("git {}: {error}", args.join(" "))))?;
-    let text = |bytes: &[u8]| String::from_utf8_lossy(bytes).into_owned();
-    Ok((
-        output.status.code(),
-        text(&output.stdout),
-        text(&output.stderr),
-    ))
+        .map_err(|error| Report(format!("{program} {}: {error}", args.join(" "))))?;
+    Ok(Run {
+        code: output.status.code(),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
+}
+
+/// Runs `git` with `args` in the repository.
+pub fn git(args: &[&str]) -> Result<Run, Report> {
+    run_in(Path::new(ROOT), "git", args, &[])
 }
 
 /// Reads the file at the repository-relative `path`.
@@ -151,11 +178,15 @@ pub fn tasks(workflow: &str) -> Result<Vec<String>, Report> {
 
 /// Lists the repository-relative paths Git tracks.
 pub fn tracked_files() -> Result<Vec<String>, Report> {
-    let (code, stdout, stderr) = git(&["ls-files", "-z"])?;
-    if code != Some(0) {
-        return Err(Report(format!("git ls-files exited {code:?}: {stderr}")));
+    let listing = git(&["ls-files", "-z"])?;
+    if listing.code != Some(0) {
+        return Err(Report(format!(
+            "git ls-files exited {:?}: {}",
+            listing.code, listing.stderr
+        )));
     }
-    Ok(stdout
+    Ok(listing
+        .stdout
         .split('\0')
         .filter(|name| !name.is_empty())
         .map(str::to_owned)
