@@ -32,7 +32,7 @@ rules:
         - 'visudo --check'
   - id: world-writable-permissions
     description: Mode 777 lets every user on the machine write the file
-    regex: '(?i)\b(?:chmod|chown)\b[^\r\n]*\b[0-7]{0,2}777\b'
+    regex: '(?i)\b(?:chmod|chown)\b[^\r\n]*\b(?:0o)?[0-7]{0,2}777\b'
     action: confirm
     appliesTo: [command]
     examples:

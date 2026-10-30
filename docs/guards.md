@@ -32,7 +32,7 @@ apiVersion: maestro.guards/v1
 rules:
   - id: environment-files
     description: Environment files hold credentials and are never edited by the agent
-    regex: '\.env(?:rc|[.-][^/\\]*)?(?:[/\\]|$)'
+    regex: '\.env'
     action: block
     appliesTo: [path]
     examples:
@@ -45,6 +45,10 @@ rules:
         - 'config/prod.env'
         - '.env-backup'
         - 'venv/.env/bin/activate'
+        - '.envs/.production/.django'
+        - '.env_local'
+        - '.env2'
+        - '.envrc.local'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
@@ -165,22 +169,22 @@ matched again.
 
 **Destructive commands** start from the three patterns of Maestro's shipped
 permission-gate example: recursive `rm`, `sudo` and a mode ending in 777, such
-as 1777 or 4777, with `chmod` or `chown`. The rules read the command text and do
-not parse the shell, so `echo "rm -rf x"` asks too. A `confirm` rule asks; it
-does not forbid. The recursive-removal rule also catches flag clusters such as
+as 1777, 4777 or 0o777, with `chmod` or `chown`. The rules read the command
+text and do not parse the shell, so `echo "rm -rf x"` asks too. A `confirm` rule
+asks; it does not forbid. The recursive-removal rule also catches flag clusters such as
 `-fr` and `-R`, and flags that come before the recursive one.
 
 **Protected paths** start from the paths of Maestro's shipped protected-paths
 example: environment files, the Git folder and the installed-dependencies
-folder. A rule matches the same paths as the example, plus backslash separators:
-`.git/` and `node_modules/` anywhere in a path, and `.env` as a whole name, or
-followed by `rc`, or by a suffix that starts with `.` or `-`, as a file or a
-folder. So `.envrc`, `prod.env`, `.env-backup`, a `.env/` folder and a bare
-`widget.git/` folder are blocked, while `.github/` and `.gitignore` pass. The
-environment rule also blocks a template such as `.env.example`, because the
-expression cannot look ahead to exempt it. Path rules check the `path` argument
-of `write` and `edit` only; they do not see a path inside a `bash` command, which
-only the `command` rules read.
+folder. The environment rule blocks any path that holds `.env`, as the example
+does, so `.envrc`, `prod.env`, `.env-backup`, `.env_local`, `.envs/` and a
+`.env/` folder are blocked, and so is a template such as `.env.example`. The Git
+and installed-dependencies rules match the same paths as the example, plus
+backslash separators: `.git/` and `node_modules/` anywhere in a path, including
+a bare `widget.git/` folder, and a path that ends in `.git`. `.github/` and
+`.gitignore` pass. Path rules check the `path` argument of `write` and `edit`
+only; they do not see a path inside a `bash` command, which only the `command`
+rules read.
 
 **Personal data** is redacted in tool output, assistant text and prompts. The
 rules cover Canadian social insurance numbers, payment card numbers, email

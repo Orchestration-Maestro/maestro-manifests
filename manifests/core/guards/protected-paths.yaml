@@ -2,7 +2,7 @@ apiVersion: maestro.guards/v1
 rules:
   - id: environment-files
     description: Environment files hold credentials and are never edited by the agent
-    regex: '\.env(?:rc|[.-][^/\\]*)?(?:[/\\]|$)'
+    regex: '\.env'
     action: block
     appliesTo: [path]
     examples:
