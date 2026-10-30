@@ -147,7 +147,7 @@ pub fn tracked_files() -> Result<Vec<String>, Report> {
 /// Lists the entries of the repository-relative `dir` as `(path, is_directory)`.
 ///
 /// Git's own directory and the build directory are left out.
-fn entries(dir: &str) -> Result<Vec<(String, bool)>, Report> {
+pub fn entries(dir: &str) -> Result<Vec<(String, bool)>, Report> {
     let failed = |error: std::io::Error| Report(format!("{dir}: {error}"));
     let mut found = Vec::new();
     for entry in std::fs::read_dir(Path::new(ROOT).join(dir)).map_err(failed)? {
@@ -191,6 +191,25 @@ pub fn split_frontmatter<'a>(path: &str, text: &'a str) -> Result<(&'a str, &'a 
         (Some(_), Some(frontmatter), Some(body)) => Ok((frontmatter, body)),
         _ => Err(Report(format!("{path}: no `---` frontmatter"))),
     }
+}
+
+/// Returns groups `1` and `2` of every match of `pattern` in `text`.
+pub fn pairs(pattern: &str, text: &str) -> Result<Vec<(String, String)>, Report> {
+    let pattern = re(pattern)?;
+    Ok(pattern
+        .captures_iter(text)
+        .filter_map(|found| {
+            Some((
+                found.get(1)?.as_str().to_owned(),
+                found.get(2)?.as_str().to_owned(),
+            ))
+        })
+        .collect())
+}
+
+/// Whether the repository-relative `path` exists.
+pub fn exists(path: &str) -> bool {
+    Path::new(ROOT).join(path).exists()
 }
 
 /// Returns `text` without its fenced code blocks.
