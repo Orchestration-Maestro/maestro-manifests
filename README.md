@@ -97,7 +97,7 @@ outside the root. Paths in settings and policy, such as `manifestAreas` and
 
 The common root, `manifests/` itself, holds `package.json`, `CHANGELOG.md` and
 `settings/`. Core, at `manifests/core/`, holds the base prompt, main persona,
-four delegated roles and three workflows. The optional capability at
+four delegated roles, four guard rule files and three workflows. The optional capability at
 `manifests/capabilities/practice/evidence-review/` keeps its native package and
 all six resources together. Documentation lives under `docs/`; CODEOWNERS
 supplies review and catalog attribution. The complete input inventory follows.
@@ -153,6 +153,10 @@ whenever an artifact is added.
 | [`manifests/core/agents/reviewer.md`](manifests/core/agents/reviewer.md) | Shell-free code review: findings with location, cause and fix, and a security pass. |
 | [`manifests/core/agents/scout.md`](manifests/core/agents/scout.md) | Compressed code context and exact source ranges. |
 | [`manifests/core/agents/worker.md`](manifests/core/agents/worker.md) | Test-first implementation in an isolated delegated context, with each command and exit code reported. |
+| [`manifests/core/guards/destructive-commands.yaml`](manifests/core/guards/destructive-commands.yaml) | Confirm rules for recursive removal, `sudo` and mode 777. |
+| [`manifests/core/guards/pii.yaml`](manifests/core/guards/pii.yaml) | Redact rules for social insurance numbers, payment cards, email addresses, phone numbers and IBANs. |
+| [`manifests/core/guards/prompt-injection.yaml`](manifests/core/guards/prompt-injection.yaml) | Block rules for instructions aimed at the agent inside tool output. |
+| [`manifests/core/guards/protected-paths.yaml`](manifests/core/guards/protected-paths.yaml) | Block rules for environment files, the Git folder and installed dependencies. |
 | [`manifests/core/workflows/implement-and-review.yaml`](manifests/core/workflows/implement-and-review.yaml) | Worker, reviewer, worker chain with previous-output passing. |
 | [`manifests/core/workflows/implement.yaml`](manifests/core/workflows/implement.yaml) | Scout, planner, worker chain using original arguments and previous output. |
 | [`manifests/core/workflows/scout-and-plan.yaml`](manifests/core/workflows/scout-and-plan.yaml) | Scout, planner chain that returns a plan without implementing. |
@@ -184,8 +188,8 @@ artifacts; see their separate guides.
 ## Documentation
 
 Start with the [documentation index](docs/index.md), in reading order. It covers
-settings, policy, prompts, instructions, roles, skills, workflows, themes, models,
-extensions, capabilities, ownership, releases, integrity, schemas and the catalog.
+settings, policy, prompts, instructions, roles, skills, workflows, guards, themes,
+models, extensions, capabilities, ownership, releases, integrity, schemas and the catalog.
 It also records the models and extensions exceptions.
 [CONTEXT.md](CONTEXT.md) defines the vocabulary; [development](docs/development.md)
 describes pinned tools, hooks, CI and delivery.
