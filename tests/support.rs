@@ -156,9 +156,14 @@ pub fn read(path: &str) -> Result<String, Report> {
         .map_err(|error| Report(format!("{path}: {error}")))
 }
 
+/// Parses `text`, the content of the file `path`, as JSON.
+pub fn parse_json(path: &str, text: &str) -> Result<serde_json::Value, Report> {
+    serde_json::from_str(text).map_err(|error| Report(format!("{path}: not valid JSON: {error}")))
+}
+
 /// Reads and parses the JSON file at the repository-relative `path`.
 pub fn read_json(path: &str) -> Result<serde_json::Value, Report> {
-    serde_json::from_str(&read(path)?).map_err(|error| Report(format!("{path}: {error}")))
+    parse_json(path, &read(path)?)
 }
 
 /// Copies string literals into owned strings, for comparison with captured text.

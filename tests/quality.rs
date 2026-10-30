@@ -63,7 +63,7 @@ impl Drop for Checkout {
 
 /// Runs Rust formatting, lints and tests in `check`, which CI runs, but not in `content`.
 #[test]
-fn check_runs_the_content_checks_the_rust_gate_and_the_tests_without_recursion() -> Check {
+fn check_runs_the_content_checks_the_rust_checks_and_the_tests_without_recursion() -> Check {
     let mut failures = Failures::default();
     let checkout = Checkout::new()?;
     let commands = [

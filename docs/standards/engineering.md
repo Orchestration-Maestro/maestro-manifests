@@ -37,12 +37,13 @@ review is all that holds a practice. Where neither exists, the rule is
 unsupported here and the page says that too.
 
 - **Content check.** `just check` runs `just content`, which runs the hooks of
-  `.pre-commit-config.yaml` on every tracked file, then `just rust` and `just test`. The job
-  `Required content checks` runs it on each pull request and merge group, on a
+  `.pre-commit-config.yaml` on every tracked file, then `just rust` and
+  `just test`. The job `Required content checks` runs it on each pull request and merge group, on a
   hosted `ubuntu-24.04` runner with `contents: read` and no secret. The
   `hygiene-central` ruleset requires that job.
-- **Rust gate.** `just rust` runs `cargo fmt --check` and Clippy with warnings
-  denied. A pull request with an unformatted file or a warning fails the required job.
+- **Rust checks.** `just rust` runs `cargo fmt --check` and Clippy with warnings
+  denied. A pull request with an unformatted file or a warning fails the
+  required job.
 - **Tests.** `just test` runs the Rust test crate with `cargo test --locked`.
   Because `just check` runs it, a pull request that breaks a test fails the
   required job.
@@ -262,9 +263,11 @@ job and no ruleset has a bypass actor. A diff that edits `.pre-commit-config.yam
 of its own.
 
 The tiers are the hook `workspace-check`, which runs `just pre-commit` on the
-staged files at commit, and `just check`, which runs the same hooks on every file
-in the merge-blocking job. Code scanning's weekly scan is the heavy tier. No
-pre-push tier exists, because no check here is heavier than the commit tier.
+staged files at commit, and `just check`, which runs the hooks on every file in
+the merge-blocking job and then `cargo fmt --check`, Clippy and the Rust tests,
+which the commit tier does not run. Code scanning's weekly scan is
+the heavy tier. No pre-push tier exists: `just check` is the heavier tier before
+merge.
 Rulesets and organization settings live as code in the `.github` repository, and
 the Organization drift workflow compares them with GitHub every week. A pull
 request that renames a required check updates the ruleset that requires it in the
@@ -327,9 +330,10 @@ accounts that can merge a release are the last link in that chain.
 checksum and provenance. Action references in
 `.github/workflows/release-please.yml` use full commit SHAs, which the
 organization's Actions policy requires, and `.github/dependabot.yml` proposes
-updates weekly after a seven-day cooldown. The content needs no lockfile:
-`manifests/package.json` lists no dependency. The test crate pins its crates
-exactly in `Cargo.toml` and records them in `Cargo.lock`.
+updates weekly after a seven-day cooldown. `Cargo.lock` pins the test crate's
+dependencies and `manifests/package.json` lists none. `rust-toolchain.toml` pins
+Rust, but rustup downloads the toolchain and the repository pins no checksum for
+it, so ENF-012 has a gap here.
 
 The hook `gitleaks` scans each staged change at commit. It is a local hook and no
 CI job runs it. On the platform, secret scanning with push protection and

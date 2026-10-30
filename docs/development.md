@@ -17,9 +17,10 @@ claim that runtime manifest loading is already a required check.
 
 ## Local checks
 
-Install [mise](https://mise.jdx.dev/), trust the checkout with `mise trust` and
+Install [mise](https://mise.jdx.dev/) and [rustup](https://rustup.rs/), trust the checkout with `mise trust` and
 run `mise exec -- just setup` once. Then run `mise exec -- just check`, which
-runs the content checks, the Rust gate and the tests, before proposing a change.
+runs the content checks, the Rust checks and the tests, before proposing a
+change.
 
 ## Example
 
@@ -33,7 +34,7 @@ setup:
     mise install
     mise exec -- prek install
 
-# Run the content checks, the Rust gate and the tests, as CI does.
+# Run the content checks, the Rust checks and the tests, as CI does.
 check: content rust test
 
 # Run the repository-owned content checks.
