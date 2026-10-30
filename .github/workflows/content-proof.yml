@@ -1,0 +1,11 @@
+name: Content workflow proof
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  content:
+    uses: Orchestration-Maestro/maestro-rust-workflows/.github/workflows/content.yml@ed3ee83bbf9c4793665203e1f4194e87265da85b
