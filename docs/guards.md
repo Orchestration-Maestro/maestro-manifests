@@ -32,7 +32,7 @@ apiVersion: maestro.guards/v1
 rules:
   - id: environment-files
     description: Environment files hold credentials and are never edited by the agent
-    regex: '\.env(?:rc|[.-][^/\\]*)?$'
+    regex: '\.env(?:rc|[.-][^/\\]*)?(?:[/\\]|$)'
     action: block
     appliesTo: [path]
     examples:
@@ -44,6 +44,7 @@ rules:
         - '.envrc'
         - 'config/prod.env'
         - '.env-backup'
+        - 'venv/.env/bin/activate'
       noMatch:
         - 'src/environment.ts'
         - 'docs/env-guide.md'
@@ -172,13 +173,14 @@ does not forbid. The recursive-removal rule also catches flag clusters such as
 **Protected paths** start from the paths of Maestro's shipped protected-paths
 example: environment files, the Git folder and the installed-dependencies
 folder. A rule matches the same paths as the example, plus backslash separators:
-`.git/` and `node_modules/` anywhere in a path, and `.env` at the end of a path
-or followed by `rc`, or by a suffix that starts with `.` or `-`. So `.envrc`, `prod.env`, `.env-backup`
-and a bare `widget.git/` folder are blocked, while `.github/` and `.gitignore`
-pass. The environment rule also blocks a template such as `.env.example`,
-because the expression cannot look ahead to exempt it. Path rules check the
-`path` argument of `write` and `edit` only; they do not see a path inside a
-`bash` command, which only the `command` rules read.
+`.git/` and `node_modules/` anywhere in a path, and `.env` as a whole name, or
+followed by `rc`, or by a suffix that starts with `.` or `-`, as a file or a
+folder. So `.envrc`, `prod.env`, `.env-backup`, a `.env/` folder and a bare
+`widget.git/` folder are blocked, while `.github/` and `.gitignore` pass. The
+environment rule also blocks a template such as `.env.example`, because the
+expression cannot look ahead to exempt it. Path rules check the `path` argument
+of `write` and `edit` only; they do not see a path inside a `bash` command, which
+only the `command` rules read.
 
 **Personal data** is redacted in tool output, assistant text and prompts. The
 rules cover Canadian social insurance numbers, payment card numbers, email
