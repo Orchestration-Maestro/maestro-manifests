@@ -176,7 +176,7 @@ class BaselinePolicy(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(setting(key), explicit.get(key))
         self.assertNotIn("lastChangelogVersion", POLICY.get("locked", []))
-        self.assertEqual(POLICY.get("required"), ["core/agents", "core/workflows"])
+        self.assertEqual(POLICY.get("required"), ["core/agents", "core/guards", "core/workflows"])
 
     def test_personal_ui_is_not_locked(self):
         """Leave presentation, workspace UI and all 72 named bindings editable."""
@@ -204,14 +204,15 @@ class BaselinePolicy(unittest.TestCase):
         self.assertIn("npmCommand", POLICY.get("locked", []))
         self.assertNotIn("npmCommand", SETTINGS)
 
-    def test_core_roles_and_workflows_are_required(self):
-        """Require every core role and workflow, and only paths the release holds."""
+    def test_core_roles_guards_and_workflows_are_required(self):
+        """Require every core role, guard file and workflow, and only paths the release holds."""
         required = POLICY.get("required", [])
         self.assertTrue(required)
         for path in required:
             with self.subTest(path=path):
                 self.assertTrue((MANIFEST / path).exists(), "required path is missing")
         for resource in [*(MANIFEST / "core/agents").glob("*.md"),
+                         *(MANIFEST / "core/guards").glob("*.yaml"),
                          *(MANIFEST / "core/workflows").glob("*.yaml")]:
             relative = resource.relative_to(MANIFEST).as_posix()
             with self.subTest(resource=relative):
