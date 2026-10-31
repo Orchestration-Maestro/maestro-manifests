@@ -83,3 +83,9 @@ fn repository_root_is_defined_once() -> Check {
 fn string_literal_lists_are_copied_only_in_support() -> Check {
     only_in(SUPPORT, r"\|\w+\| \(\*\w+\)\.to_owned\(\)")
 }
+
+/// Loads YAML in one place, which the scorecard and the checks share.
+#[test]
+fn yaml_is_loaded_only_in_reading() -> Check {
+    only_in(READING, r"YamlLoader")
+}
