@@ -224,8 +224,10 @@ workspace presentation settings, `daemon.headlessCols`, `daemon.headlessRows`,
 editable. The `actions` lock forbids local action additions; it does not lock
 those keybindings. Workspace behavior remains locked: SSH configuration, nested
 sessions and `multiplexer.tabBarRight`, which can run periodic commands.
-`holdUncheckedText` is absent from the baseline; guards lock
-it on when they ship.
+`holdUncheckedText` is absent from the baseline. Once a rule targets
+`agent-output` or `tool-output`, Maestro's manifest package sets it to `true`
+and locks it, as [guards](guards.md#what-the-organization-can-lock) says; this
+repository does not author it.
 
 Core skills and instructions wait until the core ships them; then add their
 release-relative paths to `required`. The local-addition locks do not substitute
