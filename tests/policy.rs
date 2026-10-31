@@ -393,8 +393,9 @@ fn personal_ui_is_not_locked() -> Check {
     failures.finish()
 }
 
-/// Leaves `holdUncheckedText` to Maestro's manifest package, which sets and
-/// locks it once a rule targets `agent-output` or `tool-output`.
+/// Leaves `holdUncheckedText` for Maestro's manifest package to set and lock.
+///
+/// The package does so once a rule targets `agent-output` or `tool-output`.
 #[test]
 fn output_holding_waits_for_guards() -> Check {
     let mut failures = Failures::default();
