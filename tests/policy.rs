@@ -397,7 +397,7 @@ fn personal_ui_is_not_locked() -> Check {
 ///
 /// The package does so once a rule targets `agent-output` or `tool-output`.
 #[test]
-fn output_holding_waits_for_guards() -> Check {
+fn output_holding_is_left_to_the_manifest_package() -> Check {
     let mut failures = Failures::default();
     let baseline = Baseline::load()?;
 
