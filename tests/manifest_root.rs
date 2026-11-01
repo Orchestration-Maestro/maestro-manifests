@@ -9,6 +9,8 @@ use crate::support::{
 
 /// The area folders that live under the manifest root.
 const AREAS: [&str; 5] = ["settings", "core", "standards", "languages", "capabilities"];
+/// User and project destinations outside the release checkout.
+const LOCAL_DESTINATIONS: [&str; 3] = ["~/", ".maestro/", ".agents/"];
 /// The files that live directly in the manifest root.
 const COMMON_FILES: [&str; 2] = ["CHANGELOG.md", "package.json"];
 
@@ -230,6 +232,66 @@ fn check_links(failures: &mut Failures, guide: &str) -> Check {
         );
     }
     Ok(())
+}
+
+/// Checks unlinked file spans against the repository and manifest roots, preserving source line numbers.
+fn check_file_spans(failures: &mut Failures, guide: &str, text: &str) -> Check {
+    let links = re(r"\[[^]\n]*\]\([^)]+\)")?;
+    let file = re(r"^(?:[\w.-]+/)+[\w.-]+\.[\w]+$")?;
+    let mut fenced = false;
+    for (number, line) in text.lines().enumerate() {
+        if line.trim_start().starts_with("```") {
+            fenced = !fenced;
+            continue;
+        }
+        if fenced {
+            continue;
+        }
+        for path in captures(r"`([^`\n]+)`", &links.replace_all(line, ""))? {
+            if !file.is_match(&path)
+                || LOCAL_DESTINATIONS
+                    .iter()
+                    .any(|prefix| path.starts_with(prefix))
+            {
+                continue;
+            }
+            failures.require(
+                exists(&path) || exists(&format!("manifests/{path}")),
+                &format!("{guide}:{} `{path}`", number + 1),
+                "file exists in neither the repository nor the manifest root",
+            );
+        }
+    }
+    Ok(())
+}
+
+/// Resolves file references while leaving local destinations and linked captions to their owners.
+#[test]
+fn documentation_file_spans_resolve() -> Check {
+    let mut failures = Failures::default();
+    let mut guides = owned(&["README.md", "CONTEXT.md"]);
+    guides.extend(files("docs", ".md")?);
+
+    for guide in &guides {
+        check_file_spans(&mut failures, guide, &read(guide)?)?;
+    }
+
+    failures.finish()
+}
+
+/// Local destinations are not release files, and links own the validation of their captions.
+#[test]
+fn file_spans_leave_local_destinations_and_link_captions_unchecked() -> Check {
+    let mut failures = Failures::default();
+
+    check_file_spans(
+        &mut failures,
+        "example.md",
+        "`~/custom/file.md` `.maestro/instructions/local.md` `.agents/skills/local.md`\n\
+         [`examples/extensions/hello.rs`](https://example.com/hello.rs)",
+    )?;
+
+    failures.finish()
 }
 
 /// Resolves every link and caption to a file, and none to a moved location.
