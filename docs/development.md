@@ -96,7 +96,9 @@ the same if it remains non-Rust. Neither repository is included yet.
 
 ## Ownership and delivery
 
-Start with a GitHub issue and the triage labels described in [AGENTS.md](../AGENTS.md).
+Start with a GitHub issue and use the shared rules'
+[Triage labels](https://github.com/Orchestration-Maestro/maestro/blob/main/AGENTS.md#triage-labels)
+or the local `cleanup` label in [AGENTS.md](../AGENTS.md#before-editing).
 [CODEOWNERS](../.github/CODEOWNERS) supplies review ownership and the catalog's
 owner lookup. Submit signed conventional commits through a pull request and use
 `gh pr merge --auto` to enter the merge queue after required checks pass.

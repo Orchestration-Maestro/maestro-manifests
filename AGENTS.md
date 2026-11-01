@@ -1,12 +1,13 @@
 # Working in maestro-manifests
 
+Follow [Maestro's shared rules](https://github.com/Orchestration-Maestro/maestro/blob/main/AGENTS.md)
+for work in this repository. They take precedence wherever this file disagrees.
+The sections below cover this repository's tooling, manifest content and
+contributor requirements.
+
 This repository holds public manifest resources; private collections plug in
 from outside it. [README.md](README.md) describes the catalog layout and the
 public/private boundary, and [CONTEXT.md](CONTEXT.md) defines the vocabulary.
-
-This file and [.github/copilot-instructions.md](.github/copilot-instructions.md)
-are written by hand and changed through a pull request. Each rule below states
-what is required and how it is checked.
 
 ## Setup
 
@@ -22,8 +23,7 @@ hooks are installed.
 
 ## Before editing
 
-1. Start from a GitHub issue. Triage it with `needs-triage`, `needs-info`,
-   `ready-for-agent`, `ready-for-human`, `wontfix` or `cleanup` as appropriate.
+1. Start from a GitHub issue and triage it with the shared labels or `cleanup`.
    Checked by: the pull request names its issue.
 2. Read the files the issue names and check their callers before choosing where
    to change behaviour. Keep the change within the issue's scope. Checked by:
@@ -40,8 +40,7 @@ hooks are installed.
   endings, files over 500 KB, case conflicts, shebangs, spelling (`typos`), every
   file against `.editorconfig` (`editorconfig-checker`) and Markdown structure
   (`rumdl`). The organization's required content workflow runs
-  `mise exec -- just check` on every pull request and merge group, and the merge
-  queue waits for it.
+  `mise exec -- just check` on every pull request and merge group.
 - `just rust` runs `cargo fmt --check` and `cargo clippy --all-targets --locked
   -- -D warnings`. Checked by: the required workflow runs it through
   `just check`; report its result in the pull request.
@@ -54,9 +53,8 @@ hooks are installed.
 - `.pre-commit-config.yaml` owns the content checks. The `rust` recipe in the
   `justfile` owns the Rust checks. The Git hooks call `just pre-commit`, which
   runs the content checks on staged files through prek's `manual` stage to avoid
-  calling the Git hook again, and scan the staged change with `gitleaks`. Do not
-  duplicate the checks in CI. Checked by: the required workflow calls only
-  `just check`.
+  calling the Git hook again, and scan the staged change with `gitleaks`. The
+  required workflow calls only `just check`.
 
 ## Documentation
 
@@ -76,8 +74,4 @@ hooks are installed.
   of at most 71 characters and body lines of at most 80. Checked by: the
   commit-msg hooks check the header and the line width; the repository rulesets
   require the conventional header and signed commits on `main`.
-- Push with `timeout 120 git push --no-verify` and open a pull request. Never
-  push directly to `main`. Checked by: the repository rulesets require a pull
-  request, resolved review threads and the content workflow.
-- Merge through the queue with `gh pr merge --auto` once the required checks
-  pass. Checked by: the merge queue.
+- Push with `timeout 120 git push`. Checked by: no check verifies this command.
