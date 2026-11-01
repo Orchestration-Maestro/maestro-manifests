@@ -74,4 +74,4 @@ hooks are installed.
   of at most 71 characters and body lines of at most 80. Checked by: the
   commit-msg hooks check the header and the line width; the repository rulesets
   require the conventional header and signed commits on `main`.
-- Push with `timeout 120 git push`.
+- Push with `timeout 120 git push`. Checked by: no check verifies this command.
