@@ -72,4 +72,7 @@ Follow [Maestro's documentation rules](https://github.com/Orchestration-Maestro/
 
 Follow [Maestro's Git discipline](https://github.com/Orchestration-Maestro/maestro/blob/main/AGENTS.md#test-and-git-discipline).
 
+Checked by: the commit-msg hooks check the header and line width; the repository
+rulesets require conventional, signed commits on `main`.
+
 - Push with `timeout 120 git push`. Checked by: no check verifies this command.
