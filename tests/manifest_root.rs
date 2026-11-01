@@ -10,7 +10,7 @@ use crate::support::{
 /// The area folders that live under the manifest root.
 const AREAS: [&str; 5] = ["settings", "core", "standards", "languages", "capabilities"];
 /// User and project destinations outside the release checkout.
-const LOCAL_DESTINATIONS: [&str; 3] = ["~/", ".maestro/", ".agents/"];
+const LOCAL_DESTINATIONS: [&str; 2] = [".maestro/", ".agents/"];
 /// The files that live directly in the manifest root.
 const COMMON_FILES: [&str; 2] = ["CHANGELOG.md", "package.json"];
 
@@ -311,7 +311,7 @@ fn file_spans_leave_local_destinations_unchecked() -> Check {
     check_file_spans(
         &mut failures,
         "example.md",
-        "`~/custom/file.md` `.maestro/instructions/local.md` `.agents/skills/local.md`",
+        "`.maestro/instructions/local.md` `.agents/skills/local.md`",
         &[],
     )?;
 

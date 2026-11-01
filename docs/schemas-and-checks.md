@@ -43,8 +43,9 @@ index's [exception table](index.md#example-coverage-and-exceptions) can remain
 absent; the check rejects an exception once its file ships. Home and project
 locations starting with `~/`, `.maestro/` or `.agents/` are outside the checkout
 and are not checked. Link captions belong to the link check; directory-valued
-settings and literal code examples are not file references. These are content
-assertions, not runtime execution.
+settings and literal code examples are not file references. Bare file names
+such as `SYSTEM.md` and `models.json` are not checked. These are content assertions,
+not runtime execution.
 
 `just rust` fails on an unformatted file or a Clippy warning. `just test` runs only
 `cargo test --locked` for the repository's one Rust test crate,

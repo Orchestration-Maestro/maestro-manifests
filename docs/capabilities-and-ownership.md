@@ -28,8 +28,8 @@ explains.
 Keep `SYSTEM.md`, the main `maestro` role, models and MCP configuration in core
 only. Review rejects any of these artifacts in another area. A capability can
 include skills, instructions, prompts, roles, workflows, themes and built
-extensions once the corresponding consumer supports them. Do not create empty artifact folders or a `knowledge/` format without a
-consumer.
+extensions once the corresponding consumer supports them. Do not create empty
+artifact folders or a `knowledge/` format without a consumer.
 
 ## Example
 
