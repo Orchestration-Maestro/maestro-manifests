@@ -94,8 +94,10 @@ Language and capability settings cannot set or constrain `manifest`,
 no settings. The manifest must not set `extensions`, `skills`, `prompts` or
 `themes` path arrays; area resource folders supply those inputs. Its `packages`
 entries are required packages. See the governed-key table in [policy](policy.md)
-for the permitted defaults and constraints. Locations and `npmCommand` may
-appear only as the values of matching locks. This baseline locks `npmCommand` unset, preserving the engine default.
+for the permitted defaults and constraints. Every authored location or
+`npmCommand` value must have a matching lock; review compares each value with
+that area's policy, and the manifest loader checks the combination. This
+baseline locks `npmCommand` unset, preserving the engine default.
 Git installs use `install --omit=dev`; an explicit `["npm"]` would use `install`.
 Locations also remain unset at engine defaults.
 Credential values name allowed sources, never secrets. The `anthropic` lock

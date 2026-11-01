@@ -30,13 +30,23 @@ second copy of those checks in a workflow. `just test` runs the
 contributor-command tests in disposable indexes and covers malformed YAML, JSON,
 TOML and staged-versus-untracked behavior. It also checks the authored role
 contracts, chain handoffs, Forge theme tokens, opt-in workflow and their quoted
-documentation examples. It also runs every example of every guard rule and
-checks that the guards page quotes the guard files as written. It also runs the
-[scorecard](scorecard.md) over the release and fails on a name or content
-conflict. It also checks the layout: every manifest artifact sits
-under `manifests/`, CODEOWNERS and the release changelog name paths under it, and
-every documentation link resolves. Those are content assertions, not runtime
-execution.
+documentation examples. The guard tests run every rule's examples and compare
+the guards page's quotes with the files. The [scorecard](scorecard.md) checks
+the release for name and content conflicts.
+
+The layout tests check that every artifact sits under `manifests/`, and that
+CODEOWNERS and the release changelog use that root. Documentation checks resolve
+relative links from each page and check that the index links every guide.
+Unlinked code spans that name files must resolve from the repository root or
+from `manifests/`; failures name the page, line and path. Exact paths in the
+index's [exception table](index.md#example-coverage-and-exceptions) can remain
+absent; the check rejects an exception once its file ships. Home and project
+locations starting with `~/`, `.maestro/` or `.agents/` are outside the checkout
+and are not checked. Link captions belong to the link check; directory-valued
+settings and literal code examples are not file references. Bare file names
+such as `SYSTEM.md` and `models.json` are not checked. These are content assertions,
+not runtime execution.
+
 `just rust` fails on an unformatted file or a Clippy warning. `just test` runs only
 `cargo test --locked` for the repository's one Rust test crate,
 `maestro-manifests-tests`.

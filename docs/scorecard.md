@@ -42,10 +42,13 @@ instructions, prompts, workflows, themes, guard rules and each capability's
 
 Each kind is found where the loaders find it, at the root of an area: `agents/`,
 `instructions/`, `prompts/`, `workflows/`, `themes/`, `guards/` and `skills/`
-under `core/` or under `capabilities/<group>/<name>/`. A file below a skill's
-folder, such as `skills/audit/agents/grader.md`, belongs to the skill and is
-not another artifact. A skill is a `SKILL.md` that no outer `SKILL.md` encloses,
-or a Markdown file directly in `skills/` when `skills/` has no `SKILL.md`. Hidden
+under `manifests/core/` or under `manifests/capabilities/<group>/<name>/`.
+A file below a skill's folder belongs to the skill and is not another artifact:
+for example, a skill named `audit` with a `grader.md` role in its `agents/`
+folder. This example is not a shipped skill.
+
+A skill is a `SKILL.md` that no outer `SKILL.md` encloses, or a Markdown file
+directly in `skills/` when `skills/` has no `SKILL.md`. Hidden
 folders and files, and `node_modules`, are skipped. A skill is named by its
 `name`, or by its folder when it has none or an empty one. A role, workflow,
 theme or capability package with no `name`, or an empty one, fails with "has no

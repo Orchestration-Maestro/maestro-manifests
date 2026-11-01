@@ -59,7 +59,7 @@ No optional area is selected by default.
 
 | Exempt kind or path | Reason | Where to read it |
 | --- | --- | --- |
-| Models (`manifests/core/llm/models.json`) | Not shipped: it would add providers for every release user; keep the full example local instead | [Models](models.md#example) |
+| Models (`manifests/core/llm/models.json`) | The organization can add it under `manifests/core/`; neither the directory nor the file is shipped, because it would add providers for every release user. Keep the full example local instead | [Models](models.md#example) |
 | Extensions (`*.wasm`) | Not shipped: no executable components are added merely for documentation; quote the real external greeting source | [Extensions](extensions.md#example) |
 
 These explicit exceptions let the artifact-index check distinguish an intentional

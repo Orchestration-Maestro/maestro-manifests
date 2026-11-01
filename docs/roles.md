@@ -123,7 +123,8 @@ new roles are not globally forbidden by a role lock.
 
 The main `maestro` role is special: its body appends the persona and its declared
 `tools` limits the main agent's active tools. Main model and thinking defaults
-come from settings, not from that role's frontmatter. Only core may define it.
+come from settings, not from that role's frontmatter. Define the main `maestro`
+role in core only; review checks its location and rejects it in any other area.
 
 ## Usage
 
