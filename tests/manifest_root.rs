@@ -3,12 +3,14 @@
 use std::collections::BTreeSet;
 
 use crate::support::{
-    Check, Failures, Report, captures, entries, exists, files, owned, pairs, re, read, read_json,
-    strip_fences, tracked_files,
+    Check, Failures, Report, Sections, captures, entries, exists, files, owned, pairs, re, read,
+    read_json, strip_fences, tracked_files,
 };
 
 /// The area folders that live under the manifest root.
 const AREAS: [&str; 5] = ["settings", "core", "standards", "languages", "capabilities"];
+/// User and project destinations outside the release checkout.
+const LOCAL_DESTINATIONS: [&str; 2] = [".maestro/", ".agents/"];
 /// The files that live directly in the manifest root.
 const COMMON_FILES: [&str; 2] = ["CHANGELOG.md", "package.json"];
 
@@ -230,6 +232,105 @@ fn check_links(failures: &mut Failures, guide: &str) -> Check {
         );
     }
     Ok(())
+}
+
+/// Checks unlinked file spans against both roots and the documented exceptions, preserving line numbers.
+fn check_file_spans(
+    failures: &mut Failures,
+    guide: &str,
+    text: &str,
+    exceptions: &[String],
+) -> Check {
+    let links = re(r"\[[^]\n]*\]\([^)]+\)")?;
+    let file = re(r"^(?:[\w.-]+/)+[\w.-]+\.[\w]+$")?;
+    let spans = re(r"`([^`\n]+)`")?;
+    let mut fenced = false;
+    for (number, line) in text.lines().enumerate() {
+        if line.trim_start().starts_with("```") {
+            fenced = !fenced;
+            continue;
+        }
+        if fenced {
+            continue;
+        }
+        let unlinked = links.replace_all(line, "");
+        for path in spans
+            .captures_iter(&unlinked)
+            .filter_map(|found| found.get(1).map(|path| path.as_str()))
+        {
+            if !file.is_match(path)
+                || LOCAL_DESTINATIONS
+                    .iter()
+                    .any(|prefix| path.starts_with(prefix))
+            {
+                continue;
+            }
+            failures.require(
+                exists(path)
+                    || exists(&format!("manifests/{path}"))
+                    || exceptions.iter().any(|exception| exception == path),
+                &format!("{guide}:{} `{path}`", number + 1),
+                "file exists in neither the repository nor the manifest root",
+            );
+        }
+    }
+    Ok(())
+}
+
+/// Resolves file references while leaving local destinations and linked captions to their owners.
+#[test]
+fn documentation_file_spans_resolve() -> Check {
+    let mut failures = Failures::default();
+    let mut guides = owned(&["README.md", "CONTEXT.md"]);
+    guides.extend(files("docs", ".md")?);
+    let index = Sections::split(&read("docs/index.md")?, "##")?;
+    let exceptions = captures(
+        r"(?m)^\|[^|\n]*`(manifests/[^`\n]+)`[^|\n]*\|",
+        index.text("Example coverage and exceptions"),
+    )?;
+
+    for path in &exceptions {
+        failures.require(
+            !exists(path),
+            path,
+            "documented exception is no longer absent",
+        );
+    }
+    for guide in &guides {
+        check_file_spans(&mut failures, guide, &read(guide)?, &exceptions)?;
+    }
+
+    failures.finish()
+}
+
+/// Local destinations are not release files.
+#[test]
+fn file_spans_leave_local_destinations_unchecked() -> Check {
+    let mut failures = Failures::default();
+
+    check_file_spans(
+        &mut failures,
+        "example.md",
+        "`.maestro/instructions/local.md` `.agents/skills/local.md`",
+        &[],
+    )?;
+
+    failures.finish()
+}
+
+/// Links own the validation of their captions, including external source paths.
+#[test]
+fn file_spans_leave_link_captions_unchecked() -> Check {
+    let mut failures = Failures::default();
+
+    check_file_spans(
+        &mut failures,
+        "example.md",
+        "[`examples/extensions/hello.rs`](https://example.com/hello.rs)",
+        &[],
+    )?;
+
+    failures.finish()
 }
 
 /// Resolves every link and caption to a file, and none to a moved location.

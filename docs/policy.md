@@ -110,9 +110,11 @@ not a user-overridable preference. `0` means session start only.
 
 ## Locations
 
-Each selected area may contribute `settings/policy.json`. Only common and core
-may set `minimumRelease` or `updateCheckMinutes`. Ownership comes from the
-release's CODEOWNERS, not fields in this file.
+Each selected area can contribute `settings/policy.json`, relative to that area.
+Keep `minimumRelease` and `updateCheckMinutes` in common or core only. Review
+checks the owning area; loading the release must reject either member in a
+language or capability policy. Report that load check separately from content
+checks. Ownership comes from the release's CODEOWNERS, not fields in this file.
 
 ## Format
 
