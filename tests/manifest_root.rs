@@ -3,8 +3,8 @@
 use std::collections::BTreeSet;
 
 use crate::support::{
-    Check, Failures, Report, captures, entries, exists, files, owned, pairs, re, read, read_json,
-    strip_fences, tracked_files,
+    Check, Failures, Report, Sections, captures, entries, exists, files, owned, pairs, re, read,
+    read_json, strip_fences, tracked_files,
 };
 
 /// The area folders that live under the manifest root.
@@ -234,10 +234,16 @@ fn check_links(failures: &mut Failures, guide: &str) -> Check {
     Ok(())
 }
 
-/// Checks unlinked file spans against the repository and manifest roots, preserving source line numbers.
-fn check_file_spans(failures: &mut Failures, guide: &str, text: &str) -> Check {
+/// Checks unlinked file spans against both roots and the documented exceptions, preserving line numbers.
+fn check_file_spans(
+    failures: &mut Failures,
+    guide: &str,
+    text: &str,
+    exceptions: &[String],
+) -> Check {
     let links = re(r"\[[^]\n]*\]\([^)]+\)")?;
     let file = re(r"^(?:[\w.-]+/)+[\w.-]+\.[\w]+$")?;
+    let spans = re(r"`([^`\n]+)`")?;
     let mut fenced = false;
     for (number, line) in text.lines().enumerate() {
         if line.trim_start().starts_with("```") {
@@ -247,8 +253,12 @@ fn check_file_spans(failures: &mut Failures, guide: &str, text: &str) -> Check {
         if fenced {
             continue;
         }
-        for path in captures(r"`([^`\n]+)`", &links.replace_all(line, ""))? {
-            if !file.is_match(&path)
+        let unlinked = links.replace_all(line, "");
+        for path in spans
+            .captures_iter(&unlinked)
+            .filter_map(|found| found.get(1).map(|path| path.as_str()))
+        {
+            if !file.is_match(path)
                 || LOCAL_DESTINATIONS
                     .iter()
                     .any(|prefix| path.starts_with(prefix))
@@ -256,7 +266,9 @@ fn check_file_spans(failures: &mut Failures, guide: &str, text: &str) -> Check {
                 continue;
             }
             failures.require(
-                exists(&path) || exists(&format!("manifests/{path}")),
+                exists(path)
+                    || exists(&format!("manifests/{path}"))
+                    || exceptions.iter().any(|exception| exception == path),
                 &format!("{guide}:{} `{path}`", number + 1),
                 "file exists in neither the repository nor the manifest root",
             );
@@ -271,9 +283,21 @@ fn documentation_file_spans_resolve() -> Check {
     let mut failures = Failures::default();
     let mut guides = owned(&["README.md", "CONTEXT.md"]);
     guides.extend(files("docs", ".md")?);
+    let index = Sections::split(&read("docs/index.md")?, "##")?;
+    let exceptions = captures(
+        r"(?m)^\|[^|\n]*`(manifests/[^`\n]+)`[^|\n]*\|",
+        index.text("Example coverage and exceptions"),
+    )?;
 
+    for path in &exceptions {
+        failures.require(
+            !exists(path),
+            path,
+            "documented exception is no longer absent",
+        );
+    }
     for guide in &guides {
-        check_file_spans(&mut failures, guide, &read(guide)?)?;
+        check_file_spans(&mut failures, guide, &read(guide)?, &exceptions)?;
     }
 
     failures.finish()
@@ -288,6 +312,7 @@ fn file_spans_leave_local_destinations_unchecked() -> Check {
         &mut failures,
         "example.md",
         "`~/custom/file.md` `.maestro/instructions/local.md` `.agents/skills/local.md`",
+        &[],
     )?;
 
     failures.finish()
@@ -302,6 +327,7 @@ fn file_spans_leave_link_captions_unchecked() -> Check {
         &mut failures,
         "example.md",
         "[`examples/extensions/hello.rs`](https://example.com/hello.rs)",
+        &[],
     )?;
 
     failures.finish()

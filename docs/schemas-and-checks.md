@@ -38,7 +38,9 @@ The layout tests check that every artifact sits under `manifests/`, and that
 CODEOWNERS and the release changelog use that root. Documentation checks resolve
 relative links from each page and check that the index links every guide.
 Unlinked code spans that name files must resolve from the repository root or
-from `manifests/`; failures name the page, line and path. Home and project
+from `manifests/`; failures name the page, line and path. Exact paths in the
+index's [exception table](index.md#example-coverage-and-exceptions) can remain
+absent; the check rejects an exception once its file ships. Home and project
 locations starting with `~/`, `.maestro/` or `.agents/` are outside the checkout
 and are not checked. Link captions belong to the link check; directory-valued
 settings and literal code examples are not file references. These are content
