@@ -58,8 +58,8 @@ hooks are installed.
 
 ## Documentation
 
-- Run the humanizer skill on every document you edit. Checked by: the pull
-  request reports it.
+Follow [Maestro's documentation rules](https://github.com/Orchestration-Maestro/maestro/blob/main/AGENTS.md#documentation).
+
 - Keep one spelling per concept, and update [CONTEXT.md](CONTEXT.md) when an issue
   establishes a new term. Checked by: review, and `typos` for spelling.
 - Put no private or vendor content here, and never commit credentials or private
@@ -70,8 +70,9 @@ hooks are installed.
 
 ## Delivery
 
-- Sign each commit with `git commit -S -F <file>`. Give it a conventional header
-  of at most 71 characters and body lines of at most 80. Checked by: the
-  commit-msg hooks check the header and the line width; the repository rulesets
-  require the conventional header and signed commits on `main`.
+Follow [Maestro's Git discipline](https://github.com/Orchestration-Maestro/maestro/blob/main/AGENTS.md#test-and-git-discipline).
+
+Checked by: the commit-msg hooks check the header and line width; the repository
+rulesets require conventional, signed commits on `main`.
+
 - Push with `timeout 120 git push`. Checked by: no check verifies this command.
