@@ -279,16 +279,29 @@ fn documentation_file_spans_resolve() -> Check {
     failures.finish()
 }
 
-/// Local destinations are not release files, and links own the validation of their captions.
+/// Local destinations are not release files.
 #[test]
-fn file_spans_leave_local_destinations_and_link_captions_unchecked() -> Check {
+fn file_spans_leave_local_destinations_unchecked() -> Check {
     let mut failures = Failures::default();
 
     check_file_spans(
         &mut failures,
         "example.md",
-        "`~/custom/file.md` `.maestro/instructions/local.md` `.agents/skills/local.md`\n\
-         [`examples/extensions/hello.rs`](https://example.com/hello.rs)",
+        "`~/custom/file.md` `.maestro/instructions/local.md` `.agents/skills/local.md`",
+    )?;
+
+    failures.finish()
+}
+
+/// Links own the validation of their captions, including external source paths.
+#[test]
+fn file_spans_leave_link_captions_unchecked() -> Check {
+    let mut failures = Failures::default();
+
+    check_file_spans(
+        &mut failures,
+        "example.md",
+        "[`examples/extensions/hello.rs`](https://example.com/hello.rs)",
     )?;
 
     failures.finish()

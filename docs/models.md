@@ -19,8 +19,8 @@ inline example below is not a shipped artifact.
 
 ## Locations
 
-Only core can supply `models.json`, in an `llm` directory under
-`manifests/core/`; this release ships neither the directory nor the file.
+Keep manifest models at `manifests/core/llm/models.json`; review rejects a models
+file in any other area. This release ships neither the directory nor the file.
 The organization adds it when the release needs providers for every user.
 Maestro reads it before the user file at `~/.maestro/agent/models.json`.
 There is no project models file. To try the example without changing the
