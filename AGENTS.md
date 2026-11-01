@@ -23,10 +23,12 @@ hooks are installed.
 
 ## Before editing
 
-1. Read the files the issue names and check their callers before choosing where
+1. Start from a GitHub issue and triage it with the shared labels or `cleanup`.
+   Checked by: the pull request names its issue.
+2. Read the files the issue names and check their callers before choosing where
    to change behaviour. Keep the change within the issue's scope. Checked by:
    review compares the diff with the issue.
-2. Add a failing check at the affected public interface, make the smallest fix,
+3. Add a failing check at the affected public interface, make the smallest fix,
    and run the check again. Save both runs in the issue's evidence. Checked by:
    the pull request reports the failing run and the passing run.
 
