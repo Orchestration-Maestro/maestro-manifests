@@ -3,8 +3,7 @@
 use crate::support::{Check, Failures, Sections, captures, files, re, read, strip_fences};
 
 /// Vague requirements and ownership permissions that need direct wording outside quoted examples.
-const VAGUE_WORDING: &str =
-    r"(?i)\bshould\b|when useful|as needed|ideally|recommended|\bonly\s+(?:core|common and core)\s+may\b";
+const VAGUE_WORDING: &str = r"(?i)\bshould\b|when useful|as needed|ideally|recommended|\bonly\s+(?:core|common and core)\s+may\b";
 
 /// Records every way the guide at `path` fails to show its sections and checks.
 fn check_guide(failures: &mut Failures, path: &str) -> Check {

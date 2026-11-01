@@ -1,10 +1,10 @@
 # Models
 
-A models document defines providers, protocol adapters and model limits. Only
-core may supply manifest `llm/models.json`; this release deliberately supplies
-none, because it would add providers for every user, even without an optional
-capability. Credentials remain local and the complete inline example below is
-not shipped as an artifact.
+A models document defines providers, protocol adapters and model limits. Keep
+manifest models in core only; review rejects a models file in any other area.
+This release ships no models file: it would add providers for every user, even
+without an optional capability. Credentials remain local, and the complete
+inline example below is not a shipped artifact.
 
 ## Contents
 
@@ -19,9 +19,12 @@ not shipped as an artifact.
 
 ## Locations
 
-The manifest path is `manifests/core/llm/models.json`, read before the user file at
-`~/.maestro/agent/models.json`. There is no project models file. To try the
-example without changing the release, put it in your own user models file.
+Only core can supply `models.json`, in an `llm` directory under
+`manifests/core/`; this release ships neither the directory nor the file.
+The organization adds it when the release needs providers for every user.
+Maestro reads it before the user file at `~/.maestro/agent/models.json`.
+There is no project models file. To try the example without changing the
+release, put it in your own user models file.
 See the explicit [artifact-index exception](index.md#example-coverage-and-exceptions).
 
 ## Example
@@ -86,8 +89,8 @@ format supports `openai-completions`, `openai-responses`, `anthropic-messages` a
 `google-generative-ai`. Set an API at provider level or override per model.
 `headers` supplies provider request headers; `compat` describes endpoint-specific
 protocol support. Do not assume every OpenAI-compatible service accepts the
-`developer` role or reasoning effort, hence the explicit compatibility values in
-the example.
+`developer` role or reasoning effort; the example states those compatibility
+values explicitly.
 
 A minimal model needs an `id`; optional values describe display name, reasoning,
 input modalities, context window, maximum output and per-million-token costs.
@@ -104,8 +107,8 @@ names in policy `credentialHeaders`. A noncredential header such as
 `Content-Type: application/json` can remain literal. Command references execute
 locally under ordinary permissions; review them as code.
 
-A `providers` lock ignores the user model file with a diagnostic and refuses extension provider
-registration.
+A `providers` lock ignores the user model file with a diagnostic and refuses
+extension provider registration.
 
 Policy `models` constrains every selection path: defaults, flags, `/model`,
 cycling, RPC, SDK, extension calls and restored sessions. `enabledModels` is

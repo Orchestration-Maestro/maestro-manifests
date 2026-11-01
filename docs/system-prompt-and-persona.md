@@ -3,7 +3,8 @@
 `manifests/core/SYSTEM.md` is the manifest's base system prompt. The body of
 `manifests/core/agents/maestro.md` is the main agent's persona, appended to that base.
 Neither file is an instruction selector or a replacement for project context.
-Only core may supply these two artifacts.
+Keep both artifacts in core only. Review checks their locations and rejects
+manifest base prompts or main personas in other areas.
 
 ## Contents
 

@@ -1,9 +1,9 @@
 # Capabilities and ownership
 
-A capability is one opt-in package at `manifests/capabilities/<group>/<name>/`, bundling a
-team's authored resources. The group is navigation, not a settings layer, and
-ownership comes from the release's CODEOWNERS. Maestro reads these paths, not
-GitHub repository properties.
+A capability is one opt-in package at `manifests/capabilities/<group>/<name>/`
+that holds a team's authored resources. The group is navigation, not a settings
+layer, and ownership comes from the release's CODEOWNERS. Maestro reads these
+paths, not GitHub repository properties.
 
 ## Contents
 
@@ -21,13 +21,14 @@ GitHub repository properties.
 
 Both group and capability names are lowercase, hyphenated and at most 64
 characters. The example lives at `manifests/capabilities/practice/evidence-review/`.
-The separately maintained security capability is not included here; this
-revision does not copy that lane's branch or claim its migration is complete.
+The security capability lives at `manifests/capabilities/security/maestro-security/`;
+its assessment runner is installed separately, as [the layout](../README.md#layout)
+explains.
 
-Only core may contain `SYSTEM.md`, the main `maestro` role, models or MCP
-configuration. A capability can include skills, instructions, prompts, roles,
-workflows, themes and built extensions once the corresponding consumer supports
-them. Do not create empty artifact folders or a `knowledge/` format without a
+Keep `SYSTEM.md`, the main `maestro` role, models and MCP configuration in core
+only. Review rejects any of these artifacts in another area. A capability can
+include skills, instructions, prompts, roles, workflows, themes and built
+extensions once the corresponding consumer supports them. Do not create empty artifact folders or a `knowledge/` format without a
 consumer.
 
 ## Example
@@ -77,10 +78,10 @@ components.
 
 In your own user/project settings, select this pinned manifest. The policy locks
 `manifestAreas`, so the organization adds `capabilities/practice/evidence-review`
-(a path under the manifest root) to it in `manifests/settings/settings.json`. See [settings usage](settings.md#usage). The
-common file leaves the list empty, so this capability is not active merely because
-its files exist in the checkout. An absent area or the short name
-`evidence-review` is not a valid selection.
+(a path under the manifest root) to it in `manifests/settings/settings.json`.
+See [settings usage](settings.md#usage). The common file leaves the list empty,
+so this capability is not active merely because its files exist in the checkout.
+An absent area or the short name `evidence-review` is not a valid selection.
 
 Once selected, invoke `/skill:review-evidence`, use `/explain-change`, delegate to
 `evidence-reviewer`, run the `review-evidence` workflow, or choose `review-dark`.
