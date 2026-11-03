@@ -1,6 +1,9 @@
 //! Checks Maestro's development skill pack without loading it.
 
 use std::collections::BTreeSet;
+use std::path::Path;
+
+use maestro_manifests_tests::ROOT;
 
 use crate::support::{
     Check, Failures, Report, captures, entries, exists, files, git, owned, parse_yaml, read,
@@ -85,7 +88,7 @@ fn targets(text: &str) -> BTreeSet<String> {
         .collect()
 }
 
-/// Whether `target`, an inline link in the pack file `from`, names no file outside the pack.
+/// Whether `target`, an inline link in the pack file `from`, resolves to an existing file inside the pack.
 ///
 /// An in-page anchor, an address and a `mailto:` link need no file.
 fn resolves(from: &str, target: &str) -> bool {
@@ -93,10 +96,13 @@ fn resolves(from: &str, target: &str) -> bool {
         return true;
     }
     let file = target.split('#').next().unwrap_or(target);
-    let Some((base, _)) = from.rsplit_once('/') else {
+    let Some((base, _)) = from
+        .strip_prefix(PACK)
+        .and_then(|inside| inside.rsplit_once('/'))
+    else {
         return false;
     };
-    let mut parts: Vec<&str> = base.split('/').collect();
+    let mut parts: Vec<&str> = base.split('/').filter(|part| !part.is_empty()).collect();
     for part in file.split('/') {
         match part {
             "" | "." => {}
@@ -108,9 +114,8 @@ fn resolves(from: &str, target: &str) -> bool {
             other => parts.push(other),
         }
     }
-    let resolved = parts.join("/");
 
-    resolved.starts_with(&format!("{PACK}/")) && exists(&resolved)
+    !file.is_empty() && Path::new(ROOT).join(PACK).join(parts.join("/")).is_file()
 }
 
 /// Names every skill folder the pack holds, and gives each one its skill file.
@@ -144,9 +149,13 @@ fn skill_frontmatter_matches_its_folder() -> Check {
             continue;
         };
         let described = document["description"].as_str().unwrap_or_default();
-        let held = document["disable-model-invocation"]
-            .as_bool()
-            .unwrap_or(false);
+        let flag = &document["disable-model-invocation"];
+        failures.require(
+            flag.is_badvalue() || flag.as_bool().is_some(),
+            &path,
+            "`disable-model-invocation` is not a boolean",
+        );
+        let held = flag.as_bool().unwrap_or(false);
 
         failures.require_eq(&path, &document["name"].as_str(), &Some(name));
         failures.require(
@@ -177,7 +186,7 @@ fn skill_frontmatter_matches_its_folder() -> Check {
 #[test]
 fn router_names_every_other_skill() -> Check {
     let mut failures = Failures::default();
-    let router = format!("{}/{}/SKILL.md", skills(), "maestro-ask");
+    let router = format!("{}/maestro-ask/SKILL.md", skills());
     let found = targets(&read(&router)?);
     let expected: BTreeSet<String> = names()
         .into_iter()
@@ -252,7 +261,7 @@ fn skill_pack_holds_no_loose_document() -> Check {
 #[test]
 fn skill_pack_checks_reject_broken_controls() -> Check {
     let mut failures = Failures::default();
-    let router = format!("{}/{}/SKILL.md", skills(), "maestro-ask");
+    let router = format!("{}/maestro-ask/SKILL.md", skills());
 
     failures.require_eq(
         "targets",
@@ -264,7 +273,15 @@ fn skill_pack_checks_reject_broken_controls() -> Check {
         "targets",
         "finds a skill in prose without a pointer",
     );
-    for broken in ["missing.md", "../../../../Cargo.toml"] {
+    for broken in [
+        "missing.md",
+        "",
+        "..",
+        "../maestro-ask",
+        "../../../../Cargo.toml",
+        "../../../../../../Cargo.toml",
+        "../../../maestro-skills/skills/maestro-ask/SKILL.md",
+    ] {
         failures.require(
             !resolves(&router, broken),
             broken,
