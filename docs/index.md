@@ -23,7 +23,7 @@ outside it.
 - [Settings](settings.md) - selection, area order and local preferences.
 - [Policy](policy.md) - locks, bounds, required entries and governed keys.
 - [System prompt and persona](system-prompt-and-persona.md) - base text, appends and context.
-- [Capabilities and ownership](capabilities-and-ownership.md) - opt-in bundles and last-match ownership.
+- [Capabilities and ownership](capabilities-and-ownership.md) - capability bundles and last-match ownership.
 
 ## Author artifacts
 

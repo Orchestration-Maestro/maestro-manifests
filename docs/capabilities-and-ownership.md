@@ -1,9 +1,10 @@
 # Capabilities and ownership
 
-A capability is one opt-in package at `manifests/capabilities/<group>/<name>/`
-that holds a team's authored resources. The group is navigation, not a settings
-layer, and ownership comes from the release's CODEOWNERS. Maestro reads these
-paths, not GitHub repository properties.
+A capability is one package at `manifests/capabilities/<group>/<name>/` that
+holds a team's authored resources. The organization selects a capability through
+`manifestAreas`, unless a Maestro release loads it by default. The group is
+navigation, not a settings layer, and ownership comes from the release's
+CODEOWNERS. Maestro reads these paths, not GitHub repository properties.
 
 ## Contents
 
@@ -22,7 +23,9 @@ paths, not GitHub repository properties.
 Both group and capability names are lowercase, hyphenated and at most 64
 characters. The example lives at `manifests/capabilities/practice/evidence-review/`.
 The security capability lives at `manifests/capabilities/security/maestro-security/`;
-its assessment runner is installed separately, as [the layout](../README.md#layout)
+its assessment runner is installed separately. Maestro's development skill pack
+lives at `manifests/capabilities/practice/maestro-skills/`, and Maestro releases
+load it by default, so it needs no selection, as [the layout](../README.md#layout)
 explains.
 
 Keep `SYSTEM.md`, the main `maestro` role, models and MCP configuration in core
@@ -122,6 +125,7 @@ From [`.github/CODEOWNERS`](../.github/CODEOWNERS):
 
 /manifests/capabilities/practice/ @FrancoisLDaigneault
 /manifests/capabilities/practice/evidence-review/ @FrancoisLDaigneault
+/manifests/capabilities/practice/maestro-skills/ @FrancoisLDaigneault
 ```
 
 The approved principal is `@FrancoisLDaigneault`; no unverified team is assigned.
