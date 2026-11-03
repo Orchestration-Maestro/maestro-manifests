@@ -15,6 +15,7 @@ mod quality;
 mod retired_generator;
 mod scorecard;
 mod security_capability;
+mod skill_pack;
 mod standards_pages;
 mod support;
 mod system_prompt;
