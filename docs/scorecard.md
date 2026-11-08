@@ -91,15 +91,16 @@ things in one scope. This waits on a definition, tracked in
 ## Size budget
 
 Size counts the lines of the artifact's main file: `SKILL.md` for a skill, the
-file itself for every other kind. Linked pages do not count, so moving detail
-into one lowers the score. Each kind has one budget:
+guard file for a guard rule, the file itself for every other kind. Linked pages
+do not count, so moving detail into one shortens the main file. Each kind has
+one budget:
 
 | Kind | Lines |
 | --- | --- |
 | `skill` | 150 |
 | `role` | 150 |
 | `instruction` | 100 |
-| `guard-file` | 100 |
+| `guard-rule` | 100 |
 | `theme` | 100 |
 | `prompt` | 60 |
 | `workflow` | 60 |

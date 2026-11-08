@@ -6,7 +6,7 @@ use maestro_manifests_tests::scorecard::report;
 use serde_json::json;
 
 use crate::support::{
-    Check, Failures, Report, Sections, entries, pairs, parse_yaml, read, read_json,
+    Check, Failures, Report, Sections, captures, entries, pairs, parse_yaml, read, read_json,
 };
 
 /// The folder holding one mini release and its `expected.json` per case.
@@ -59,11 +59,8 @@ fn this_release_has_no_conflicts() -> Check {
     failures.finish()
 }
 
-/// The scorecard page's size budget table lists the kinds and line counts that
-/// `manifests/settings/size-budget.yaml` holds.
-#[test]
-fn the_size_budget_table_matches_the_budget_file() -> Check {
-    let path = "manifests/settings/size-budget.yaml";
+/// The kinds and line counts of `manifests/settings/size-budget.yaml`, sorted.
+fn size_budget(path: &str) -> Result<Vec<(String, String)>, Report> {
     let text = read(path)?;
     let documents = parse_yaml(path, &text)?;
     let mut budget: Vec<(String, String)> = documents
@@ -77,6 +74,15 @@ fn the_size_budget_table_matches_the_budget_file() -> Check {
         })
         .unwrap_or_default();
     budget.sort();
+    Ok(budget)
+}
+
+/// The scorecard page's size budget table lists the kinds and line counts that
+/// `manifests/settings/size-budget.yaml` holds.
+#[test]
+fn the_size_budget_table_matches_the_budget_file() -> Check {
+    let path = "manifests/settings/size-budget.yaml";
+    let budget = size_budget(path)?;
 
     let page = read("docs/scorecard.md")?;
     let sections = Sections::split(&page, "##")?;
@@ -89,5 +95,25 @@ fn the_size_budget_table_matches_the_budget_file() -> Check {
     let mut failures = Failures::default();
     failures.require(!budget.is_empty(), path, "lists no kind");
     failures.require_eq("docs/scorecard.md `Size budget` table", &table, &budget);
+    failures.finish()
+}
+
+/// Every artifact kind the scorecard reports has a line budget under its own name.
+#[test]
+fn every_kind_the_scorecard_reports_has_a_size_budget() -> Check {
+    let budget = size_budget("manifests/settings/size-budget.yaml")?;
+    let mut failures = Failures::default();
+
+    for (case, _) in entries(CASES)? {
+        let expected = read(&format!("{case}/expected.json"))?;
+        for kind in captures(r#""artifactKind": "([a-z-]+)""#, &expected)? {
+            failures.require(
+                budget.iter().any(|(name, _)| *name == kind),
+                &case,
+                &format!("kind `{kind}` has no size budget"),
+            );
+        }
+    }
+
     failures.finish()
 }

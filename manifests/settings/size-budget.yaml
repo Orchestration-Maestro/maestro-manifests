@@ -3,7 +3,7 @@
 skill: 150
 role: 150
 instruction: 100
-guard-file: 100
+guard-rule: 100
 theme: 100
 prompt: 60
 workflow: 60
