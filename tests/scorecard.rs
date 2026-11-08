@@ -5,7 +5,9 @@ use maestro_manifests_tests::ROOT;
 use maestro_manifests_tests::scorecard::report;
 use serde_json::json;
 
-use crate::support::{Check, Failures, Report, entries, read_json};
+use crate::support::{
+    Check, Failures, Report, Sections, entries, pairs, parse_yaml, read, read_json,
+};
 
 /// The folder holding one mini release and its `expected.json` per case.
 const CASES: &str = "tests/scorecard_cases";
@@ -54,5 +56,38 @@ fn this_release_has_no_conflicts() -> Check {
         &json!({"status": "pass", "conflicts": []}),
     );
 
+    failures.finish()
+}
+
+/// The scorecard page's size budget table lists the kinds and line counts that
+/// `manifests/settings/size-budget.yaml` holds.
+#[test]
+fn the_size_budget_table_matches_the_budget_file() -> Check {
+    let path = "manifests/settings/size-budget.yaml";
+    let text = read(path)?;
+    let documents = parse_yaml(path, &text)?;
+    let mut budget: Vec<(String, String)> = documents
+        .first()
+        .and_then(|document| document.as_hash())
+        .map(|map| {
+            map.iter()
+                .filter_map(|(kind, lines)| Some((kind.as_str()?, lines.as_i64()?)))
+                .map(|(kind, lines)| (kind.to_owned(), lines.to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+    budget.sort();
+
+    let page = read("docs/scorecard.md")?;
+    let sections = Sections::split(&page, "##")?;
+    let mut table = pairs(
+        r"(?m)^\| `([a-z-]+)` \| (\d+) \|$",
+        sections.text("Size budget"),
+    )?;
+    table.sort();
+
+    let mut failures = Failures::default();
+    failures.require(!budget.is_empty(), path, "lists no kind");
+    failures.require_eq("docs/scorecard.md `Size budget` table", &table, &budget);
     failures.finish()
 }

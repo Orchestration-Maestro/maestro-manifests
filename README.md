@@ -242,6 +242,7 @@ whenever an artifact is added.
 | [`manifests/package.json`](manifests/package.json) | Common native package record; no independent npm version. |
 | [`manifests/settings/policy.json`](manifests/settings/policy.json) | The baseline: locks, bounds, allowed models, required core resources and the release-check interval. |
 | [`manifests/settings/settings.json`](manifests/settings/settings.json) | The values the locks fix: default model and thinking level, telemetry off, images blocked, no optional areas and no automatic optional updates. |
+| [`manifests/settings/size-budget.yaml`](manifests/settings/size-budget.yaml) | Lines allowed in an artifact's main file, by kind, for the scorecard Size score. |
 | [`version.txt`](version.txt) | Release Please version record for the shared Git release. |
 
 ## How composition works

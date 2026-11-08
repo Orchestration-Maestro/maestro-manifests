@@ -1,0 +1,9 @@
+# Lines allowed in an artifact's main file, by kind. The scorecard Size score
+# reads these numbers; docs/scorecard.md lists the same table.
+skill: 150
+role: 150
+instruction: 100
+guard-file: 100
+theme: 100
+prompt: 60
+workflow: 60
