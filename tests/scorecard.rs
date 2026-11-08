@@ -5,7 +5,9 @@ use maestro_manifests_tests::ROOT;
 use maestro_manifests_tests::scorecard::report;
 use serde_json::json;
 
-use crate::support::{Check, Failures, Report, entries, read_json};
+use crate::support::{
+    Check, Failures, Report, Sections, entries, pairs, parse_yaml, read, read_json,
+};
 
 /// The folder holding one mini release and its `expected.json` per case.
 const CASES: &str = "tests/scorecard_cases";
@@ -54,5 +56,84 @@ fn this_release_has_no_conflicts() -> Check {
         &json!({"status": "pass", "conflicts": []}),
     );
 
+    failures.finish()
+}
+
+/// The kinds and line counts of the budget file at `path`, sorted.
+///
+/// A row whose kind or line count is mistyped is reported, not skipped.
+fn size_budget(path: &str, failures: &mut Failures) -> Result<Vec<(String, String)>, Report> {
+    let text = read(path)?;
+    let documents = parse_yaml(path, &text)?;
+    let rows = documents.first().and_then(|document| document.as_hash());
+    let mut budget: Vec<(String, String)> = Vec::new();
+
+    for (key, lines) in rows.into_iter().flatten() {
+        let Some(kind) = key.as_str() else {
+            failures.require(false, path, &format!("{key:?} is not a kind"));
+            continue;
+        };
+        let Some(lines) = lines.as_i64() else {
+            failures.require(false, path, &format!("`{kind}` is not a line count"));
+            continue;
+        };
+        budget.push((kind.to_owned(), lines.to_string()));
+    }
+
+    budget.sort();
+    Ok(budget)
+}
+
+/// The scorecard page's size budget table lists the kinds and line counts that
+/// `manifests/settings/size-budget.yaml` holds.
+#[test]
+fn the_size_budget_table_matches_the_budget_file() -> Check {
+    let path = "manifests/settings/size-budget.yaml";
+    let mut failures = Failures::default();
+    let budget = size_budget(path, &mut failures)?;
+
+    let page = read("docs/scorecard.md")?;
+    let sections = Sections::split(&page, "##")?;
+    let mut table = pairs(
+        r"(?m)^\| `([a-z-]+)` \| (\d+) \|$",
+        sections.text("Size budget"),
+    )?;
+    table.sort();
+
+    failures.require(!budget.is_empty(), path, "lists no kind");
+    failures.require_eq("docs/scorecard.md `Size budget` table", &table, &budget);
+    failures.finish()
+}
+
+/// Every artifact kind the scorecard reports has a line budget under its own name.
+///
+/// The kinds come from the conflicts the cases expect, so a kind that no case
+/// reports goes unchecked; a capability conflict names no kind.
+#[test]
+fn every_kind_the_scorecard_reports_has_a_size_budget() -> Check {
+    let mut failures = Failures::default();
+    let budget = size_budget("manifests/settings/size-budget.yaml", &mut failures)?;
+    let mut found = 0;
+
+    for (case, _) in entries(CASES)? {
+        let expected = read_json(&format!("{case}/expected.json"))?;
+        let conflicts = expected["conflicts"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default();
+        for conflict in &conflicts {
+            let Some(kind) = conflict["artifactKind"].as_str() else {
+                continue;
+            };
+            found += 1;
+            failures.require(
+                budget.iter().any(|(name, _)| *name == kind),
+                &case,
+                &format!("kind `{kind}` has no size budget"),
+            );
+        }
+    }
+
+    failures.require(found > 0, CASES, "reports no artifact kind");
     failures.finish()
 }

@@ -10,11 +10,12 @@ also separates what runs today from what waits on another component.
 1. [The card](#the-card)
 2. [Conflicts that block](#conflicts-that-block)
 3. [Scores that advise](#scores-that-advise)
-4. [Improve a score](#improve-a-score)
-5. [Workspace and workzone alignment](#workspace-and-workzone-alignment)
-6. [What runs today](#what-runs-today)
-7. [What the organization can lock](#what-the-organization-can-lock)
-8. [Check a change](#check-a-change)
+4. [Size budget](#size-budget)
+5. [Improve a score](#improve-a-score)
+6. [Workspace and workzone alignment](#workspace-and-workzone-alignment)
+7. [What runs today](#what-runs-today)
+8. [What the organization can lock](#what-the-organization-can-lock)
+9. [Check a change](#check-a-change)
 
 ## The card
 
@@ -29,7 +30,7 @@ value and the next action that raises it.
 | Checkability | Share of rules that say how they are checked | Advice |
 | Alignment | Golden rules, workspace and workzone, CODEOWNERS | Advice |
 | Voice | Maestro's voice lint | Advice |
-| Size | Length against the artifact's budget | Advice |
+| Size | Lines of the main file against the budget for its kind | Advice |
 | Benchmark | One headless test per changed skill or role | Advice |
 
 ## Conflicts that block
@@ -84,8 +85,34 @@ things in one scope. This waits on a definition, tracked in
 | Golden rules | Rules that cite an engineering, security or Northstar golden rule | The [standards pages](standards/engineering.md) |
 | Alignment | Whether the capability matches the organization's workspace, workzone and CODEOWNERS teams | The folder path and `.github/CODEOWNERS` |
 | Voice | Findings of Maestro's voice lint | The artifact's text |
-| Size | Length against its budget | The artifact's text |
+| Size | Lines of the main file against the budget for its kind | The artifact's text |
 | Benchmark | Deterministic score of one test per changed skill or role, kept per release so a drop is visible | A headless Maestro run on a local model |
+
+## Size budget
+
+Size counts the lines of the artifact's main file: a skill's `SKILL.md`, or the
+skill's own file when it is a Markdown file directly in `skills/`; the guard
+file for a guard rule; the file itself for every other kind. Linked pages do not
+count, so moving detail into one shortens the main file. Each kind has one
+budget:
+
+| Kind | Lines |
+| --- | --- |
+| `skill` | 150 |
+| `role` | 150 |
+| `instruction` | 100 |
+| `guard-rule` | 100 |
+| `theme` | 100 |
+| `prompt` | 60 |
+| `workflow` | 60 |
+
+A capability has no row: it is a package of other artifacts, not one authored
+file, so Size does not score one.
+
+The score is 100 at or under the budget. Past it, the score falls in a straight
+line to 0 at twice the budget: a 90-line prompt scores 50. The numbers live in
+[`manifests/settings/size-budget.yaml`](../manifests/settings/size-budget.yaml),
+the one file the Size score reads; this table lists the same numbers.
 
 ## Improve a score
 
