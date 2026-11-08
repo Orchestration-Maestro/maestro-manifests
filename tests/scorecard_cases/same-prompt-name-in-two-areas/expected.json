@@ -1,0 +1,14 @@
+{
+  "status": "fail",
+  "conflicts": [
+    {
+      "kind": "same-name",
+      "artifactKind": "prompt",
+      "name": "explain",
+      "artifacts": [
+        "manifests/capabilities/practice/review/prompts/explain.md",
+        "manifests/core/prompts/explain.md"
+      ]
+    }
+  ]
+}

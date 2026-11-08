@@ -90,10 +90,11 @@ things in one scope. This waits on a definition, tracked in
 
 ## Size budget
 
-Size counts the lines of the artifact's main file: `SKILL.md` for a skill, the
-guard file for a guard rule, the file itself for every other kind. Linked pages
-do not count, so moving detail into one shortens the main file. Each kind has
-one budget:
+Size counts the lines of the artifact's main file: a skill's `SKILL.md`, or the
+skill's own file when it is a Markdown file directly in `skills/`; the guard
+file for a guard rule; the file itself for every other kind. Linked pages do not
+count, so moving detail into one shortens the main file. Each kind has one
+budget:
 
 | Kind | Lines |
 | --- | --- |
@@ -104,6 +105,9 @@ one budget:
 | `theme` | 100 |
 | `prompt` | 60 |
 | `workflow` | 60 |
+
+A capability has no row: it is a package of other artifacts, not one authored
+file, so Size does not score one.
 
 The score is 100 at or under the budget. Past it, the score falls in a straight
 line to 0 at twice the budget: a 90-line prompt scores 50. The numbers live in
